@@ -38,7 +38,9 @@ const requiredRootFiles = [
   'LICENSE',
   'package.json',
   '.gitignore',
-  '.github/workflows/ci.yml'
+  '.github/workflows/ci.yml',
+  'index.html',
+  'vercel.json'
 ];
 
 console.log('📋 1. Verifying Root Governance Suite:');

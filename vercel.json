@@ -2,8 +2,10 @@
   "cleanUrls": true,
   "rewrites": [
     { "source": "/", "destination": "/website/index.html" },
+    { "source": "/game", "destination": "/src/index.html" },
+    { "source": "/game/", "destination": "/src/index.html" },
     { "source": "/play", "destination": "/src/index.html" },
-    { "source": "/game", "destination": "/src/index.html" }
+    { "source": "/play/", "destination": "/src/index.html" }
   ],
   "headers": [
     {
@@ -14,8 +16,16 @@
       ]
     },
     {
-      "source": "/(.*).(js|css|png|jpg|svg|ico)",
+      "source": "/(.*).(js|mjs)",
       "headers": [
+        { "key": "Content-Type", "value": "application/javascript; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/(.*).(css)",
+      "headers": [
+        { "key": "Content-Type", "value": "text/css; charset=utf-8" },
         { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
       ]
     }
