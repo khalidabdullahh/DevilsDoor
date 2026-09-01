@@ -40,6 +40,8 @@ const requiredRootFiles = [
   '.gitignore',
   '.github/workflows/ci.yml',
   'index.html',
+  'game/index.html',
+  'play/index.html',
   'vercel.json'
 ];
 

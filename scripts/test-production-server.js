@@ -21,15 +21,18 @@ const MIME_TYPES = {
   '.ico': 'image/x-icon'
 };
 
-// Vercel Rewrite Router Simulation
+// Physical static routing simulation
 function resolveVercelPath(urlPath) {
   const cleanPath = urlPath.split('?')[0];
 
   if (cleanPath === '/' || cleanPath === '') {
-    return path.join(rootDir, 'website', 'index.html');
+    return path.join(rootDir, 'index.html');
   }
-  if (cleanPath === '/game' || cleanPath === '/game/' || cleanPath === '/play' || cleanPath === '/play/') {
-    return path.join(rootDir, 'src', 'index.html');
+  if (cleanPath === '/game' || cleanPath === '/game/') {
+    return path.join(rootDir, 'game', 'index.html');
+  }
+  if (cleanPath === '/play' || cleanPath === '/play/') {
+    return path.join(rootDir, 'play', 'index.html');
   }
 
   // Strip leading slash for relative join
@@ -40,9 +43,9 @@ function resolveVercelPath(urlPath) {
 console.log('🌐 [PRODUCTION VERCEL ROUTING & ASSET VERIFICATION] Testing Endpoints...\n');
 
 const testEndpoints = [
-  { path: '/', expectedType: 'text/html', desc: 'Root Route -> Marketing Website (website/index.html)' },
-  { path: '/game', expectedType: 'text/html', desc: '/game Route -> Game Shell (src/index.html)' },
-  { path: '/play', expectedType: 'text/html', desc: '/play Route -> Game Shell (src/index.html)' },
+  { path: '/', expectedType: 'text/html', desc: 'Root Route -> Marketing Website (index.html)' },
+  { path: '/game', expectedType: 'text/html', desc: '/game Route -> Game Shell (game/index.html)' },
+  { path: '/play', expectedType: 'text/html', desc: '/play Route -> Game Shell (play/index.html)' },
   { path: '/website/css/theme.css', expectedType: 'text/css', desc: 'Theme Stylesheet' },
   { path: '/website/css/website.css', expectedType: 'text/css', desc: 'Website Stylesheet' },
   { path: '/website/js/website.js', expectedType: 'application/javascript', desc: 'Website Script' },

@@ -1,10 +1,5 @@
 {
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/", "destination": "/website/index.html" },
-    { "source": "/game", "destination": "/src/index.html" },
-    { "source": "/play", "destination": "/src/index.html" }
-  ],
   "headers": [
     {
       "source": "/(.*)",
