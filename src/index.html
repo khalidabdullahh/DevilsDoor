@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Devil's Door — Reach The Door. Trust Nothing.</title>
+  <meta name="description" content="A 2.5D deceptive platformer from the creators of Aurex. Reach the door. Trust nothing." />
+  <meta name="theme-color" content="#0c0f17" />
+  <link rel="stylesheet" href="css/game.css" />
+</head>
+<body>
+  <div id="game-container">
+    <!-- Main Game Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Top HUD Overlay -->
+    <header id="game-hud" class="hud-overlay">
+      <div class="hud-left">
+        <span class="hud-brand">DEVIL'S DOOR</span>
+        <span id="level-display" class="hud-badge">LEVEL 01</span>
+      </div>
+      <div class="hud-center">
+        <span id="level-title" class="hud-title">The First Assumption</span>
+      </div>
+      <div class="hud-right">
+        <div class="hud-deaths">
+          <span class="death-icon">💀</span>
+          <span id="death-count">0</span>
+        </div>
+        <button id="btn-restart" class="hud-btn" title="Restart Level (R)" aria-label="Restart Level">↻</button>
+        <button id="btn-audio" class="hud-btn" title="Toggle Audio" aria-label="Toggle Audio">🔊</button>
+        <button id="btn-menu" class="hud-btn" title="Pause Menu (Esc)" aria-label="Pause Menu">⏸</button>
+      </div>
+    </header>
+
+    <!-- Cinematic Intro Overlay -->
+    <div id="intro-overlay" class="intro-screen active">
+      <div class="intro-backdrop"></div>
+      <div class="intro-content">
+        <p id="intro-line-1" class="intro-text fade-in-out">FROM THE CREATORS OF AUREX</p>
+        <h1 id="intro-title" class="intro-title glow-text">DEVIL'S DOOR</h1>
+        <p id="intro-line-2" class="intro-subtext">YOUR OBJECTIVE IS SIMPLE.</p>
+        <p id="intro-line-3" class="intro-subtext highlight">REACH THE DOOR.</p>
+        <p id="intro-line-4" class="intro-subtext sinister pulse">TRUST NOTHING.</p>
+      </div>
+      <button id="btn-skip-intro" class="intro-skip-btn">SKIP INTRO ➔</button>
+    </div>
+
+    <!-- Mobile Touch Controls Overlay -->
+    <div id="touch-controls" class="touch-overlay">
+      <div class="touch-dpad">
+        <button id="touch-left" class="touch-btn dpad-btn" aria-label="Move Left">◀</button>
+        <button id="touch-right" class="touch-btn dpad-btn" aria-label="Move Right">▶</button>
+      </div>
+      <div class="touch-actions">
+        <button id="touch-jump" class="touch-btn jump-btn" aria-label="Jump">JUMP</button>
+      </div>
+    </div>
+
+    <!-- Pause & Victory Modal Overlay -->
+    <div id="modal-overlay" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <h2 id="modal-title" class="modal-heading">PAUSED</h2>
+        <p id="modal-description" class="modal-body">Press Resume to continue your ascent through the Devil's Domain.</p>
+        <div class="modal-actions">
+          <button id="btn-modal-primary" class="btn-primary">RESUME</button>
+          <button id="btn-modal-restart" class="btn-secondary">RESTART LEVEL</button>
+          <button id="btn-modal-home" class="btn-secondary">EXIT TO MENU</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts: Native ECMAScript Modules -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

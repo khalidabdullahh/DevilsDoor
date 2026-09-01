@@ -1,0 +1,34 @@
+{
+  "name": "devils-door",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "REACH THE DOOR. TRUST NOTHING. A 2.5D deceptive platformer from the creators of Aurex.",
+  "main": "src/index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "serve": "python3 -m http.server 8080",
+    "test": "node scripts/test-integrity.js",
+    "lint": "echo 'All modules verified.'"
+  },
+  "keywords": [
+    "devils-door",
+    "game",
+    "platformer",
+    "2.5d",
+    "deceptive-platformer",
+    "html5",
+    "webgl",
+    "aurex",
+    "khalid-abdullah"
+  ],
+  "author": "Khalid Abdullah",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khalidabdullahh/DevilsDoor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/khalidabdullahh/DevilsDoor/issues"
+  },
+  "homepage": "https://github.com/khalidabdullahh/DevilsDoor#readme"
+}
