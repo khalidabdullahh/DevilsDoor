@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "python3 -m http.server 8080",
     "serve": "python3 -m http.server 8080",
+    "build": "node scripts/test-integrity.js",
     "test": "node scripts/test-integrity.js",
     "lint": "echo 'All modules verified.'"
   },
