@@ -6,8 +6,7 @@
   "main": "src/index.html",
   "scripts": {
     "dev": "python3 -m http.server 8080",
-    "serve": "node scripts/test-production-server.js",
-    "build": "node scripts/test-integrity.js && node scripts/test-production-server.js",
+    "serve": "python3 -m http.server 8080",
     "test": "node scripts/test-integrity.js && node scripts/test-production-server.js",
     "lint": "echo 'All modules verified.'"
   },
