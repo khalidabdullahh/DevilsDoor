@@ -44,16 +44,81 @@
       </div>
     </header>
 
-    <!-- Mobile Touch Controls Overlay (Ninja Arashi 2 Layout) -->
+    <!-- Mobile Touch Controls Overlay with Authentic Ninja Arashi Artwork Logos -->
     <div id="touch-controls" class="touch-overlay">
       <div class="touch-dpad">
-        <button id="touch-left" class="touch-btn dpad-btn" aria-label="Move Left">◀</button>
-        <button id="touch-right" class="touch-btn dpad-btn" aria-label="Move Right">▶</button>
+        <!-- Move Left: Ninja Running Left Logo -->
+        <button id="touch-left" class="touch-btn dpad-btn" aria-label="Move Left" title="Move Left">
+          <svg viewBox="0 0 48 48" width="38" height="38" class="btn-icon">
+            <path d="M40 16 L34 24 L40 32" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+            <path d="M34 16 L28 24 L34 32" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <ellipse cx="18" cy="14" rx="9" ry="3.5" fill="#f8fafc"/>
+            <circle cx="18" cy="15" r="4" fill="#f8fafc"/>
+            <rect x="14" y="14.5" width="4" height="1.5" fill="#38bdf8"/>
+            <path d="M14 18 L22 18 L19 28 L11 28 Z" fill="#f8fafc"/>
+            <path d="M12 27 L6 36 L11 38 L15 30 Z" fill="#f8fafc"/>
+            <path d="M18 27 L25 33 L22 36 L15 30 Z" fill="#f8fafc"/>
+            <path d="M22 17 Q 32 15, 36 22 Q 28 20, 20 19 Z" fill="#ef4444"/>
+          </svg>
+        </button>
+
+        <!-- Move Right: Ninja Running Right Logo -->
+        <button id="touch-right" class="touch-btn dpad-btn" aria-label="Move Right" title="Move Right">
+          <svg viewBox="0 0 48 48" width="38" height="38" class="btn-icon">
+            <path d="M8 16 L14 24 L8 32" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+            <path d="M14 16 L20 24 L14 32" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <ellipse cx="30" cy="14" rx="9" ry="3.5" fill="#f8fafc"/>
+            <circle cx="30" cy="15" r="4" fill="#f8fafc"/>
+            <rect x="30" y="14.5" width="4" height="1.5" fill="#38bdf8"/>
+            <path d="M26 18 L34 18 L37 28 L29 28 Z" fill="#f8fafc"/>
+            <path d="M36 27 L42 36 L37 38 L33 30 Z" fill="#f8fafc"/>
+            <path d="M30 27 L23 33 L26 36 L33 30 Z" fill="#f8fafc"/>
+            <path d="M26 17 Q 16 15, 12 22 Q 20 20, 28 19 Z" fill="#ef4444"/>
+          </svg>
+        </button>
       </div>
+
       <div class="touch-actions">
-        <button id="touch-shuriken" class="touch-btn action-btn shuriken-btn" aria-label="Throw Shuriken">✦</button>
-        <button id="touch-attack" class="touch-btn action-btn attack-btn" aria-label="Dash Slash">SLASH</button>
-        <button id="touch-jump" class="touch-btn action-btn jump-btn" aria-label="Jump">JUMP</button>
+        <!-- Shuriken: 4-Pointed Ninja Star Logo -->
+        <button id="touch-shuriken" class="touch-btn action-btn shuriken-btn" aria-label="Throw Shuriken" title="Throw Shuriken">
+          <svg viewBox="0 0 48 48" width="38" height="38" class="btn-icon">
+            <g transform="translate(24,24)">
+              <path d="M0 -20 L4 -6 L18 -18 L6 -4 L20 0 L6 4 L18 18 L4 6 L0 20 L-4 6 L-18 18 L-6 4 L-20 0 L-6 -4 L-18 -18 L-4 -6 Z" fill="#c084fc"/>
+              <path d="M0 -20 L4 -6 L0 0 L-4 -6 Z" fill="#e9d5ff" opacity="0.6"/>
+              <path d="M20 0 L6 4 L0 0 L6 -4 Z" fill="#e9d5ff" opacity="0.6"/>
+              <path d="M0 20 L-4 6 L0 0 L4 6 Z" fill="#e9d5ff" opacity="0.6"/>
+              <path d="M-20 0 L-6 -4 L0 0 L-6 4 Z" fill="#e9d5ff" opacity="0.6"/>
+              <circle cx="0" cy="0" r="4.5" fill="#0f172a"/>
+              <circle cx="0" cy="0" r="4.5" stroke="#c084fc" stroke-width="1.5" fill="none"/>
+            </g>
+          </svg>
+        </button>
+
+        <!-- Slash: Curved Katana Blade Slash Arc Logo -->
+        <button id="touch-attack" class="touch-btn action-btn attack-btn" aria-label="Dash Slash" title="Dash Slash">
+          <svg viewBox="0 0 48 48" width="42" height="42" class="btn-icon">
+            <path d="M8 38 C 14 20, 26 10, 40 8 C 30 18, 18 32, 8 38 Z" fill="#fbbf24" opacity="0.45"/>
+            <path d="M10 36 C 18 20, 28 12, 38 10" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <path d="M14 32 C 22 18, 30 14, 36 12" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <line x1="6" y1="42" x2="11" y2="35" stroke="#f8fafc" stroke-width="4.5" stroke-linecap="round"/>
+            <circle cx="11" cy="35" r="3.5" fill="#f59e0b"/>
+            <circle cx="39" cy="9" r="2.5" fill="#ffffff"/>
+          </svg>
+        </button>
+
+        <!-- Jump: Leaping Acrobat Ninja with Upward Wind Logo -->
+        <button id="touch-jump" class="touch-btn action-btn jump-btn" aria-label="Jump" title="Jump / Double Jump">
+          <svg viewBox="0 0 48 48" width="44" height="44" class="btn-icon">
+            <path d="M24 4 L17 11 L21 11 L21 14 L27 14 L27 11 L31 11 Z" fill="#38bdf8"/>
+            <ellipse cx="24" cy="17" rx="8.5" ry="3.5" fill="#f8fafc"/>
+            <circle cx="24" cy="18" r="4" fill="#f8fafc"/>
+            <rect x="23" y="17.5" width="4" height="1.5" fill="#38bdf8"/>
+            <path d="M20 21 L28 21 L30 29 L24 28 L18 29 Z" fill="#f8fafc"/>
+            <path d="M18 28 L12 34 L16 37 L21 31 Z" fill="#f8fafc"/>
+            <path d="M30 28 L36 34 L32 37 L27 31 Z" fill="#f8fafc"/>
+            <path d="M19 20 Q 11 22, 9 32 Q 13 26, 20 22 Z" fill="#ef4444"/>
+          </svg>
+        </button>
       </div>
     </div>
 

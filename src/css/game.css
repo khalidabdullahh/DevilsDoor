@@ -168,7 +168,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Mobile Touch Controls Overlay (Responsive Ninja Arashi Layout)
+   Mobile Touch Controls Overlay (Responsive Ninja Arashi Artwork Buttons)
    ========================================================================== */
 .touch-overlay {
   position: absolute;
@@ -190,7 +190,7 @@ html, body {
 .touch-btn {
   pointer-events: auto;
   touch-action: none;
-  background: rgba(14, 19, 29, 0.75);
+  background: rgba(14, 19, 29, 0.8);
   border: 2px solid rgba(255, 255, 255, 0.25);
   color: var(--text-primary);
   display: flex;
@@ -201,14 +201,21 @@ html, body {
   -webkit-backdrop-filter: blur(10px);
   transition: transform 0.08s ease, background 0.08s ease, border-color 0.08s ease;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  padding: 0;
+}
+
+.btn-icon {
+  width: 70%;
+  height: 70%;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  transition: transform 0.08s ease;
 }
 
 .dpad-btn {
-  width: clamp(62px, 11vw, 76px);
-  height: clamp(62px, 11vw, 76px);
+  width: clamp(64px, 12vw, 80px);
+  height: clamp(64px, 12vw, 80px);
   border-radius: 20px;
-  font-size: clamp(1.4rem, 2.8vw, 1.7rem);
-  color: #e2e8f0;
 }
 
 .touch-actions {
@@ -228,39 +235,37 @@ html, body {
 }
 
 .jump-btn {
-  width: clamp(72px, 13vw, 86px);
-  height: clamp(72px, 13vw, 86px);
-  background: rgba(56, 189, 248, 0.22);
-  border-color: rgba(56, 189, 248, 0.6);
-  color: var(--accent-cyan);
-  font-size: clamp(0.85rem, 1.8vw, 0.95rem);
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+  width: clamp(74px, 14vw, 90px);
+  height: clamp(74px, 14vw, 90px);
+  background: rgba(56, 189, 248, 0.25);
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.4);
 }
 
 .attack-btn {
-  width: clamp(64px, 11vw, 76px);
-  height: clamp(64px, 11vw, 76px);
-  background: rgba(251, 191, 36, 0.22);
-  border-color: rgba(251, 191, 36, 0.6);
-  color: var(--accent-gold);
-  font-size: clamp(0.75rem, 1.6vw, 0.85rem);
-  box-shadow: 0 0 14px rgba(251, 191, 36, 0.35);
+  width: clamp(66px, 12vw, 80px);
+  height: clamp(66px, 12vw, 80px);
+  background: rgba(251, 191, 36, 0.25);
+  border-color: rgba(251, 191, 36, 0.7);
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.4);
 }
 
 .shuriken-btn {
-  width: clamp(56px, 10vw, 68px);
-  height: clamp(56px, 10vw, 68px);
-  background: rgba(168, 85, 247, 0.22);
-  border-color: rgba(168, 85, 247, 0.6);
-  color: #c084fc;
-  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
-  box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
+  width: clamp(58px, 10vw, 70px);
+  height: clamp(58px, 10vw, 70px);
+  background: rgba(168, 85, 247, 0.25);
+  border-color: rgba(168, 85, 247, 0.7);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.35);
 }
 
 .touch-btn:active, .touch-btn.active {
   transform: scale(0.9);
-  background: rgba(56, 189, 248, 0.4);
+  background: rgba(56, 189, 248, 0.45);
   border-color: #38bdf8;
+}
+
+.touch-btn:active .btn-icon, .touch-btn.active .btn-icon {
+  transform: scale(0.92);
 }
 
 /* ==========================================================================
@@ -397,54 +402,6 @@ html, body {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-/* ==========================================================================
-   Portrait Orientation Overlay (Graceful Cinematic Prompt)
-   ========================================================================== */
-#rotate-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(7, 9, 14, 0.96);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 32px;
-  gap: 18px;
-  z-index: 300;
-}
-
-#rotate-overlay.hidden {
-  display: none;
-}
-
-.rotate-icon {
-  font-size: 3.4rem;
-  animation: rotatePhone 2s ease-in-out infinite;
-}
-
-@keyframes rotatePhone {
-  0%, 10% { transform: rotate(0deg); }
-  50%, 60% { transform: rotate(90deg); }
-  100% { transform: rotate(0deg); }
-}
-
-.rotate-title {
-  font-size: 1.6rem;
-  font-weight: 900;
-  color: var(--accent-gold);
-  letter-spacing: 0.1em;
-}
-
-.rotate-desc {
-  font-size: 1rem;
-  color: var(--text-muted);
-  max-width: 320px;
-  line-height: 1.5;
 }
 
 /* ==========================================================================
