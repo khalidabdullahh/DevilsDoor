@@ -28,10 +28,10 @@ function resolveVercelPath(urlPath) {
     return path.join(rootDir, 'index.html');
   }
   if (cleanPath === '/game' || cleanPath === '/game/') {
-    return path.join(rootDir, 'game', 'index.html');
+    return path.join(rootDir, 'game.html');
   }
   if (cleanPath === '/play' || cleanPath === '/play/') {
-    return path.join(rootDir, 'play', 'index.html');
+    return path.join(rootDir, 'play.html');
   }
 
   const relPath = cleanPath.startsWith('/') ? cleanPath.slice(1) : cleanPath;
@@ -42,23 +42,20 @@ console.log('🌐 [PRODUCTION VERCEL ROUTING & ASSET VERIFICATION] Testing Endpo
 
 const testEndpoints = [
   { path: '/', expectedType: 'text/html', desc: 'Root Route -> Marketing Website (index.html)' },
-  { path: '/game', expectedType: 'text/html', desc: '/game Route -> Game Shell (game/index.html)' },
-  { path: '/play', expectedType: 'text/html', desc: '/play Route -> Game Shell (play/index.html)' },
+  { path: '/game', expectedType: 'text/html', desc: '/game Route -> Game Shell (game.html)' },
+  { path: '/play', expectedType: 'text/html', desc: '/play Route -> Game Shell (play.html)' },
   { path: '/website/css/theme.css', expectedType: 'text/css', desc: 'Theme Stylesheet' },
   { path: '/website/css/website.css', expectedType: 'text/css', desc: 'Website Stylesheet' },
   { path: '/website/js/website.js', expectedType: 'application/javascript', desc: 'Website Script' },
   { path: '/src/css/game.css', expectedType: 'text/css', desc: 'Game Stylesheet' },
   { path: '/src/js/main.js', expectedType: 'application/javascript', desc: 'Main Game Module' },
   { path: '/src/js/core/Game.js', expectedType: 'application/javascript', desc: 'Game Coordinator Module' },
-  { path: '/src/js/core/CinematicCamera3D.js', expectedType: 'application/javascript', desc: 'Cinematic 3D Camera Module' },
-  { path: '/src/js/render/BabylonEngine.js', expectedType: 'application/javascript', desc: 'Babylon 3D Engine Module' },
-  { path: '/src/js/render/Environment3D.js', expectedType: 'application/javascript', desc: '3D Environment & Atmospheric VFX' },
-  { path: '/src/js/entities/NinjaPlayer3D.js', expectedType: 'application/javascript', desc: '3D Ninja Player Entity' },
-  { path: '/src/js/entities/ShadowSentry3D.js', expectedType: 'application/javascript', desc: 'Shadow Sentry 3D Enemy' },
-  { path: '/src/js/entities/DevilDoor3D.js', expectedType: 'application/javascript', desc: '3D Devil Door Entity' },
-  { path: '/src/js/combat/CombatSystem.js', expectedType: 'application/javascript', desc: 'Melee Combat System' },
-  { path: '/src/js/physics/PhysicsWorld3D.js', expectedType: 'application/javascript', desc: '3D Physics World Module' },
-  { path: '/src/js/levels/Level01_3D.js', expectedType: 'application/javascript', desc: 'Level 01 Vertical Slice Module' }
+  { path: '/src/js/core/Camera2D.js', expectedType: 'application/javascript', desc: 'Camera 2D Module' },
+  { path: '/src/js/render/NinjaArashiRenderer.js', expectedType: 'application/javascript', desc: 'Ninja Arashi 2 Parallax Renderer' },
+  { path: '/src/js/entities/NinjaArashiPlayer.js', expectedType: 'application/javascript', desc: 'Ninja Player Entity' },
+  { path: '/src/js/entities/ShadowNinjaEnemy.js', expectedType: 'application/javascript', desc: 'Shadow Ninja Enemy Entity' },
+  { path: '/src/js/entities/Shuriken.js', expectedType: 'application/javascript', desc: 'Shuriken Projectile Module' },
+  { path: '/src/js/levels/Level01_Arashi.js', expectedType: 'application/javascript', desc: 'Level 01 Arashi Benchmark Module' }
 ];
 
 let passed = 0;

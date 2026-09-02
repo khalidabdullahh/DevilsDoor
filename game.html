@@ -3,16 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Devil's Door — 3D Ninja Action-Platformer</title>
-  <meta name="description" content="A 3D dark fantasy ninja action-platformer powered by Babylon.js. Reach the door. Trust nothing." />
+  <title>Devil's Door — Ninja Action-Platformer</title>
+  <meta name="description" content="A dark fantasy silhouette ninja action-platformer. Reach the door. Trust nothing." />
   <meta name="theme-color" content="#07090e" />
   <link rel="stylesheet" href="/src/css/game.css" />
-  <!-- Babylon.js 3D Engine -->
-  <script src="https://cdn.babylonjs.com/babylon.js"></script>
 </head>
 <body>
   <div id="game-container">
-    <!-- Main 3D Babylon Canvas -->
+    <!-- Main Game Canvas -->
     <canvas id="game-canvas"></canvas>
 
     <!-- Top HUD Overlay -->
@@ -36,14 +34,15 @@
       </div>
     </header>
 
-    <!-- Mobile Touch Controls Overlay -->
+    <!-- Mobile Touch Controls Overlay (Ninja Arashi Layout) -->
     <div id="touch-controls" class="touch-overlay">
       <div class="touch-dpad">
         <button id="touch-left" class="touch-btn dpad-btn" aria-label="Move Left">◀</button>
         <button id="touch-right" class="touch-btn dpad-btn" aria-label="Move Right">▶</button>
       </div>
       <div class="touch-actions">
-        <button id="touch-attack" class="touch-btn action-btn attack-btn" aria-label="Attack">SLASH</button>
+        <button id="touch-shuriken" class="touch-btn action-btn shuriken-btn" aria-label="Throw Shuriken">✦</button>
+        <button id="touch-attack" class="touch-btn action-btn attack-btn" aria-label="Dash Slash">SLASH</button>
         <button id="touch-jump" class="touch-btn action-btn jump-btn" aria-label="Jump">JUMP</button>
       </div>
     </div>

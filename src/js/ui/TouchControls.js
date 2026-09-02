@@ -1,5 +1,6 @@
 /**
- * TouchControls — Handles mobile digital thumb-pads with Jump and Attack buttons.
+ * TouchControls — Mobile touch layout for Ninja Arashi 2 controls:
+ * Left/Right on bottom-left, Jump, Slash/Dash, and Shuriken on bottom-right.
  */
 export class TouchControls {
   constructor(inputManager) {
@@ -9,6 +10,7 @@ export class TouchControls {
     this.btnRight = document.getElementById('touch-right');
     this.btnJump = document.getElementById('touch-jump');
     this.btnAttack = document.getElementById('touch-attack');
+    this.btnShuriken = document.getElementById('touch-shuriken');
 
     this.leftDown = false;
     this.rightDown = false;
@@ -39,7 +41,6 @@ export class TouchControls {
         btn.classList.remove('active');
       }, { passive: false });
 
-      // Mouse fallback
       btn.addEventListener('mousedown', (e) => {
         onDown();
         btn.classList.add('active');
@@ -85,6 +86,18 @@ export class TouchControls {
         this.inputManager.setTouchState(this.leftDown, this.rightDown, this.jumpDown, false, false, false);
       }
     );
+
+    if (this.btnShuriken) {
+      setupBtn(
+        this.btnShuriken,
+        () => {
+          this.inputManager.keys.set('KeyK', true);
+        },
+        () => {
+          this.inputManager.keys.set('KeyK', false);
+        }
+      );
+    }
   }
 
   _sync() {

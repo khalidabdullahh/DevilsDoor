@@ -5,9 +5,9 @@ import { TouchControls } from './ui/TouchControls.js';
 import { Game } from './core/Game.js';
 
 /**
- * Main Bootstrap — Initializes Devil's Door V2 (3D Babylon.js Ninja Action-Platformer).
+ * Main Bootstrap — Initializes Devil's Door: Ninja Arashi 2 Visual Benchmark.
  */
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('game-canvas');
   if (!canvas) return;
 
@@ -17,14 +17,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   const touchControls = new TouchControls(inputManager);
   const uiManager = new UIManager(null);
 
-  // 2. Initialize 3D Game Coordinator
+  // 2. Initialize Master Game Coordinator
   const game = new Game(canvas, inputManager, audioManager, uiManager);
   uiManager.game = game;
 
   try {
-    await game.init();
-    console.log('🚪 [DEVIL\'S DOOR V2] 3D Ninja Action-Platformer Running.');
+    game.init();
+    console.log('🚪 [DEVIL\'S DOOR] Ninja Arashi 2 Silhouette Benchmark Running.');
   } catch (err) {
-    console.error('❌ [DEVIL\'S DOOR V2] Failed to initialize Babylon 3D Game:', err);
+    console.error('❌ [DEVIL\'S DOOR] Failed to initialize Ninja Arashi Game:', err);
   }
 });

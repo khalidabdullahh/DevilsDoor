@@ -219,6 +219,13 @@ html, body {
   color: var(--accent-crimson);
 }
 
+.shuriken-btn {
+  background: rgba(168, 85, 247, 0.18);
+  border-color: rgba(168, 85, 247, 0.45);
+  color: #c084fc;
+  font-size: 1.2rem;
+}
+
 .touch-btn:active, .touch-btn.active {
   transform: scale(0.92);
 }

@@ -1,13 +1,11 @@
-import { BabylonEngine } from '../render/BabylonEngine.js';
-import { Environment3D } from '../render/Environment3D.js';
-import { CinematicCamera3D } from './CinematicCamera3D.js';
-import { NinjaPlayer3D } from '../entities/NinjaPlayer3D.js';
-import { CombatSystem } from '../combat/CombatSystem.js';
-import { Level01_3D } from '../levels/Level01_3D.js';
+import { NinjaArashiRenderer } from '../render/NinjaArashiRenderer.js';
+import { Camera2D } from './Camera2D.js';
+import { NinjaArashiPlayer } from '../entities/NinjaArashiPlayer.js';
+import { Level01_Arashi } from '../levels/Level01_Arashi.js';
 import { AnalyticsManager } from './AnalyticsManager.js';
 
 /**
- * Game — 3D Ninja Action-Platformer Master Coordinator for Devil's Door V2.
+ * Game — Master Coordinator for Devil's Door: Ninja Arashi 2 Visual Benchmark.
  */
 export class Game {
   constructor(canvas, inputManager, audioManager, uiManager) {
@@ -16,21 +14,18 @@ export class Game {
     this.audio = audioManager;
     this.ui = uiManager;
 
-    this.engine = null;
-    this.scene = null;
-    this.shadowGenerator = null;
-    this.environment = null;
+    this.renderer = null;
     this.camera = null;
     this.player = null;
-    this.combat = null;
-    this.currentLevel = null;
+    this.level = null;
 
     this.deaths = 0;
     this.isPaused = false;
     this.isTransitioning = false;
     this.deathResetTimer = 0;
+    this.lastTime = 0;
 
-    // Bind input callbacks
+    // Bind callbacks
     this.input.onRestartCallback = () => this.restartLevel();
     this.input.onPauseCallback = () => {
       if (!this.isPaused) this.ui.showPauseModal();
@@ -41,33 +36,15 @@ export class Game {
     };
   }
 
-  async init() {
-    // 1. Initialize Babylon 3D Engine
-    const babylon = await BabylonEngine.create(this.canvas);
-    this.engine = babylon.engine;
-    this.scene = babylon.scene;
-    this.shadowGenerator = babylon.shadowGenerator;
+  init() {
+    this.renderer = new NinjaArashiRenderer(this.canvas);
+    this.camera = new Camera2D(window.innerWidth, window.innerHeight);
+    this.player = new NinjaArashiPlayer(120, 300);
 
-    // 2. Systems
-    this.environment = new Environment3D(this.scene, this.shadowGenerator);
-    this.camera = new CinematicCamera3D(this.scene, this.canvas);
-    this.player = new NinjaPlayer3D(this.scene, this.shadowGenerator, 0, 6.5);
-    this.combat = new CombatSystem(this.scene);
-
-    // 3. Load Level 01 Vertical Slice
     this.loadLevel(1);
 
-    // 4. Start Babylon Render Loop
-    this.engine.runRenderLoop(() => {
-      const dt = Math.min(0.05, this.engine.getDeltaTime() * 0.001);
-
-      if (!this.isPaused && this.currentLevel) {
-        this.update(dt);
-      }
-
-      this.scene.render();
-      this.input.update();
-    });
+    this.lastTime = performance.now();
+    requestAnimationFrame((t) => this._loop(t));
 
     if (this.audio) {
       this.audio.startAmbientDrone();
@@ -75,36 +52,35 @@ export class Game {
   }
 
   loadLevel(levelNumber) {
-    this.currentLevel = new Level01_3D(this.scene, this.shadowGenerator, this.environment);
-
-    this.player.reset(this.currentLevel.playerStartX, this.currentLevel.playerStartY);
-    this.camera.snapTo(this.player.rootMesh.position.x, this.player.rootMesh.position.y);
-    this.camera.setBounds(-4, 48, -4, 18);
+    this.level = new Level01_Arashi();
+    this.player.reset(this.level.playerStartX, this.level.playerStartY);
+    this.camera.snapTo(this.player.x, this.player.y);
+    this.camera.setBounds(0, 1400, 0, 950);
 
     this.isTransitioning = false;
     this.ui.updateHUD(
-      this.currentLevel.id,
+      this.level.id,
       7,
-      this.currentLevel.title,
+      this.level.title,
       this.deaths,
       this.player.health,
       this.player.maxHealth
     );
 
-    AnalyticsManager.track('level_start', { levelId: 1, title: this.currentLevel.title });
+    AnalyticsManager.track('level_start', { levelId: 1, title: this.level.title });
   }
 
   restartLevel() {
-    if (!this.currentLevel) return;
+    if (!this.level) return;
     this.deaths++;
-    this.currentLevel.reset();
-    this.player.reset(this.currentLevel.playerStartX, this.currentLevel.playerStartY);
-    this.camera.snapTo(this.player.rootMesh.position.x, this.player.rootMesh.position.y);
+    this.level.reset();
+    this.player.reset(this.level.playerStartX, this.level.playerStartY);
+    this.camera.snapTo(this.player.x, this.player.y);
 
     this.ui.updateHUD(
-      this.currentLevel.id,
+      this.level.id,
       7,
-      this.currentLevel.title,
+      this.level.title,
       this.deaths,
       this.player.health,
       this.player.maxHealth
@@ -117,31 +93,73 @@ export class Game {
     this.isPaused = paused;
   }
 
+  _loop(timestamp) {
+    const dt = Math.min(0.05, (timestamp - this.lastTime) * 0.001);
+    this.lastTime = timestamp;
+
+    if (!this.isPaused && this.level) {
+      this.update(dt);
+    }
+
+    const camX = this.camera.getCamX();
+    const camY = this.camera.getCamY();
+
+    this.renderer.render(camX, camY, this.level, this.player, this.level.enemies);
+
+    this.input.update();
+    requestAnimationFrame((t) => this._loop(t));
+  }
+
   update(dt) {
-    // 1. Update Player & Animation
-    this.player.update(dt, this.input, this.currentLevel.physicsWorld, this.audio, this.camera);
+    // 1. Update Player & Scarf Physics
+    this.player.update(dt, this.input, this.level, this.audio, this.camera);
 
-    // 2. Resolve Combat Slashes against Active Enemies
-    this.combat.update(this.player, this.currentLevel.enemies, this.audio, this.camera);
+    // 2. Resolve Katana Dash-Slash Hits against Enemies
+    const attackBox = this.player.getAttackBox();
+    if (attackBox) {
+      for (const e of this.level.enemies) {
+        if (e.isDead || e.health <= 0) continue;
+        const eBounds = e.getBounds();
+        const overlaps = (
+          attackBox.x < eBounds.x + eBounds.width &&
+          attackBox.x + attackBox.width > eBounds.x &&
+          attackBox.y < eBounds.y + eBounds.height &&
+          attackBox.y + attackBox.height > eBounds.y
+        );
+        if (overlaps) {
+          e.takeDamage(attackBox.damage, attackBox.facing, this.audio);
+          this.camera.addShake(0.35);
+        }
+      }
+    }
 
-    // 3. Update Level Deception & Enemies
-    this.currentLevel.update(dt, this.player, this.audio, this.camera);
+    // 3. Resolve Shuriken Hits against Enemies
+    for (const s of this.player.shurikens) {
+      if (!s.active) continue;
+      for (const e of this.level.enemies) {
+        if (e.isDead || e.health <= 0) continue;
+        const eBounds = e.getBounds();
+        if (s.x > eBounds.x && s.x < eBounds.x + eBounds.width && s.y > eBounds.y && s.y < eBounds.y + eBounds.height) {
+          s.active = false;
+          e.takeDamage(s.damage, s.vx > 0 ? 1 : -1, this.audio);
+          this.camera.addShake(0.2);
+          break;
+        }
+      }
+    }
 
-    // 4. Update Atmospheric Particles & Lanterns
-    this.environment.update(dt);
+    // 4. Update Level Deception & Enemies
+    this.level.update(dt, this.player, this.audio, this.camera);
 
     // 5. Update Camera Tracking
     this.camera.update(dt, this.player);
 
     // 6. Check Hazards & Pit Deaths
     if (!this.player.isDead) {
-      const px = this.player.rootMesh.position.x;
-      const py = this.player.rootMesh.position.y;
-
-      if (py < -8.0) {
+      if (this.player.y > 900) {
         this.player.kill('abyss_fall', this.audio);
       } else {
-        const hitHazard = this.currentLevel.physicsWorld.checkHazardCollision(px, py, this.player.width, this.player.height);
+        const hitHazard = this.level.checkHazardCollision(this.player.x, this.player.y, this.player.width, this.player.height);
         if (hitHazard) {
           this.player.kill(hitHazard.tag, this.audio);
           this.camera.addShake(0.5);
@@ -149,20 +167,17 @@ export class Game {
       }
     }
 
-    // 7. Check Door Entry & Level Completion
+    // 7. Check Devil's Door Entry & Completion
     if (!this.player.isDead && !this.isTransitioning) {
-      for (const door of this.currentLevel.doors) {
-        if (door.checkPlayerEntered(this.player)) {
-          this.handleLevelComplete();
-          break;
-        }
+      if (this.level.checkDoorEntry(this.player)) {
+        this.handleLevelComplete();
       }
     }
 
     // 8. Fast Respawn Loop (<80ms delay)
     if (this.player.isDead) {
       this.deathResetTimer += dt;
-      if (this.deathResetTimer >= 0.4) {
+      if (this.deathResetTimer >= 0.38) {
         this.deathResetTimer = 0;
         this.restartLevel();
       }
@@ -170,9 +185,9 @@ export class Game {
 
     // 9. Sync HUD Health
     this.ui.updateHUD(
-      this.currentLevel.id,
+      this.level.id,
       7,
-      this.currentLevel.title,
+      this.level.title,
       this.deaths,
       this.player.health,
       this.player.maxHealth
@@ -184,7 +199,6 @@ export class Game {
     this.player.hasWon = true;
 
     if (this.audio) this.audio.playLevelComplete();
-
     AnalyticsManager.track('level_complete', { levelId: 1, deaths: this.deaths });
 
     setTimeout(() => {

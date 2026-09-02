@@ -73,29 +73,26 @@ for (const doc of requiredDocs) {
   assert(fs.existsSync(docPath), `Doc exists: ${doc}`);
 }
 
-// 3. Check Game Source Code Architecture (src/)
+// 3. Check Ninja Arashi 2 Game Source Code Architecture (src/)
 const requiredGameFiles = [
   'src/index.html',
   'src/css/game.css',
   'src/js/main.js',
   'src/js/core/Game.js',
-  'src/js/core/CinematicCamera3D.js',
+  'src/js/core/Camera2D.js',
   'src/js/core/InputManager.js',
   'src/js/core/AudioManager.js',
   'src/js/core/AnalyticsManager.js',
-  'src/js/render/BabylonEngine.js',
-  'src/js/render/Environment3D.js',
-  'src/js/entities/NinjaPlayer3D.js',
-  'src/js/entities/ShadowSentry3D.js',
-  'src/js/entities/DevilDoor3D.js',
-  'src/js/combat/CombatSystem.js',
-  'src/js/physics/PhysicsWorld3D.js',
-  'src/js/levels/Level01_3D.js',
+  'src/js/render/NinjaArashiRenderer.js',
+  'src/js/entities/NinjaArashiPlayer.js',
+  'src/js/entities/ShadowNinjaEnemy.js',
+  'src/js/entities/Shuriken.js',
+  'src/js/levels/Level01_Arashi.js',
   'src/js/ui/UIManager.js',
   'src/js/ui/TouchControls.js'
 ];
 
-console.log('\n🎮 3. Verifying Babylon 3D Game Engine & Modular Codebase (src/):');
+console.log('\n🎮 3. Verifying Ninja Arashi 2 Engine & Modular Codebase (src/):');
 for (const file of requiredGameFiles) {
   const filePath = path.join(rootDir, file);
   assert(fs.existsSync(filePath), `Game module exists: ${file}`);
@@ -115,21 +112,20 @@ for (const file of requiredWebsiteFiles) {
   assert(fs.existsSync(filePath), `Website asset exists: ${file}`);
 }
 
-// 5. Test 3D Physics & Level Math Logic
-console.log('\n🧪 5. Testing 3D Physics Collision Engine & Math Validation:');
+// 5. Test Level 01 Simulation & Collision Math
+console.log('\n🧪 5. Testing Level 01 Collision Resolution & Mechanics:');
 
-import { PhysicsWorld3D } from '../src/js/physics/PhysicsWorld3D.js';
-const testWorld = new PhysicsWorld3D();
-testWorld.addSolid(0, 0, 10, 2, 2, 'ground');
+import { Level01_Arashi } from '../src/js/levels/Level01_Arashi.js';
+const testLevel = new Level01_Arashi();
 
-const moveRes = testWorld.resolveMovement(0, 3, 0.8, 1.8, 0, -2);
-assert(moveRes.grounded === true, 'Player lands on 3D solid ground successfully');
-assert(moveRes.y === 2, 'Player collision resting height is accurately resolved');
+assert(testLevel.solids.length > 0, `Level 01 contains solids (${testLevel.solids.length} solids)`);
+assert(testLevel.bridgePlanks.length === 8, `Level 01 has 8 dynamic collapsing rope bridge planks`);
+assert(testLevel.enemies.length === 1, `Level 01 has 1 Shadow Spearman guard`);
+assert(testLevel.door !== null && testLevel.door.x > 1000, `Level 01 has genuine Devil's Door exit`);
 
-const wallSolid = testWorld.addSolid(6, 2, 2, 4, 2, 'wall');
-const wallRes = testWorld.resolveMovement(4.5, 2, 0.8, 1.8, 2, 0);
-assert(wallRes.collidedX === true, 'Horizontal wall collision correctly detected');
-assert(wallRes.x < 5.0, 'Player position prevented from penetrating solid 3D wall');
+const landingRes = testLevel.resolve2D(120, 200, 32, 54, 0, 200);
+assert(landingRes.grounded === true, `Player lands on starting cliff platform`);
+assert(landingRes.y === 306, `Landing height is precisely resolved (y = 306)`);
 
 console.log(`\n============================================================`);
 console.log(`🎉 Integrity Checks Finished: ${passedChecks}/${totalChecks} PASSED.`);
