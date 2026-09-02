@@ -1,12 +1,11 @@
 /**
- * NinjaArashiRenderer — Clean, Scenic Japanese Twilight & Silhouette Parallax Engine.
- * Features:
- * - Rich, clean Golden Twilight Sky (Indigo to Warm Amber Sunset)
- * - Luminous Full Moon with soft halo
- * - Distant misty mountain ridges & pagoda silhouettes
- * - Clean pitch-black obsidian platforms with warm lantern light halos
- * - Gentle floating cherry blossom petals
- * - Zero visual clutter (removed dense bamboo grids and heavy canopy blobs)
+ * NinjaArashiRenderer — Multi-Biome Master Parallax & Silhouette Engine.
+ * Supports 5 distinct atmospheric biomes:
+ * - 'bamboo': Emerald Teal Mist & vertical bamboo stalks (Screenshots 4 & 5)
+ * - 'cavern': Lilac Violet Caverns with reaching demon claws & pendulum battleaxes (Screenshot 1)
+ * - 'ice': Glacial Ice Blue with hanging icicles & snow mist (Screenshot 5)
+ * - 'desert': Golden Twilight Sunset with campfires & distant peaks (Screenshot 1)
+ * - 'boss': Stormy Cyan-Red Demonic Arena with lightning strikes (Screenshot 2)
  */
 export class NinjaArashiRenderer {
   constructor(canvas) {
@@ -16,9 +15,8 @@ export class NinjaArashiRenderer {
     this.width = canvas.width;
     this.height = canvas.height;
 
-    // Gentle Floating Cherry Blossom Petals & Ember Sparks (Clean, moderate count)
-    this.petals = [];
-    this.numPetals = 22;
+    this.particles = [];
+    this.numParticles = 20;
     this._initParticles();
 
     this.time = 0;
@@ -37,17 +35,16 @@ export class NinjaArashiRenderer {
   }
 
   _initParticles() {
-    for (let i = 0; i < this.numPetals; i++) {
-      this.petals.push({
+    this.particles = [];
+    for (let i = 0; i < this.numParticles; i++) {
+      this.particles.push({
         x: Math.random() * 2000 - 400,
         y: Math.random() * 1200 - 200,
         size: Math.random() * 5 + 3,
-        vx: -Math.random() * 90 - 50,
-        vy: Math.random() * 35 + 25,
+        vx: -Math.random() * 80 - 40,
+        vy: Math.random() * 30 + 20,
         rot: Math.random() * Math.PI * 2,
-        rotSpeed: (Math.random() - 0.5) * 3.0,
-        color: Math.random() > 0.3 ? '#ef4444' : '#fb7185',
-        isEmber: Math.random() > 0.7
+        rotSpeed: (Math.random() - 0.5) * 2.5
       });
     }
   }
@@ -57,92 +54,122 @@ export class NinjaArashiRenderer {
     const ctx = this.ctx;
     const w = this.width;
     const h = this.height;
+    const biome = (level && level.biome) ? level.biome : 'desert';
 
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Clean Golden Sunset & Twilight Sky (Rich, vibrant, not dark/murky)
-    this._drawSky(ctx, w, h);
+    // 1. Biome Sky & Celestial Body
+    this._drawBiomeSky(ctx, biome, w, h);
 
-    // 2. Distant Mountains (0.12x Parallax)
-    this._drawFarMountains(ctx, camX * 0.12, w, h);
+    // 2. Distant Parallax Mountain / Cave Ridges (0.12x)
+    this._drawParallaxLayer1(ctx, biome, camX * 0.12, w, h);
 
-    // 3. Ancient Pagoda & Torii Silhouettes (0.32x Parallax)
-    this._drawMidPagodas(ctx, camX * 0.32, w, h);
+    // 3. Midground Pagodas & Architecture (0.32x)
+    this._drawParallaxLayer2(ctx, biome, camX * 0.32, w, h);
 
-    // 4. Playable World (1.0x Parallax)
+    // 4. Playable World (1.0x)
     ctx.save();
 
-    // Draw Level Platforms, Gnarled Pines, Lanterns & Portal
     if (level) {
-      level.draw(ctx, camX, camY);
+      level.draw(ctx, camX, camY, this.time);
     }
 
-    // Draw Enemies with Health Hearts
     if (enemies) {
       for (const e of enemies) {
         e.draw(ctx, camX, camY);
       }
     }
 
-    // Draw Ninja Player with Flowing Scarf
     if (player) {
       player.draw(ctx, camX, camY);
     }
 
     ctx.restore();
 
-    // 5. Gentle Floating Cherry Blossom Petals
-    this._drawParticles(ctx, w, h);
+    // 5. Ambient Atmospheric Particles (Cherry Blossoms / Snow / Embers)
+    this._drawParticles(ctx, biome, w, h);
   }
 
-  _drawSky(ctx, w, h) {
-    // Beautiful, clean Golden Twilight Sunset Gradient
+  _drawBiomeSky(ctx, biome, w, h) {
     const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
-    skyGrad.addColorStop(0, '#1e1b4b'); // Deep Indigo Night at top
-    skyGrad.addColorStop(0.35, '#3730a3'); // Royal Violet Twilight
-    skyGrad.addColorStop(0.65, '#b45309'); // Warm Amber Sunset
-    skyGrad.addColorStop(0.88, '#d97706'); // Golden Ochre Horizon
-    skyGrad.addColorStop(1, '#f59e0b');
+    let moonColor = '#fef3c7';
+    let moonHalo = 'rgba(254, 243, 199, 0.4)';
+
+    switch (biome) {
+      case 'bamboo':
+        skyGrad.addColorStop(0, '#022c22'); // Deep Emerald
+        skyGrad.addColorStop(0.4, '#064e3b');
+        skyGrad.addColorStop(0.8, '#047857');
+        skyGrad.addColorStop(1, '#059669');
+        moonColor = '#d1fae5';
+        moonHalo = 'rgba(167, 243, 208, 0.35)';
+        break;
+
+      case 'cavern':
+        skyGrad.addColorStop(0, '#150d1e'); // Lilac Violet
+        skyGrad.addColorStop(0.4, '#2d1b40');
+        skyGrad.addColorStop(0.8, '#4c286e');
+        skyGrad.addColorStop(1, '#6b3ba4');
+        moonColor = '#ede9fe';
+        moonHalo = 'rgba(196, 181, 253, 0.35)';
+        break;
+
+      case 'ice':
+        skyGrad.addColorStop(0, '#081a28'); // Glacial Ice Cyan
+        skyGrad.addColorStop(0.4, '#0e384f');
+        skyGrad.addColorStop(0.8, '#155e75');
+        skyGrad.addColorStop(1, '#0891b2');
+        moonColor = '#cffafe';
+        moonHalo = 'rgba(165, 243, 252, 0.4)';
+        break;
+
+      case 'boss':
+        skyGrad.addColorStop(0, '#090d16'); // Stormy Indigo-Crimson
+        skyGrad.addColorStop(0.5, '#1e1b4b');
+        skyGrad.addColorStop(0.85, '#881337');
+        skyGrad.addColorStop(1, '#be123c');
+        moonColor = '#ffe4e6';
+        moonHalo = 'rgba(244, 63, 94, 0.45)';
+        break;
+
+      case 'desert':
+      default:
+        skyGrad.addColorStop(0, '#1e1b4b'); // Golden Sunset
+        skyGrad.addColorStop(0.35, '#3730a3');
+        skyGrad.addColorStop(0.65, '#b45309');
+        skyGrad.addColorStop(0.88, '#d97706');
+        skyGrad.addColorStop(1, '#f59e0b');
+        break;
+    }
 
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // Bright Luminous Moon with Soft Halo
+    // Glowing Celestial Moon
     const moonX = w * 0.78;
     const moonY = h * 0.28;
     const moonR = 64;
 
-    // Atmospheric Outer Halo
-    const haloGrad = ctx.createRadialGradient(moonX, moonY, 10, moonX, moonY, moonR * 2.5);
-    haloGrad.addColorStop(0, 'rgba(254, 243, 199, 0.45)');
-    haloGrad.addColorStop(0.5, 'rgba(251, 191, 36, 0.18)');
-    haloGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
-
+    const haloGrad = ctx.createRadialGradient(moonX, moonY, 10, moonX, moonY, moonR * 2.4);
+    haloGrad.addColorStop(0, moonHalo);
+    haloGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = haloGrad;
     ctx.beginPath();
-    ctx.arc(moonX, moonY, moonR * 2.5, 0, Math.PI * 2);
+    ctx.arc(moonX, moonY, moonR * 2.4, 0, Math.PI * 2);
     ctx.fill();
 
-    // Crisp Moon Disc
-    ctx.fillStyle = '#fef3c7';
-    ctx.shadowColor = '#fde68a';
-    ctx.shadowBlur = 24;
+    ctx.fillStyle = moonColor;
+    ctx.shadowColor = moonColor;
+    ctx.shadowBlur = 22;
     ctx.beginPath();
     ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
-
-    // Subtle Cloud Wisps Crossing Sky
-    ctx.fillStyle = 'rgba(30, 27, 75, 0.28)';
-    ctx.beginPath();
-    ctx.ellipse(moonX - 30, moonY + 20, 110, 12, -0.08, 0, Math.PI * 2);
-    ctx.ellipse(moonX + 45, moonY - 18, 80, 8, 0.06, 0, Math.PI * 2);
-    ctx.fill();
   }
 
-  _drawFarMountains(ctx, offsetX, w, h) {
+  _drawParallaxLayer1(ctx, biome, offsetX, w, h) {
     ctx.save();
-    ctx.fillStyle = '#2e1065'; // Soft purple-indigo watercolor mountain
+    ctx.fillStyle = biome === 'bamboo' ? '#062e26' : (biome === 'cavern' ? '#26123a' : (biome === 'ice' ? '#0a2538' : '#2e1065'));
     ctx.globalAlpha = 0.45;
 
     ctx.beginPath();
@@ -160,48 +187,36 @@ export class NinjaArashiRenderer {
     ctx.lineTo(w, h);
     ctx.closePath();
     ctx.fill();
-
-    // Soft Twilight Mist at Mountain Base
-    const mistGrad = ctx.createLinearGradient(0, h * 0.55, 0, h);
-    mistGrad.addColorStop(0, 'rgba(180, 83, 9, 0)');
-    mistGrad.addColorStop(1, 'rgba(180, 83, 9, 0.5)');
-    ctx.fillStyle = mistGrad;
-    ctx.fillRect(0, h * 0.55, w, h * 0.45);
-
     ctx.restore();
   }
 
-  _drawMidPagodas(ctx, offsetX, w, h) {
+  _drawParallaxLayer2(ctx, biome, offsetX, w, h) {
     ctx.save();
-    ctx.fillStyle = '#170c2a'; // Mid-depth clean silhouette
+    ctx.fillStyle = '#0f081e';
     ctx.globalAlpha = 0.75;
 
-    const pagodaSpacing = 520;
-    const startIdx = Math.floor(offsetX / pagodaSpacing) - 1;
-    const endIdx = startIdx + Math.ceil(w / pagodaSpacing) + 2;
+    const spacing = 520;
+    const startIdx = Math.floor(offsetX / spacing) - 1;
+    const endIdx = startIdx + Math.ceil(w / spacing) + 2;
 
     for (let i = startIdx; i <= endIdx; i++) {
-      const px = i * pagodaSpacing - offsetX;
+      const px = i * spacing - offsetX;
       const py = h * 0.64;
 
-      // Elegant Pagoda Temple Silhouette
-      this._drawSinglePagoda(ctx, px, py, 52);
-
-      // Distant Torii Gate
-      this._drawToriiGate(ctx, px + 260, py + 22, 0.55);
+      if (biome === 'bamboo') {
+        // Vertical Bamboo Groves
+        ctx.fillRect(px, py - 60, 8, 160);
+        ctx.fillRect(px + 45, py - 40, 6, 140);
+      } else {
+        // Pagoda Temple
+        ctx.fillRect(px - 18, py, 36, 68);
+        this._drawCurvedRoof(ctx, px, py, 54);
+        this._drawCurvedRoof(ctx, px, py - 20, 42);
+        this._drawCurvedRoof(ctx, px, py - 38, 32);
+      }
     }
 
     ctx.restore();
-  }
-
-  _drawSinglePagoda(ctx, x, y, scale) {
-    ctx.fillRect(x - scale * 0.35, y, scale * 0.7, scale * 1.3);
-
-    this._drawCurvedRoof(ctx, x, y, scale * 1.05);
-    this._drawCurvedRoof(ctx, x, y - scale * 0.38, scale * 0.82);
-    this._drawCurvedRoof(ctx, x, y - scale * 0.72, scale * 0.62);
-
-    ctx.fillRect(x - 2, y - scale * 1.05, 4, scale * 0.32);
   }
 
   _drawCurvedRoof(ctx, x, y, width) {
@@ -214,32 +229,11 @@ export class NinjaArashiRenderer {
     ctx.fill();
   }
 
-  _drawToriiGate(ctx, x, y, scale = 1.0) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(scale, scale);
-
-    ctx.fillRect(-20, 0, 5.5, 44);
-    ctx.fillRect(15, 0, 5.5, 44);
-
-    ctx.beginPath();
-    ctx.moveTo(-28, -6);
-    ctx.quadraticCurveTo(0, -11, 28, -6);
-    ctx.lineTo(26, 0);
-    ctx.quadraticCurveTo(0, -5, -26, 0);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillRect(-24, 7, 48, 3.5);
-
-    ctx.restore();
-  }
-
-  _drawParticles(ctx, w, h) {
+  _drawParticles(ctx, biome, w, h) {
     ctx.save();
     const wind = Math.sin(this.time * 1.8) * 30;
 
-    for (const p of this.petals) {
+    for (const p of this.particles) {
       p.x += (p.vx + wind) * 0.016;
       p.y += p.vy * 0.016;
       p.rot += p.rotSpeed * 0.016;
@@ -254,16 +248,26 @@ export class NinjaArashiRenderer {
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rot);
 
-      if (p.isEmber) {
-        ctx.fillStyle = '#f59e0b';
-        ctx.shadowColor = '#fbbf24';
+      if (biome === 'ice') {
+        // Snow Flake Particle
+        ctx.fillStyle = '#e0f2fe';
+        ctx.shadowColor = '#bae6fd';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (biome === 'bamboo') {
+        // Spirit Energy Wisp
+        ctx.fillStyle = '#6ee7b7';
+        ctx.shadowColor = '#34d399';
         ctx.shadowBlur = 10;
         ctx.beginPath();
         ctx.arc(0, 0, p.size * 0.5, 0, Math.PI * 2);
         ctx.fill();
       } else {
-        ctx.fillStyle = p.color;
-        ctx.shadowColor = '#ef4444';
+        // Crimson Cherry Blossom Petal
+        ctx.fillStyle = '#ef4444';
+        ctx.shadowColor = '#f87171';
         ctx.shadowBlur = 6;
         ctx.beginPath();
         ctx.ellipse(0, 0, p.size, p.size * 0.45, 0, 0, Math.PI * 2);

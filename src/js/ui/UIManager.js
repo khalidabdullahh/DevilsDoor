@@ -1,5 +1,5 @@
 /**
- * UIManager — Manages HUD elements, health hearts, death counters, and modals.
+ * UIManager — Manages HUD elements, health hearts, death counters, and campaign modals.
  */
 export class UIManager {
   constructor(game) {
@@ -46,8 +46,9 @@ export class UIManager {
 
     if (this.btnModalPrimary) {
       this.btnModalPrimary.addEventListener('click', () => {
-        if (this.primaryAction) this.primaryAction();
+        const action = this.primaryAction;
         this.hideModal();
+        if (action) action();
       });
     }
 
@@ -68,7 +69,7 @@ export class UIManager {
   updateHUD(levelIndex, totalLevels, title, deaths, health = 3, maxHealth = 3) {
     if (this.levelDisplay) {
       const pad = String(levelIndex).padStart(2, '0');
-      this.levelDisplay.textContent = `LEVEL ${pad}`;
+      this.levelDisplay.textContent = `LEVEL ${pad}/${totalLevels}`;
     }
     if (this.levelTitle) {
       this.levelTitle.textContent = title;
@@ -96,11 +97,22 @@ export class UIManager {
     this.modalOverlay.classList.remove('hidden');
   }
 
-  showVictoryModal(totalDeaths, onNext) {
+  showVictoryModal(levelIndex, totalLevels, totalDeaths, stars, onNext) {
     if (this.game) this.game.setPaused(true);
-    this.modalTitle.textContent = 'LEVEL 01 CONQUERED';
-    this.modalDescription.textContent = `You uncovered the deception of The First Assumption with ${totalDeaths} deaths and mastered the 3D Ninja combat. Level 02 awaits in production!`;
-    this.btnModalPrimary.textContent = 'PLAY AGAIN';
+
+    const pad = String(levelIndex).padStart(2, '0');
+    let starStr = '⭐'.repeat(stars);
+
+    if (levelIndex >= totalLevels) {
+      this.modalTitle.textContent = '👑 CAMPAIGN CONQUERED!';
+      this.modalDescription.textContent = `You reached the Final Devil's Door and defeated the Demonic Oni! Total deaths: ${totalDeaths}. Rating: ${starStr}`;
+      this.btnModalPrimary.textContent = 'PLAY AGAIN';
+    } else {
+      this.modalTitle.textContent = `LEVEL ${pad} CONQUERED!`;
+      this.modalDescription.textContent = `You ascended through the Runic Shrine with ${totalDeaths} deaths. Rating: ${starStr}`;
+      this.btnModalPrimary.textContent = 'NEXT LEVEL ➔';
+    }
+
     this.primaryAction = onNext;
     this.modalOverlay.classList.remove('hidden');
   }

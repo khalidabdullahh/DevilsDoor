@@ -1,509 +1,464 @@
 import { Shuriken } from './Shuriken.js';
 
 /**
- * NinjaArashiPlayer — Iconic Black Silhouette Ninja with Dynamic Scarf Physics & Acrobatics.
- * Inspired directly by the legendary Ninja Arashi 2 visual benchmark.
+ * NinjaArashiPlayer — Silhouette Ninja with Cloth Scarf, Combat & Cinematic Ascension.
  */
 export class NinjaArashiPlayer {
-  constructor(startX = 100, startY = 300) {
-    this.x = startX;
-    this.y = startY;
+  constructor(x = 100, y = 220) {
+    this.x = x;
+    this.y = y;
     this.vx = 0;
     this.vy = 0;
-    this.width = 32;
+
+    this.width = 30;
     this.height = 54;
-    this.facing = 1; // 1 = Right, -1 = Left
+    this.facing = 1; // 1 = right, -1 = left
 
-    // Movement Constants
-    this.runSpeed = 380;
-    this.accel = 2400;
-    this.decel = 2200;
-    this.jumpSpeed = -620;
-    this.gravity = 1400;
-    this.maxFallSpeed = 750;
-    this.wallSlideSpeed = 160;
-
-    // Acrobatics & State
-    this.isGrounded = false;
-    this.wasGrounded = false;
-    this.canDoubleJump = true;
-    this.isWallSliding = false;
-    this.wallDir = 0; // -1 = left wall, 1 = right wall
+    // Stats
+    this.maxHealth = 3;
+    this.health = this.maxHealth;
     this.isDead = false;
     this.hasWon = false;
+    this.isAscending = false;
+    this.ascendTimer = 0;
 
-    // Combat & Dash
-    this.maxHealth = 3;
-    this.health = 3;
-    this.isSlashing = false;
-    this.slashTimer = 0;
-    this.slashDuration = 0.22;
-    this.slashCooldown = 0;
-    this.invulnerableTimer = 0;
+    // Physics constants
+    this.moveSpeed = 300;
+    this.jumpForce = 440;
+    this.doubleJumpForce = 410;
+    this.gravity = 1180;
+    this.dashSpeed = 680;
 
+    // Movement States
+    this.isGrounded = false;
+    this.canDoubleJump = true;
+    this.isWallSliding = false;
+    this.wallDir = 0;
+
+    // Dash / Katana Slash
+    this.isDashing = false;
+    this.dashTimer = 0;
+    this.dashDuration = 0.22;
+    this.dashCooldown = 0;
+    this.ghosts = [];
+
+    // Somersault Flip
+    this.flipAngle = 0;
+    this.isFlipping = false;
+
+    // Shurikens
     this.shurikens = [];
     this.shurikenCooldown = 0;
 
-    // Dynamic Flowing Scarf (Verlet Cloth Physics Nodes)
+    // 7-Node Verlet Cloth Scarf
     this.scarfNodes = [];
-    this.numScarfNodes = 7;
-    this.scarfSegmentLength = 7.5;
-    for (let i = 0; i < this.numScarfNodes; i++) {
-      this.scarfNodes.push({
-        x: startX - i * 6,
-        y: startY + 12,
-        oldX: startX - i * 6,
-        oldY: startY + 12
-      });
-    }
+    this._initScarf();
 
-    // Animation & Somersault
-    this.animTime = 0;
-    this.somersaultAngle = 0;
-    this.isSomersaulting = false;
-    this.slashGhosts = [];
+    // Visual Particles
+    this.wallSparks = [];
+    this.ascendParticles = [];
   }
 
-  reset(startX = 100, startY = 300) {
-    this.x = startX;
-    this.y = startY;
+  _initScarf() {
+    this.scarfNodes = [];
+    for (let i = 0; i < 7; i++) {
+      this.scarfNodes.push({
+        x: this.x - i * 5,
+        y: this.y + 12,
+        oldX: this.x - i * 5,
+        oldY: this.y + 12
+      });
+    }
+  }
+
+  reset(x, y) {
+    this.x = x;
+    this.y = y;
     this.vx = 0;
     this.vy = 0;
     this.health = this.maxHealth;
     this.isDead = false;
     this.hasWon = false;
-    this.isSlashing = false;
-    this.slashTimer = 0;
-    this.isSomersaulting = false;
-    this.somersaultAngle = 0;
-    this.canDoubleJump = true;
+    this.isAscending = false;
+    this.ascendTimer = 0;
+    this.isDashing = false;
+    this.dashTimer = 0;
+    this.isFlipping = false;
+    this.flipAngle = 0;
     this.shurikens = [];
-    this.invulnerableTimer = 0;
-
-    // Reset scarf
-    for (let i = 0; i < this.numScarfNodes; i++) {
-      this.scarfNodes[i].x = startX - i * 6;
-      this.scarfNodes[i].y = startY + 12;
-      this.scarfNodes[i].oldX = startX - i * 6;
-      this.scarfNodes[i].oldY = startY + 12;
-    }
+    this.ghosts = [];
+    this.ascendParticles = [];
+    this._initScarf();
   }
 
-  takeDamage(amount = 1, knockbackDir = -1, audio = null) {
-    if (this.isDead || this.hasWon || this.invulnerableTimer > 0) return;
+  takeDamage(amount = 1, knockbackDir = 0, audio = null) {
+    if (this.isDead || this.isDashing || this.isAscending) return;
     this.health -= amount;
-    this.invulnerableTimer = 0.8;
-    this.vx = knockbackDir * 320;
-    this.vy = -240;
+    this.vx = knockbackDir * 280;
+    this.vy = -200;
 
     if (audio) audio.playBladeHit();
+
     if (this.health <= 0) {
-      this.kill('enemy_strike', audio);
+      this.kill('combat_death', audio);
     }
   }
 
-  kill(cause = '', audio = null) {
-    if (this.isDead || this.hasWon) return;
+  kill(reason = 'death', audio = null) {
+    if (this.isDead || this.isAscending) return;
     this.isDead = true;
+    this.health = 0;
     this.vx = 0;
     this.vy = 0;
-    if (audio) audio.playDeath();
+    if (audio) audio.playPlayerDeath();
   }
 
-  update(dt, input, physicsWorld, audio, camera) {
-    if (this.isDead || this.hasWon) return;
+  startAscension() {
+    if (this.isAscending) return;
+    this.isAscending = true;
+    this.ascendTimer = 0;
+    this.vx = 0;
+    this.vy = 0;
+  }
 
-    this.animTime += dt;
-    if (this.invulnerableTimer > 0) this.invulnerableTimer -= dt;
-    if (this.slashCooldown > 0) this.slashCooldown -= dt;
+  update(dt, input, level, audio, camera) {
+    // 1. Update Projectiles
+    for (let i = this.shurikens.length - 1; i >= 0; i--) {
+      const s = this.shurikens[i];
+      s.update(dt, level);
+      if (!s.active) this.shurikens.splice(i, 1);
+    }
+
     if (this.shurikenCooldown > 0) this.shurikenCooldown -= dt;
+    if (this.dashCooldown > 0) this.dashCooldown -= dt;
 
-    const movingLeft = input.isLeft();
-    const movingRight = input.isRight();
-    const jumpJustPressed = input.isJumpJustPressed();
-    const slashJustPressed = input.isAttackJustPressed();
-    const shurikenJustPressed = input.keys.get('KeyK') || input.keys.get('KeyX');
+    // 2. Cinematic Exit Ascension Sequence
+    if (this.isAscending) {
+      this.ascendTimer += dt;
+      this.vy = -35; // Gentle float upward
+      this.y += this.vy * dt;
 
-    // 1. Shuriken Throw
-    if (shurikenJustPressed && this.shurikenCooldown <= 0) {
-      this.shurikenCooldown = 0.25;
-      const shurikenVx = this.facing * 750;
-      const shuriken = new Shuriken(this.x + this.facing * 18, this.y + 14, shurikenVx, (Math.random() - 0.5) * 40);
-      this.shurikens.push(shuriken);
-      if (audio) audio.playKatanaSlash();
+      // Spawn celestial light particles
+      if (Math.random() > 0.3) {
+        this.ascendParticles.push({
+          x: this.x + (Math.random() - 0.5) * 36,
+          y: this.y + Math.random() * 45,
+          vx: (Math.random() - 0.5) * 20,
+          vy: -Math.random() * 120 - 60,
+          size: Math.random() * 5 + 3,
+          life: 0.8
+        });
+      }
+
+      for (let i = this.ascendParticles.length - 1; i >= 0; i--) {
+        const p = this.ascendParticles[i];
+        p.life -= dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        if (p.life <= 0) this.ascendParticles.splice(i, 1);
+      }
+
+      this._updateScarf(dt, 0);
+      return;
     }
 
-    // 2. Katana Dash Slash Trigger
-    if (slashJustPressed && !this.isSlashing && this.slashCooldown <= 0) {
-      this.isSlashing = true;
-      this.slashTimer = this.slashDuration;
-      this.slashCooldown = 0.38;
-      this.vx = this.facing * 780; // High speed forward dash
+    if (this.isDead) return;
+
+    // 3. Movement Controls
+    const left = input.isLeftPressed();
+    const right = input.isRightPressed();
+    const jump = input.isJumpPressed();
+    const dash = input.isDashPressed() || input.isAttackPressed();
+    const throwShuriken = input.isShurikenPressed();
+
+    // Dash / Katana Slash
+    if (dash && this.dashCooldown <= 0 && !this.isDashing) {
+      this.isDashing = true;
+      this.dashTimer = this.dashDuration;
+      this.dashCooldown = 0.55;
       this.vy = 0;
+      this.vx = this.facing * this.dashSpeed;
       if (audio) audio.playKatanaSlash();
-      if (camera) camera.addShake(0.35);
-
-      // Add motion blur ghost
-      this.slashGhosts.push({ x: this.x, y: this.y, facing: this.facing, alpha: 0.8 });
+      if (camera) camera.addShake(0.3);
     }
 
-    // 3. Horizontal Movement
-    if (this.isSlashing) {
-      this.slashTimer -= dt;
-      if (this.slashTimer <= 0) this.isSlashing = false;
+    // Shuriken Throw
+    if (throwShuriken && this.shurikenCooldown <= 0 && !this.isDashing) {
+      this.shurikenCooldown = 0.38;
+      const shuriken = new Shuriken(
+        this.x + this.facing * 20,
+        this.y + 18,
+        this.facing * 750,
+        -60
+      );
+      this.shurikens.push(shuriken);
+      if (audio) audio.playShurikenThrow();
+    }
+
+    // Standard Movement
+    if (this.isDashing) {
+      this.dashTimer -= dt;
+      if (Math.random() > 0.25) {
+        this.ghosts.push({ x: this.x, y: this.y, facing: this.facing, alpha: 0.65 });
+      }
+      if (this.dashTimer <= 0) {
+        this.isDashing = false;
+        this.vx = this.facing * this.moveSpeed * 0.4;
+      }
     } else {
-      if (movingLeft && !movingRight) {
-        this.vx = Math.max(-this.runSpeed, this.vx - this.accel * dt);
+      if (left && !right) {
+        this.vx = -this.moveSpeed;
         this.facing = -1;
-      } else if (movingRight && !movingLeft) {
-        this.vx = Math.min(this.runSpeed, this.vx + this.accel * dt);
+      } else if (right && !left) {
+        this.vx = this.moveSpeed;
         this.facing = 1;
       } else {
-        if (this.vx > 0) this.vx = Math.max(0, this.vx - this.decel * dt);
-        else if (this.vx < 0) this.vx = Math.min(0, this.vx + this.decel * dt);
+        this.vx = 0;
       }
+
+      // Gravity
+      this.vy += this.gravity * dt;
+      if (this.vy > 850) this.vy = 850;
     }
 
-    // 4. Wall Slide Check
-    this.isWallSliding = false;
-    this.wallDir = 0;
-    if (!this.isGrounded && this.vy > 0) {
-      if (movingLeft && physicsWorld.isSolidAt(this.x - this.width / 2 - 4, this.y + this.height / 2)) {
-        this.isWallSliding = true;
-        this.wallDir = -1;
-      } else if (movingRight && physicsWorld.isSolidAt(this.x + this.width / 2 + 4, this.y + this.height / 2)) {
-        this.isWallSliding = true;
-        this.wallDir = 1;
-      }
-    }
-
-    // 5. Jump & Double Jump & Wall Jump
-    if (jumpJustPressed) {
+    // Jump / Double Jump
+    if (jump && !this.isDashing) {
       if (this.isGrounded) {
-        // Ground Jump
-        this.vy = this.jumpSpeed;
+        this.vy = -this.jumpForce;
         this.isGrounded = false;
         this.canDoubleJump = true;
         if (audio) audio.playJump();
       } else if (this.isWallSliding) {
-        // Wall Jump (Launch away from wall)
-        this.vy = this.jumpSpeed * 0.95;
-        this.vx = -this.wallDir * this.runSpeed * 1.1;
+        this.vy = -this.jumpForce * 0.95;
+        this.vx = -this.wallDir * this.moveSpeed * 1.2;
         this.facing = -this.wallDir;
+        this.isWallSliding = false;
         this.canDoubleJump = true;
         if (audio) audio.playJump();
       } else if (this.canDoubleJump) {
-        // Double Jump Somersault Flip
-        this.vy = this.jumpSpeed * 0.9;
+        this.vy = -this.doubleJumpForce;
         this.canDoubleJump = false;
-        this.isSomersaulting = true;
-        this.somersaultAngle = 0;
-        if (audio) audio.playJump();
+        this.isFlipping = true;
+        this.flipAngle = 0;
+        if (audio) audio.playDoubleJump();
       }
     }
 
-    // 6. Gravity & Wall Friction
-    if (this.isWallSliding) {
-      this.vy = Math.min(this.wallSlideSpeed, this.vy + this.gravity * 0.3 * dt);
-      this.isSomersaulting = false;
-    } else if (!this.isSlashing) {
-      this.vy = Math.min(this.maxFallSpeed, this.vy + this.gravity * dt);
-    }
-
-    // 7. Somersault Spin Animation
-    if (this.isSomersaulting) {
-      this.somersaultAngle += this.facing * 18.0 * dt;
-      if (Math.abs(this.somersaultAngle) >= Math.PI * 2) {
-        this.isSomersaulting = false;
-        this.somersaultAngle = 0;
+    // Somersault Spin in Mid-Air
+    if (this.isFlipping) {
+      this.flipAngle += this.facing * Math.PI * 12 * dt;
+      if (Math.abs(this.flipAngle) >= Math.PI * 2) {
+        this.isFlipping = false;
+        this.flipAngle = 0;
       }
     }
 
-    // 8. Physics Collision Resolution
-    const dx = this.vx * dt;
-    const dy = this.vy * dt;
-    const res = physicsWorld.resolve2D(this.x, this.y, this.width, this.height, dx, dy);
+    // Collision Resolution with World
+    if (level) {
+      const res = level.resolve2D(this.x, this.y, this.width, this.height, this.vx * dt, this.vy * dt);
+      this.x = res.x;
+      this.y = res.y;
 
-    this.x = res.x;
-    this.y = res.y;
-    this.wasGrounded = this.isGrounded;
-    this.isGrounded = res.grounded;
-
-    if (this.isGrounded) {
-      this.isSomersaulting = false;
-      this.somersaultAngle = 0;
-      this.canDoubleJump = true;
-      if (!this.wasGrounded && this.vy > 100 && audio) audio.playLand();
-      if (Math.abs(this.vx) > 50 && audio) audio.playFootstep();
-    }
-
-    if (res.collidedX) this.vx = 0;
-    if (res.collidedY) this.vy = 0;
-
-    // 9. Update Scarf Verlet Physics
-    this._updateScarfPhysics(dt);
-
-    // 10. Update Shurikens
-    for (let i = this.shurikens.length - 1; i >= 0; i--) {
-      const s = this.shurikens[i];
-      s.update(dt, physicsWorld);
-      if (!s.active) this.shurikens.splice(i, 1);
-    }
-
-    // 11. Fade Motion Blur Ghosts
-    for (let i = this.slashGhosts.length - 1; i >= 0; i--) {
-      this.slashGhosts[i].alpha -= dt * 3.5;
-      if (this.slashGhosts[i].alpha <= 0) this.slashGhosts.splice(i, 1);
-    }
-  }
-
-  _updateScarfPhysics(dt) {
-    // Neck Anchor Point
-    const neckX = this.x - this.facing * 4;
-    const neckY = this.y + 16;
-    this.scarfNodes[0].x = neckX;
-    this.scarfNodes[0].y = neckY;
-
-    // Wind & Velocity Drag
-    const windX = -this.facing * (Math.abs(this.vx) * 0.08 + 120) + Math.sin(this.animTime * 10) * 25;
-    const windY = -this.vy * 0.05 + 40 + Math.cos(this.animTime * 8) * 15;
-
-    // Verlet Integration
-    for (let i = 1; i < this.numScarfNodes; i++) {
-      const node = this.scarfNodes[i];
-      const vx = (node.x - node.oldX) * 0.88;
-      const vy = (node.y - node.oldY) * 0.88;
-
-      node.oldX = node.x;
-      node.oldY = node.y;
-
-      node.x += vx + windX * dt * 0.8;
-      node.y += vy + windY * dt * 0.8;
-    }
-
-    // Distance Constraints (Keep segments connected)
-    for (let iter = 0; iter < 4; iter++) {
-      for (let i = 0; i < this.numScarfNodes - 1; i++) {
-        const n1 = this.scarfNodes[i];
-        const n2 = this.scarfNodes[i + 1];
-
-        const dx = n2.x - n1.x;
-        const dy = n2.y - n1.y;
-        const dist = Math.hypot(dx, dy) || 1;
-        const diff = (dist - this.scarfSegmentLength) / dist;
-
-        if (i === 0) {
-          n2.x -= dx * diff;
-          n2.y -= dy * diff;
+      if (res.grounded) {
+        this.isGrounded = true;
+        this.vy = 0;
+        this.isWallSliding = false;
+        this.isFlipping = false;
+        this.flipAngle = 0;
+      } else {
+        this.isGrounded = false;
+        if (res.collidedX && this.vy > 0) {
+          this.isWallSliding = true;
+          this.wallDir = this.facing;
+          if (this.vy > 140) this.vy = 140; // Wall slide friction
         } else {
-          n1.x += dx * diff * 0.5;
-          n1.y += dy * diff * 0.5;
-          n2.x -= dx * diff * 0.5;
-          n2.y -= dy * diff * 0.5;
+          this.isWallSliding = false;
         }
       }
     }
+
+    // Update Ghost Trails
+    for (let i = this.ghosts.length - 1; i >= 0; i--) {
+      this.ghosts[i].alpha -= dt * 3.5;
+      if (this.ghosts[i].alpha <= 0) this.ghosts.splice(i, 1);
+    }
+
+    this._updateScarf(dt, this.vx);
+  }
+
+  _updateScarf(dt, pvx) {
+    if (!this.scarfNodes || this.scarfNodes.length === 0) return;
+
+    // Anchor node 0 to Ninja's neck
+    this.scarfNodes[0].x = this.x - this.facing * 6;
+    this.scarfNodes[0].y = this.y + 12;
+
+    const wind = Math.sin(Date.now() * 0.006) * 15 - this.facing * (Math.abs(pvx) * 0.18 + 25);
+
+    for (let i = 1; i < this.scarfNodes.length; i++) {
+      const n = this.scarfNodes[i];
+      const vx = (n.x - n.oldX) * 0.82;
+      const vy = (n.y - n.oldY) * 0.82;
+
+      n.oldX = n.x;
+      n.oldY = n.y;
+
+      n.x += vx + wind * dt;
+      n.y += vy + 28 * dt; // Gravity
+    }
+
+    // Scarf length constraints (10px segments)
+    for (let iter = 0; iter < 3; iter++) {
+      for (let i = 0; i < this.scarfNodes.length - 1; i++) {
+        const n1 = this.scarfNodes[i];
+        const n2 = this.scarfNodes[i + 1];
+        const dx = n2.x - n1.x;
+        const dy = n2.y - n1.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const diff = (dist - 10) / dist;
+        n2.x -= dx * diff;
+        n2.y -= dy * diff;
+      }
+    }
+  }
+
+  getAttackBox() {
+    if (!this.isDashing) return null;
+    return {
+      x: this.facing > 0 ? this.x : this.x - 70,
+      y: this.y,
+      width: 70,
+      height: this.height,
+      damage: 1,
+      facing: this.facing
+    };
   }
 
   draw(ctx, camX, camY) {
-    if (this.isDead) return;
+    // 1. Draw Shurikens
+    for (const s of this.shurikens) {
+      s.draw(ctx, camX, camY);
+    }
 
-    // Draw Motion Blur Ghosts
-    for (const ghost of this.slashGhosts) {
+    // 2. Draw Dash Ghost Trails
+    for (const g of this.ghosts) {
       ctx.save();
-      ctx.globalAlpha = ghost.alpha * 0.4;
-      ctx.translate(ghost.x - camX, ghost.y - camY);
-      this._drawNinjaSilhouette(ctx, ghost.facing, 0, false);
+      ctx.globalAlpha = g.alpha;
+      ctx.translate(g.x - camX, g.y - camY);
+      ctx.scale(g.facing, 1);
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.roundRect(-10, 14, 20, 28, 4);
+      ctx.arc(0, 10, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 3. Draw Ascending Celestial Particles
+    if (this.isAscending) {
+      ctx.save();
+      for (const p of this.ascendParticles) {
+        ctx.fillStyle = '#38bdf8';
+        ctx.shadowColor = '#bae6fd';
+        ctx.shadowBlur = 12;
+        ctx.globalAlpha = p.life / 0.8;
+        ctx.beginPath();
+        ctx.arc(p.x - camX, p.y - camY, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
       ctx.restore();
     }
 
     const drawX = this.x - camX;
     const drawY = this.y - camY;
 
+    // 4. Draw Flowing Red Scarf Ribbon
     ctx.save();
-    ctx.translate(drawX, drawY);
-
-    if (this.invulnerableTimer > 0 && Math.floor(this.animTime * 25) % 2 === 0) {
-      ctx.globalAlpha = 0.4;
-    }
-
-    // 1. Draw Flowing Red Scarf Behind Ninja
-    this._drawScarf(ctx, camX, camY);
-
-    // 2. Draw Ninja Silhouette
-    this._drawNinjaSilhouette(ctx, this.facing, this.somersaultAngle, this.isSlashing);
-
-    // 3. Draw Katana Slash Crescent VFX
-    if (this.isSlashing) {
-      this._drawSlashVFX(ctx);
-    }
-
-    ctx.restore();
-
-    // 4. Draw Active Shurikens
-    for (const s of this.shurikens) {
-      s.draw(ctx, camX, camY);
-    }
-  }
-
-  _drawScarf(ctx, camX, camY) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(this.scarfNodes[0].x - this.x, this.scarfNodes[0].y - this.y);
-
-    for (let i = 1; i < this.numScarfNodes; i++) {
-      const node = this.scarfNodes[i];
-      ctx.lineTo(node.x - this.x, node.y - this.y);
-    }
-
+    ctx.strokeStyle = '#ef4444';
+    ctx.shadowColor = '#f87171';
+    ctx.shadowBlur = 8;
+    ctx.lineWidth = 5;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.lineWidth = 7;
-    ctx.strokeStyle = '#dc2626'; // Vivid Ninja Arashi Crimson Scarf
-    ctx.shadowColor = '#ef4444';
-    ctx.shadowBlur = 12;
-    ctx.stroke();
 
-    // Inner highlight core
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = '#fca5a5';
-    ctx.shadowBlur = 0;
+    ctx.beginPath();
+    ctx.moveTo(this.scarfNodes[0].x - camX, this.scarfNodes[0].y - camY);
+    for (let i = 1; i < this.scarfNodes.length; i++) {
+      ctx.lineTo(this.scarfNodes[i].x - camX, this.scarfNodes[i].y - camY);
+    }
     ctx.stroke();
-
     ctx.restore();
-  }
 
-  _drawNinjaSilhouette(ctx, facing, rotation = 0, isSlashing = false) {
+    // 5. Draw Silhouette Ninja Character
     ctx.save();
-    if (rotation !== 0) {
-      ctx.translate(0, this.height / 2);
-      ctx.rotate(rotation);
-      ctx.translate(0, -this.height / 2);
+    ctx.translate(drawX, drawY + this.height / 2);
+
+    if (this.isFlipping) {
+      ctx.rotate(this.flipAngle);
     }
 
-    ctx.scale(facing, 1);
+    ctx.scale(this.facing, 1);
 
-    // High-contrast Pitch Black Silhouette
     ctx.fillStyle = '#05080f';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+    ctx.shadowBlur = 10;
 
-    // --- Legs & Tabi Boots ---
-    const runCycle = Math.sin(this.animTime * 14) * 8;
-    const isMoving = Math.abs(this.vx) > 30 && this.isGrounded;
+    // Legs
+    const runCycle = Math.sin(Date.now() * 0.015) * 8;
+    const isMoving = Math.abs(this.vx) > 20 && this.isGrounded;
 
-    // Back Leg
     ctx.beginPath();
-    ctx.ellipse(isMoving ? -runCycle - 4 : -5, 46, 5, 10, 0.2, 0, Math.PI * 2);
+    ctx.ellipse(isMoving ? -5 - runCycle : -5, 18, 5, 10, 0.2, 0, Math.PI * 2);
+    ctx.ellipse(isMoving ? 5 + runCycle : 5, 18, 5, 10, -0.2, 0, Math.PI * 2);
     ctx.fill();
 
-    // Front Leg
+    // Torso
     ctx.beginPath();
-    ctx.ellipse(isMoving ? runCycle + 4 : 5, 46, 5, 10, -0.2, 0, Math.PI * 2);
+    ctx.roundRect(-9, -12, 18, 26, 4);
     ctx.fill();
 
-    // --- Torso & Sash ---
+    // Head
     ctx.beginPath();
-    ctx.roundRect(-9, 18, 18, 26, 4);
+    ctx.arc(0, -18, 9, 0, Math.PI * 2);
     ctx.fill();
 
-    // Sash Knot Tie
+    // Conical Straw Hat (*Kasa*)
     ctx.beginPath();
-    ctx.ellipse(-8, 30, 4, 3, 0.4, 0, Math.PI * 2);
-    ctx.fill();
-
-    // --- Dual Katanas on Back ---
-    ctx.lineWidth = 2.5;
-    ctx.strokeStyle = '#05080f';
-    ctx.beginPath();
-    ctx.moveTo(-6, 14);
-    ctx.lineTo(-18, -4);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(-3, 16);
-    ctx.lineTo(-15, -2);
-    ctx.stroke();
-
-    // Katana Hilts (Gold/White wrap tips)
-    ctx.fillStyle = '#e2e8f0';
-    ctx.beginPath();
-    ctx.arc(-18, -4, 2, 0, Math.PI * 2);
-    ctx.arc(-15, -2, 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#05080f';
-
-    // --- Head & Masked Cowl ---
-    ctx.beginPath();
-    ctx.arc(0, 12, 10, 0, Math.PI * 2);
-    ctx.fill();
-
-    // --- Conical Straw Hat (Kasa) ---
-    ctx.beginPath();
-    ctx.moveTo(-18, 8);
-    ctx.lineTo(0, -2);
-    ctx.lineTo(18, 8);
+    ctx.moveTo(-18, -20);
+    ctx.lineTo(0, -29);
+    ctx.lineTo(18, -20);
     ctx.closePath();
     ctx.fill();
 
-    // Hat Brim Rim
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = '#1e293b';
+    // Dual Katanas on Back
+    ctx.strokeStyle = '#05080f';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-8, -22);
+    ctx.lineTo(-20, 4);
+    ctx.moveTo(-4, -24);
+    ctx.lineTo(-16, 2);
     ctx.stroke();
 
-    // --- Piercing Glowing Cyan Eye Slit ---
+    // Glowing Cyan Eye Slit
     ctx.fillStyle = '#38bdf8';
     ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 14;
+    ctx.shadowBlur = 16;
     ctx.beginPath();
-    ctx.ellipse(4, 11, 4, 1.5, 0.1, 0, Math.PI * 2);
+    ctx.ellipse(4, -18, 3.5, 1.4, 0.1, 0, Math.PI * 2);
     ctx.fill();
 
-    // Eye Glint Flare
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(5, 11, 1, 0, Math.PI * 2);
-    ctx.fill();
+    // Glowing Golden Katana Slash Trail on Dash
+    if (this.isDashing) {
+      ctx.strokeStyle = '#fbbf24';
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 24;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(10, 0, 36, -Math.PI / 3, Math.PI / 3);
+      ctx.stroke();
+    }
 
     ctx.restore();
-  }
-
-  _drawSlashVFX(ctx) {
-    ctx.save();
-    ctx.scale(this.facing, 1);
-
-    // Glowing Cyan / Silver Crescent Blade Slash
-    ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 24;
-
-    const grad = ctx.createLinearGradient(0, -10, 50, 40);
-    grad.addColorStop(0, 'rgba(56, 189, 248, 0)');
-    grad.addColorStop(0.5, 'rgba(56, 189, 248, 0.9)');
-    grad.addColorStop(1, '#ffffff');
-
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.arc(10, 24, 38, -Math.PI / 3, Math.PI / 2);
-    ctx.stroke();
-
-    // Inner blade spark
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.restore();
-  }
-
-  getAttackBox() {
-    if (!this.isSlashing) return null;
-    return {
-      x: this.facing === 1 ? this.x : this.x - 64,
-      y: this.y - 10,
-      width: 64,
-      height: 64,
-      damage: 1,
-      facing: this.facing
-    };
   }
 }

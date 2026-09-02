@@ -1,6 +1,6 @@
 /**
- * TouchControls — Mobile touch layout for Ninja Arashi 2 controls:
- * Left/Right on bottom-left, Jump, Slash/Dash, and Shuriken on bottom-right.
+ * TouchControls — High-Precision Multi-Touch Controller for Ninja Arashi 2 Layout.
+ * Supports simultaneous multi-touch (e.g. running left/right while jumping & slashing).
  */
 export class TouchControls {
   constructor(inputManager) {
@@ -12,6 +12,7 @@ export class TouchControls {
     this.btnAttack = document.getElementById('touch-attack');
     this.btnShuriken = document.getElementById('touch-shuriken');
 
+    this.activeTouches = new Map();
     this.leftDown = false;
     this.rightDown = false;
     this.jumpDown = false;
@@ -21,49 +22,65 @@ export class TouchControls {
   }
 
   _bindTouchEvents() {
-    const setupBtn = (btn, onDown, onUp) => {
+    const attachButton = (btn, onDown, onUp) => {
       if (!btn) return;
+
       btn.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        onDown();
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const touch = e.changedTouches[i];
+          this.activeTouches.set(touch.identifier, btn);
+        }
         btn.classList.add('active');
+        onDown();
       }, { passive: false });
 
       btn.addEventListener('touchend', (e) => {
         e.preventDefault();
-        onUp();
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const touch = e.changedTouches[i];
+          this.activeTouches.delete(touch.identifier);
+        }
         btn.classList.remove('active');
+        onUp();
       }, { passive: false });
 
       btn.addEventListener('touchcancel', (e) => {
         e.preventDefault();
-        onUp();
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const touch = e.changedTouches[i];
+          this.activeTouches.delete(touch.identifier);
+        }
         btn.classList.remove('active');
+        onUp();
       }, { passive: false });
 
+      // Mouse fallback for testing
       btn.addEventListener('mousedown', (e) => {
-        onDown();
+        e.preventDefault();
         btn.classList.add('active');
+        onDown();
       });
+
       window.addEventListener('mouseup', () => {
-        onUp();
         btn.classList.remove('active');
+        onUp();
       });
     };
 
-    setupBtn(
+    attachButton(
       this.btnLeft,
       () => { this.leftDown = true; this._sync(); },
       () => { this.leftDown = false; this._sync(); }
     );
 
-    setupBtn(
+    attachButton(
       this.btnRight,
       () => { this.rightDown = true; this._sync(); },
       () => { this.rightDown = false; this._sync(); }
     );
 
-    setupBtn(
+    attachButton(
       this.btnJump,
       () => {
         this.jumpDown = true;
@@ -75,7 +92,7 @@ export class TouchControls {
       }
     );
 
-    setupBtn(
+    attachButton(
       this.btnAttack,
       () => {
         this.attackDown = true;
@@ -88,14 +105,10 @@ export class TouchControls {
     );
 
     if (this.btnShuriken) {
-      setupBtn(
+      attachButton(
         this.btnShuriken,
-        () => {
-          this.inputManager.keys.set('KeyK', true);
-        },
-        () => {
-          this.inputManager.keys.set('KeyK', false);
-        }
+        () => { this.inputManager.keys.set('KeyK', true); },
+        () => { this.inputManager.keys.set('KeyK', false); }
       );
     }
   }

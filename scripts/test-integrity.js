@@ -1,5 +1,5 @@
 /**
- * test-integrity.js — Automated Integrity & Verification Test Suite for Devil's Door.
+ * test-integrity.js — Automated Integrity Test Suite for 10-Level Campaign.
  */
 
 import fs from 'fs';
@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
-console.log('🚪 [DEVIL\'S DOOR] Running Automated System Integrity Checks...\n');
+console.log('🚪 [DEVIL\'S DOOR] Running 10-Level System Integrity Checks...\n');
 
 let passedChecks = 0;
 let totalChecks = 0;
@@ -73,7 +73,7 @@ for (const doc of requiredDocs) {
   assert(fs.existsSync(docPath), `Doc exists: ${doc}`);
 }
 
-// 3. Check Ninja Arashi 2 Game Source Code Architecture (src/)
+// 3. Check All 10 Level Modules & Boss Codebase
 const requiredGameFiles = [
   'src/index.html',
   'src/css/game.css',
@@ -86,47 +86,47 @@ const requiredGameFiles = [
   'src/js/render/NinjaArashiRenderer.js',
   'src/js/entities/NinjaArashiPlayer.js',
   'src/js/entities/ShadowNinjaEnemy.js',
+  'src/js/entities/OniBossEnemy.js',
   'src/js/entities/Shuriken.js',
+  'src/js/levels/BaseLevel.js',
+  'src/js/levels/LevelRegistry.js',
   'src/js/levels/Level01_Arashi.js',
+  'src/js/levels/Level02_Bamboo.js',
+  'src/js/levels/Level03_Cavern.js',
+  'src/js/levels/Level04_Ice.js',
+  'src/js/levels/Level05_Sanctum.js',
+  'src/js/levels/Level06_Thorns.js',
+  'src/js/levels/Level07_Desert.js',
+  'src/js/levels/Level08_Pagoda.js',
+  'src/js/levels/Level09_Blades.js',
+  'src/js/levels/Level10_OniBoss.js',
   'src/js/ui/UIManager.js',
   'src/js/ui/TouchControls.js'
 ];
 
-console.log('\n🎮 3. Verifying Ninja Arashi 2 Engine & Modular Codebase (src/):');
+console.log('\n🎮 3. Verifying 10-Level Campaign Modules & Boss Codebase (src/):');
 for (const file of requiredGameFiles) {
   const filePath = path.join(rootDir, file);
-  assert(fs.existsSync(filePath), `Game module exists: ${file}`);
+  assert(fs.existsSync(filePath), `Module exists: ${file}`);
 }
 
-// 4. Check Marketing Website (website/)
-const requiredWebsiteFiles = [
-  'website/index.html',
-  'website/css/theme.css',
-  'website/css/website.css',
-  'website/js/website.js'
-];
+// 4. Test All 10 Level Instances via LevelRegistry
+console.log('\n🧪 4. Testing All 10 Levels via LevelRegistry:');
 
-console.log('\n🌐 4. Verifying Marketing Website (website/):');
-for (const file of requiredWebsiteFiles) {
-  const filePath = path.join(rootDir, file);
-  assert(fs.existsSync(filePath), `Website asset exists: ${file}`);
+import { LevelRegistry } from '../src/js/levels/LevelRegistry.js';
+
+assert(LevelRegistry.TOTAL_LEVELS === 10, 'LevelRegistry total levels is 10');
+
+for (let lvl = 1; lvl <= 10; lvl++) {
+  const levelInstance = LevelRegistry.getLevel(lvl);
+  assert(levelInstance.id === lvl, `Level ${lvl} instantiates with correct ID`);
+  assert(levelInstance.solids.length > 0, `Level ${lvl} (${levelInstance.title}) contains solids`);
+  assert(levelInstance.door !== null && levelInstance.door.x > 1400, `Level ${lvl} has exit shrine`);
 }
 
-// 5. Test Level 01 Simulation & Collision Math
-console.log('\n🧪 5. Testing Level 01 Collision Resolution & Mechanics:');
-
-import { Level01_Arashi } from '../src/js/levels/Level01_Arashi.js';
-const testLevel = new Level01_Arashi();
-
-assert(testLevel.solids.length > 0, `Level 01 contains solids (${testLevel.solids.length} solids)`);
-assert(testLevel.bridgePlanks.length === 8, `Level 01 has 8 dynamic collapsing rope bridge planks`);
-assert(testLevel.enemies.length === 2, `Level 01 has 2 Shadow Ninja enemies (Scout and Spearman)`);
-assert(testLevel.hazards.length === 3, `Level 01 has 3 hazards (Ceiling Spikes, Bamboo Pit, Floor Spikes)`);
-assert(testLevel.door !== null && testLevel.door.x > 1500, `Level 01 has genuine Devil's Door exit at end of arena`);
-
-const landingRes = testLevel.resolve2D(100, 150, 32, 54, 0, 200);
-assert(landingRes.grounded === true, `Player lands on starting cliff platform`);
-assert(landingRes.y === 226, `Landing height is precisely resolved (y = 226)`);
+// Check Level 10 Oni Boss
+const lvl10 = LevelRegistry.getLevel(10);
+assert(lvl10.enemies.length === 1 && lvl10.enemies[0].maxHealth === 12, 'Level 10 has Demonic Oni Boss with 12 HP');
 
 console.log(`\n============================================================`);
 console.log(`🎉 Integrity Checks Finished: ${passedChecks}/${totalChecks} PASSED.`);

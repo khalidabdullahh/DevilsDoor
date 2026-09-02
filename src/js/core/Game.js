@@ -1,11 +1,11 @@
 import { NinjaArashiRenderer } from '../render/NinjaArashiRenderer.js';
 import { Camera2D } from './Camera2D.js';
 import { NinjaArashiPlayer } from '../entities/NinjaArashiPlayer.js';
-import { Level01_Arashi } from '../levels/Level01_Arashi.js';
+import { LevelRegistry } from '../levels/LevelRegistry.js';
 import { AnalyticsManager } from './AnalyticsManager.js';
 
 /**
- * Game — Master Coordinator for Devil's Door: Clean Visuals, Combat & Trap Synergy.
+ * Game — Master Coordinator for Devil's Door: 10-Level Campaign & Ascension Engine.
  */
 export class Game {
   constructor(canvas, inputManager, audioManager, uiManager) {
@@ -19,6 +19,8 @@ export class Game {
     this.player = null;
     this.level = null;
 
+    this.currentLevelIndex = 1;
+    this.totalLevels = LevelRegistry.TOTAL_LEVELS;
     this.deaths = 0;
     this.isPaused = false;
     this.isTransitioning = false;
@@ -52,22 +54,23 @@ export class Game {
   }
 
   loadLevel(levelNumber) {
-    this.level = new Level01_Arashi();
+    this.currentLevelIndex = Math.min(this.totalLevels, Math.max(1, levelNumber));
+    this.level = LevelRegistry.getLevel(this.currentLevelIndex);
     this.player.reset(this.level.playerStartX, this.level.playerStartY);
     this.camera.snapTo(this.player.x, this.player.y);
-    this.camera.setBounds(0, 1800, 0, 950);
+    this.camera.setBounds(0, this.level.width || 1900, 0, this.level.height || 950);
 
     this.isTransitioning = false;
     this.ui.updateHUD(
-      this.level.id,
-      7,
+      this.currentLevelIndex,
+      this.totalLevels,
       this.level.title,
       this.deaths,
       this.player.health,
       this.player.maxHealth
     );
 
-    AnalyticsManager.track('level_start', { levelId: 1, title: this.level.title });
+    AnalyticsManager.track('level_start', { levelId: this.currentLevelIndex, title: this.level.title });
   }
 
   restartLevel() {
@@ -78,15 +81,15 @@ export class Game {
     this.camera.snapTo(this.player.x, this.player.y);
 
     this.ui.updateHUD(
-      this.level.id,
-      7,
+      this.currentLevelIndex,
+      this.totalLevels,
       this.level.title,
       this.deaths,
       this.player.health,
       this.player.maxHealth
     );
 
-    AnalyticsManager.track('level_retry', { levelId: 1, deaths: this.deaths });
+    AnalyticsManager.track('level_retry', { levelId: this.currentLevelIndex, deaths: this.deaths });
   }
 
   setPaused(paused) {
@@ -155,7 +158,7 @@ export class Game {
     this.camera.update(dt, this.player);
 
     // 6. Check Hazards & Pit Deaths
-    if (!this.player.isDead) {
+    if (!this.player.isDead && !this.player.isAscending) {
       if (this.player.y > 900) {
         this.player.kill('abyss_fall', this.audio);
       } else {
@@ -167,14 +170,14 @@ export class Game {
       }
     }
 
-    // 7. Check Devil's Door Entry & Completion
+    // 7. Check Devil's Door Entry & Cinematic Ascension
     if (!this.player.isDead && !this.isTransitioning) {
       if (this.level.checkDoorEntry(this.player)) {
         this.handleLevelComplete();
       }
     }
 
-    // 8. Fast Respawn Loop (<80ms delay)
+    // 8. Fast Respawn Loop
     if (this.player.isDead) {
       this.deathResetTimer += dt;
       if (this.deathResetTimer >= 0.38) {
@@ -183,10 +186,10 @@ export class Game {
       }
     }
 
-    // 9. Sync HUD Health
+    // 9. Sync HUD
     this.ui.updateHUD(
-      this.level.id,
-      7,
+      this.currentLevelIndex,
+      this.totalLevels,
       this.level.title,
       this.deaths,
       this.player.health,
@@ -196,17 +199,24 @@ export class Game {
 
   handleLevelComplete() {
     this.isTransitioning = true;
-    this.player.hasWon = true;
+    this.player.startAscension();
 
     if (this.audio) this.audio.playLevelComplete();
-    AnalyticsManager.track('level_complete', { levelId: 1, deaths: this.deaths });
+
+    // Calculate stars
+    const stars = this.deaths === 0 ? 3 : (this.deaths <= 2 ? 2 : 1);
+    LevelRegistry.saveProgress(this.currentLevelIndex, stars);
+    AnalyticsManager.track('level_complete', { levelId: this.currentLevelIndex, deaths: this.deaths, stars });
 
     setTimeout(() => {
-      this.ui.showVictoryModal(this.deaths, () => {
-        this.deaths = 0;
-        this.loadLevel(1);
+      this.ui.showVictoryModal(this.currentLevelIndex, this.totalLevels, this.deaths, stars, () => {
+        if (this.currentLevelIndex < this.totalLevels) {
+          this.loadLevel(this.currentLevelIndex + 1);
+        } else {
+          this.loadLevel(1);
+        }
         this.setPaused(false);
       });
-    }, 700);
+    }, 750);
   }
 }

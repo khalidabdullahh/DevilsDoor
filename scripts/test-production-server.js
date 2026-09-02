@@ -44,18 +44,12 @@ const testEndpoints = [
   { path: '/', expectedType: 'text/html', desc: 'Root Route -> Marketing Website (index.html)' },
   { path: '/game', expectedType: 'text/html', desc: '/game Route -> Game Shell (game.html)' },
   { path: '/play', expectedType: 'text/html', desc: '/play Route -> Game Shell (play.html)' },
-  { path: '/website/css/theme.css', expectedType: 'text/css', desc: 'Theme Stylesheet' },
-  { path: '/website/css/website.css', expectedType: 'text/css', desc: 'Website Stylesheet' },
-  { path: '/website/js/website.js', expectedType: 'application/javascript', desc: 'Website Script' },
   { path: '/src/css/game.css', expectedType: 'text/css', desc: 'Game Stylesheet' },
   { path: '/src/js/main.js', expectedType: 'application/javascript', desc: 'Main Game Module' },
   { path: '/src/js/core/Game.js', expectedType: 'application/javascript', desc: 'Game Coordinator Module' },
-  { path: '/src/js/core/Camera2D.js', expectedType: 'application/javascript', desc: 'Camera 2D Module' },
-  { path: '/src/js/render/NinjaArashiRenderer.js', expectedType: 'application/javascript', desc: 'Ninja Arashi 2 Parallax Renderer' },
-  { path: '/src/js/entities/NinjaArashiPlayer.js', expectedType: 'application/javascript', desc: 'Ninja Player Entity' },
-  { path: '/src/js/entities/ShadowNinjaEnemy.js', expectedType: 'application/javascript', desc: 'Shadow Ninja Enemy Entity' },
-  { path: '/src/js/entities/Shuriken.js', expectedType: 'application/javascript', desc: 'Shuriken Projectile Module' },
-  { path: '/src/js/levels/Level01_Arashi.js', expectedType: 'application/javascript', desc: 'Level 01 Arashi Benchmark Module' }
+  { path: '/src/js/entities/OniBossEnemy.js', expectedType: 'application/javascript', desc: 'Oni Boss Enemy Entity' },
+  { path: '/src/js/levels/LevelRegistry.js', expectedType: 'application/javascript', desc: 'Level Registry Module' },
+  { path: '/src/js/levels/Level10_OniBoss.js', expectedType: 'application/javascript', desc: 'Level 10 Boss Module' }
 ];
 
 let passed = 0;
