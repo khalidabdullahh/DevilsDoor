@@ -10,7 +10,7 @@
 - **Date**: 2026-09-01
 - **Status**: LOCKED
 - **Context**: We need a game architecture that is contributor-friendly, fast to iterate, runs directly in modern browsers without heavy bundling toolchains, and scales cleanly to 100+ levels.
-- **Decision**: Use native ECMAScript Modules (`import` / `export`) with standard HTML5 Canvas/WebGL 2.5D rendering.
+- **Decision**: Use native ECMAScript Modules (`import` / `export`) with standard HTML5 Canvas/WebGL rendering.
 - **Consequences**: Instant local testing via `python3 -m http.server`, zero dependency vulnerabilities from fragile bundler plugins, and clean modular code organization.
 
 ---
@@ -20,7 +20,7 @@
 - **Date**: 2026-09-01
 - **Status**: LOCKED
 - **Context**: Loading dozens of external `.wav`/`.mp3` files adds network latency, bundle weight, asset licensing risks, and potential playback delays on mobile.
-- **Decision**: Implement all sound effects (jumps, lands, mechanical snaps, portal hums, death disintegrations) procedurally using the Web Audio API (`AudioContext`, `OscillatorNode`, `GainNode`, `BiquadFilterNode`).
+- **Decision**: Implement all sound effects (jumps, lands, katana slashes, clashes, stone collapses, portal hums, death disintegrations) procedurally using the Web Audio API (`AudioContext`, `OscillatorNode`, `GainNode`, `BiquadFilterNode`).
 - **Consequences**: Zero audio asset downloads, instant playback latency, and dynamic parameter modulation during gameplay.
 
 ---
@@ -52,3 +52,13 @@
 - **Context**: The official website must appeal to both desktop and mobile users while maintaining accessible contrast in both bright daylight and dark environments.
 - **Decision**: Implement CSS custom properties with automatic system preference detection (`prefers-color-scheme`) and a 3-way toggle (System / Light / Dark).
 - **Consequences**: Seamless modern UX matching top-tier indie game web portals.
+
+---
+
+## ADR-006: 3D Engine Migration to Babylon.js for Production Ninja Action-Platformer
+
+- **Date**: 2026-09-02
+- **Status**: LOCKED
+- **Context**: The game requires a premium 3D dark fantasy visual benchmark (inspired by Ninja Arashi 2 / Shadow Blade), true perspective depth, volumetric fog, dynamic lighting/shadows, and stylized 3D ninja character mesh with katana combat.
+- **Decision**: Migrate the rendering architecture to **Babylon.js** (supporting WebGPU with automatic WebGL fallback) with a side-focused cinematic 3D camera.
+- **Consequences**: Delivers high-fidelity 3D graphics, procedural particle VFX, dynamic katana combat, and seamless cross-platform performance across desktop and mobile.

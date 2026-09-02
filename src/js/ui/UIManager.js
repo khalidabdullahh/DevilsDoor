@@ -1,5 +1,5 @@
 /**
- * UIManager — Manages HUD state, level headers, death counts, and modals.
+ * UIManager — Manages HUD elements, health hearts, death counters, and modals.
  */
 export class UIManager {
   constructor(game) {
@@ -8,6 +8,8 @@ export class UIManager {
     this.levelDisplay = document.getElementById('level-display');
     this.levelTitle = document.getElementById('level-title');
     this.deathCount = document.getElementById('death-count');
+    this.healthDisplay = document.getElementById('health-display');
+
     this.btnRestart = document.getElementById('btn-restart');
     this.btnAudio = document.getElementById('btn-audio');
     this.btnMenu = document.getElementById('btn-menu');
@@ -24,13 +26,17 @@ export class UIManager {
 
   _bindEvents() {
     if (this.btnRestart) {
-      this.btnRestart.addEventListener('click', () => this.game.restartLevel());
+      this.btnRestart.addEventListener('click', () => {
+        if (this.game) this.game.restartLevel();
+      });
     }
 
     if (this.btnAudio) {
       this.btnAudio.addEventListener('click', () => {
-        const isMuted = this.game.audio.toggleMute();
-        this.btnAudio.textContent = isMuted ? '🔇' : '🔊';
+        if (this.game && this.game.audio) {
+          const isMuted = this.game.audio.toggleMute();
+          this.btnAudio.textContent = isMuted ? '🔇' : '🔊';
+        }
       });
     }
 
@@ -48,7 +54,7 @@ export class UIManager {
     if (this.btnModalRestart) {
       this.btnModalRestart.addEventListener('click', () => {
         this.hideModal();
-        this.game.restartLevel();
+        if (this.game) this.game.restartLevel();
       });
     }
 
@@ -59,7 +65,7 @@ export class UIManager {
     }
   }
 
-  updateHUD(levelIndex, totalLevels, title, deaths) {
+  updateHUD(levelIndex, totalLevels, title, deaths, health = 3, maxHealth = 3) {
     if (this.levelDisplay) {
       const pad = String(levelIndex).padStart(2, '0');
       this.levelDisplay.textContent = `LEVEL ${pad}`;
@@ -70,21 +76,30 @@ export class UIManager {
     if (this.deathCount) {
       this.deathCount.textContent = String(deaths);
     }
+    if (this.healthDisplay) {
+      let hearts = '';
+      for (let i = 0; i < maxHealth; i++) {
+        hearts += i < health ? '❤️ ' : '🖤 ';
+      }
+      this.healthDisplay.textContent = hearts.trim();
+    }
   }
 
   showPauseModal() {
-    this.game.setPaused(true);
+    if (this.game) this.game.setPaused(true);
     this.modalTitle.textContent = 'PAUSED';
-    this.modalDescription.textContent = 'Take a breath. Remember: every death teaches something.';
+    this.modalDescription.textContent = 'Trust nothing. The obvious path is rarely the true route.';
     this.btnModalPrimary.textContent = 'RESUME';
-    this.primaryAction = () => this.game.setPaused(false);
+    this.primaryAction = () => {
+      if (this.game) this.game.setPaused(false);
+    };
     this.modalOverlay.classList.remove('hidden');
   }
 
   showVictoryModal(totalDeaths, onNext) {
-    this.game.setPaused(true);
-    this.modalTitle.textContent = 'THE DOMAIN CONQUERED';
-    this.modalDescription.textContent = `You uncovered every deception across 5 Prototype Levels with ${totalDeaths} deaths. But the Shadow Devil is never truly defeated.`;
+    if (this.game) this.game.setPaused(true);
+    this.modalTitle.textContent = 'LEVEL 01 CONQUERED';
+    this.modalDescription.textContent = `You uncovered the deception of The First Assumption with ${totalDeaths} deaths and mastered the 3D Ninja combat. Level 02 awaits in production!`;
     this.btnModalPrimary.textContent = 'PLAY AGAIN';
     this.primaryAction = onNext;
     this.modalOverlay.classList.remove('hidden');

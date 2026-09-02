@@ -1,12 +1,12 @@
 /* ==========================================================================
-   DEVIL'S DOOR — CORE GAME STYLESHEET
+   DEVIL'S DOOR V2 — 3D BABYLON.JS GAME STYLESHEET
    Reach The Door. Trust Nothing.
    ========================================================================== */
 
 :root {
-  --bg-primary: #0c0f17;
-  --bg-surface: rgba(18, 24, 38, 0.85);
-  --bg-modal: #131824;
+  --bg-primary: #07090e;
+  --bg-surface: rgba(14, 19, 29, 0.85);
+  --bg-modal: #111722;
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
@@ -17,7 +17,6 @@
   --border-subtle: rgba(255, 255, 255, 0.1);
   --font-display: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 * {
@@ -47,19 +46,15 @@ html, body {
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background: radial-gradient(circle at center, #151a27 0%, #080a10 100%);
+  background: #04060a;
 }
 
 #game-canvas {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
   display: block;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  image-rendering: pixelated;
+  outline: none;
+  touch-action: none;
 }
 
 /* ==========================================================================
@@ -75,7 +70,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(180deg, rgba(12, 15, 23, 0.9) 0%, rgba(12, 15, 23, 0) 100%);
+  background: linear-gradient(180deg, rgba(7, 9, 14, 0.92) 0%, rgba(7, 9, 14, 0) 100%);
   pointer-events: none;
   z-index: 20;
 }
@@ -111,6 +106,12 @@ html, body {
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.05em;
+}
+
+.hud-health {
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
 }
 
 .hud-deaths {
@@ -152,105 +153,6 @@ html, body {
 }
 
 /* ==========================================================================
-   Cinematic Intro Overlay
-   ========================================================================== */
-.intro-screen {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #06080d;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.8s ease;
-}
-
-.intro-screen.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.intro-content {
-  text-align: center;
-  max-width: 600px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.intro-text {
-  font-size: 0.8rem;
-  letter-spacing: 0.3em;
-  color: var(--text-muted);
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.intro-title {
-  font-size: 3.2rem;
-  font-weight: 900;
-  letter-spacing: 0.25em;
-  color: #fff;
-  text-shadow: 0 0 30px rgba(56, 189, 248, 0.4);
-  margin: 8px 0;
-}
-
-.intro-subtext {
-  font-size: 1.1rem;
-  letter-spacing: 0.15em;
-  color: var(--text-secondary);
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.intro-subtext.highlight {
-  color: var(--accent-cyan);
-  font-weight: 700;
-}
-
-.intro-subtext.sinister {
-  color: var(--accent-crimson);
-  font-weight: 900;
-  letter-spacing: 0.3em;
-}
-
-.pulse {
-  animation: pulseAnim 1.8s infinite ease-in-out;
-}
-
-@keyframes pulseAnim {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
-}
-
-.intro-skip-btn {
-  position: absolute;
-  bottom: 32px;
-  right: 32px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--text-secondary);
-  padding: 8px 16px;
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
-  font-weight: 700;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.intro-skip-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-/* ==========================================================================
    Mobile Touch Controls Overlay
    ========================================================================== */
 .touch-overlay {
@@ -271,13 +173,15 @@ html, body {
 }
 
 .touch-actions {
+  display: flex;
+  gap: 16px;
   pointer-events: auto;
 }
 
 .touch-btn {
   pointer-events: auto;
-  background: rgba(18, 24, 38, 0.65);
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(14, 19, 29, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   color: var(--text-primary);
   display: flex;
@@ -296,29 +200,36 @@ html, body {
   font-size: 1.4rem;
 }
 
-.jump-btn {
-  width: 80px;
-  height: 80px;
-  font-size: 1rem;
+.action-btn {
+  width: 74px;
+  height: 74px;
+  font-size: 0.85rem;
   letter-spacing: 0.05em;
-  background: rgba(56, 189, 248, 0.15);
-  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.jump-btn {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.45);
   color: var(--accent-cyan);
+}
+
+.attack-btn {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: var(--accent-crimson);
 }
 
 .touch-btn:active, .touch-btn.active {
   transform: scale(0.92);
-  background: rgba(56, 189, 248, 0.35);
 }
 
-/* Hide touch controls on desktop mice unless forced or small screen */
 @media (hover: hover) and (pointer: fine) and (min-width: 900px) {
   .touch-overlay {
-    opacity: 0.15;
+    opacity: 0.2;
     transition: opacity 0.3s ease;
   }
   .touch-overlay:hover {
-    opacity: 0.8;
+    opacity: 0.85;
   }
 }
 

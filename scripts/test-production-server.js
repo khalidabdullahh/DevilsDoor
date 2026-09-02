@@ -21,7 +21,6 @@ const MIME_TYPES = {
   '.ico': 'image/x-icon'
 };
 
-// Physical static routing simulation
 function resolveVercelPath(urlPath) {
   const cleanPath = urlPath.split('?')[0];
 
@@ -35,7 +34,6 @@ function resolveVercelPath(urlPath) {
     return path.join(rootDir, 'play', 'index.html');
   }
 
-  // Strip leading slash for relative join
   const relPath = cleanPath.startsWith('/') ? cleanPath.slice(1) : cleanPath;
   return path.join(rootDir, relPath);
 }
@@ -51,14 +49,16 @@ const testEndpoints = [
   { path: '/website/js/website.js', expectedType: 'application/javascript', desc: 'Website Script' },
   { path: '/src/css/game.css', expectedType: 'text/css', desc: 'Game Stylesheet' },
   { path: '/src/js/main.js', expectedType: 'application/javascript', desc: 'Main Game Module' },
-  { path: '/src/js/core/Game.js', expectedType: 'application/javascript', desc: 'Game Loop Module' },
-  { path: '/src/js/render/Renderer25D.js', expectedType: 'application/javascript', desc: '2.5D Renderer Module' },
-  { path: '/src/js/physics/PhysicsWorld.js', expectedType: 'application/javascript', desc: 'Physics World Module' },
-  { path: '/src/js/entities/Player.js', expectedType: 'application/javascript', desc: 'Player Entity Module' },
-  { path: '/src/js/entities/ShadowDevil.js', expectedType: 'application/javascript', desc: 'Shadow Devil Module' },
-  { path: '/src/js/levels/LevelRegistry.js', expectedType: 'application/javascript', desc: 'Level Registry Module' },
-  { path: '/src/js/levels/Level1.js', expectedType: 'application/javascript', desc: 'Level 1 Module' },
-  { path: '/src/js/levels/Level5.js', expectedType: 'application/javascript', desc: 'Level 5 Module' }
+  { path: '/src/js/core/Game.js', expectedType: 'application/javascript', desc: 'Game Coordinator Module' },
+  { path: '/src/js/core/CinematicCamera3D.js', expectedType: 'application/javascript', desc: 'Cinematic 3D Camera Module' },
+  { path: '/src/js/render/BabylonEngine.js', expectedType: 'application/javascript', desc: 'Babylon 3D Engine Module' },
+  { path: '/src/js/render/Environment3D.js', expectedType: 'application/javascript', desc: '3D Environment & Atmospheric VFX' },
+  { path: '/src/js/entities/NinjaPlayer3D.js', expectedType: 'application/javascript', desc: '3D Ninja Player Entity' },
+  { path: '/src/js/entities/ShadowSentry3D.js', expectedType: 'application/javascript', desc: 'Shadow Sentry 3D Enemy' },
+  { path: '/src/js/entities/DevilDoor3D.js', expectedType: 'application/javascript', desc: '3D Devil Door Entity' },
+  { path: '/src/js/combat/CombatSystem.js', expectedType: 'application/javascript', desc: 'Melee Combat System' },
+  { path: '/src/js/physics/PhysicsWorld3D.js', expectedType: 'application/javascript', desc: '3D Physics World Module' },
+  { path: '/src/js/levels/Level01_3D.js', expectedType: 'application/javascript', desc: 'Level 01 Vertical Slice Module' }
 ];
 
 let passed = 0;

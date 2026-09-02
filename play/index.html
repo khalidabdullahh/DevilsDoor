@@ -3,14 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Devil's Door — Reach The Door. Trust Nothing.</title>
-  <meta name="description" content="A 2.5D deceptive platformer from the creators of Aurex. Reach the door. Trust nothing." />
-  <meta name="theme-color" content="#0c0f17" />
+  <title>Devil's Door — 3D Ninja Action-Platformer</title>
+  <meta name="description" content="A 3D dark fantasy ninja action-platformer powered by Babylon.js. Reach the door. Trust nothing." />
+  <meta name="theme-color" content="#07090e" />
   <link rel="stylesheet" href="/src/css/game.css" />
+  <!-- Babylon.js 3D Engine -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
 </head>
 <body>
   <div id="game-container">
-    <!-- Main Game Canvas -->
+    <!-- Main 3D Babylon Canvas -->
     <canvas id="game-canvas"></canvas>
 
     <!-- Top HUD Overlay -->
@@ -21,6 +23,7 @@
       </div>
       <div class="hud-center">
         <span id="level-title" class="hud-title">The First Assumption</span>
+        <span id="health-display" class="hud-health" title="Ninja Health">❤️❤️❤️</span>
       </div>
       <div class="hud-right">
         <div class="hud-deaths">
@@ -33,19 +36,6 @@
       </div>
     </header>
 
-    <!-- Cinematic Intro Overlay -->
-    <div id="intro-overlay" class="intro-screen active">
-      <div class="intro-backdrop"></div>
-      <div class="intro-content">
-        <p id="intro-line-1" class="intro-text fade-in-out">FROM THE CREATORS OF AUREX</p>
-        <h1 id="intro-title" class="intro-title glow-text">DEVIL'S DOOR</h1>
-        <p id="intro-line-2" class="intro-subtext">YOUR OBJECTIVE IS SIMPLE.</p>
-        <p id="intro-line-3" class="intro-subtext highlight">REACH THE DOOR.</p>
-        <p id="intro-line-4" class="intro-subtext sinister pulse">TRUST NOTHING.</p>
-      </div>
-      <button id="btn-skip-intro" class="intro-skip-btn">SKIP INTRO ➔</button>
-    </div>
-
     <!-- Mobile Touch Controls Overlay -->
     <div id="touch-controls" class="touch-overlay">
       <div class="touch-dpad">
@@ -53,7 +43,8 @@
         <button id="touch-right" class="touch-btn dpad-btn" aria-label="Move Right">▶</button>
       </div>
       <div class="touch-actions">
-        <button id="touch-jump" class="touch-btn jump-btn" aria-label="Jump">JUMP</button>
+        <button id="touch-attack" class="touch-btn action-btn attack-btn" aria-label="Attack">SLASH</button>
+        <button id="touch-jump" class="touch-btn action-btn jump-btn" aria-label="Jump">JUMP</button>
       </div>
     </div>
 

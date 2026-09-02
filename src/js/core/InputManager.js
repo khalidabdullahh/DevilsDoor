@@ -1,5 +1,5 @@
 /**
- * InputManager — Handles Keyboard, Gamepad, and Touch D-Pad input cleanly.
+ * InputManager — Handles Keyboard, Mouse, Gamepad, and Touch D-Pad input cleanly.
  */
 export class InputManager {
   constructor() {
@@ -9,6 +9,8 @@ export class InputManager {
     this.touchRight = false;
     this.touchJump = false;
     this.touchJumpJustPressed = false;
+    this.touchAttack = false;
+    this.touchAttackJustPressed = false;
     this.touchRestartJustPressed = false;
 
     this.onRestartCallback = null;
@@ -16,6 +18,7 @@ export class InputManager {
 
     this._initKeyboard();
     this._initGamepad();
+    this._initMouse();
   }
 
   _initKeyboard() {
@@ -50,6 +53,22 @@ export class InputManager {
       this.touchLeft = false;
       this.touchRight = false;
       this.touchJump = false;
+      this.touchAttack = false;
+    });
+  }
+
+  _initMouse() {
+    window.addEventListener('mousedown', (e) => {
+      if (e.button === 0 && e.target.tagName === 'CANVAS') {
+        this.justPressedKeys.add('MouseLeft');
+        this.keys.set('MouseLeft', true);
+      }
+    });
+    window.addEventListener('mouseup', (e) => {
+      if (e.button === 0) {
+        this.keys.set('MouseLeft', false);
+        this.justPressedKeys.delete('MouseLeft');
+      }
     });
   }
 
@@ -62,13 +81,14 @@ export class InputManager {
   pollGamepad() {
     const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
     const gp = gamepads[0];
-    if (!gp) return { left: false, right: false, jump: false, jumpJust: false };
+    if (!gp) return { left: false, right: false, jump: false, attack: false };
 
     const left = gp.axes[0] < -0.3 || (gp.buttons[14] && gp.buttons[14].pressed);
     const right = gp.axes[0] > 0.3 || (gp.buttons[15] && gp.buttons[15].pressed);
     const jump = gp.buttons[0] && gp.buttons[0].pressed;
+    const attack = (gp.buttons[2] && gp.buttons[2].pressed) || (gp.buttons[1] && gp.buttons[1].pressed);
 
-    return { left, right, jump };
+    return { left, right, jump, attack };
   }
 
   isLeft() {
@@ -94,18 +114,32 @@ export class InputManager {
     return Boolean(pressed);
   }
 
+  isAttack() {
+    const gp = this.pollGamepad();
+    return this.keys.get('KeyJ') || this.keys.get('KeyZ') || this.keys.get('KeyF') || this.keys.get('MouseLeft') || this.touchAttack || gp.attack;
+  }
+
+  isAttackJustPressed() {
+    const pressed = this.justPressedKeys.has('KeyJ') ||
+                    this.justPressedKeys.has('KeyZ') ||
+                    this.justPressedKeys.has('KeyF') ||
+                    this.justPressedKeys.has('MouseLeft') ||
+                    this.touchAttackJustPressed;
+    return Boolean(pressed);
+  }
+
   isRestartJustPressed() {
     const pressed = this.justPressedKeys.has('KeyR') || this.touchRestartJustPressed;
     return Boolean(pressed);
   }
 
-  setTouchState(left, right, jump, jumpJustPressed = false) {
+  setTouchState(left, right, jump, jumpJustPressed = false, attack = false, attackJustPressed = false) {
     this.touchLeft = left;
     this.touchRight = right;
     this.touchJump = jump;
-    if (jumpJustPressed) {
-      this.touchJumpJustPressed = true;
-    }
+    this.touchAttack = attack;
+    if (jumpJustPressed) this.touchJumpJustPressed = true;
+    if (attackJustPressed) this.touchAttackJustPressed = true;
   }
 
   triggerTouchRestart() {
@@ -114,9 +148,10 @@ export class InputManager {
   }
 
   update() {
-    // Clear just-pressed frame buffers
+    // Clear single-frame triggers
     this.justPressedKeys.clear();
     this.touchJumpJustPressed = false;
+    this.touchAttackJustPressed = false;
     this.touchRestartJustPressed = false;
   }
 }

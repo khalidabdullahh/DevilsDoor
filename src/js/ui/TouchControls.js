@@ -1,5 +1,5 @@
 /**
- * TouchControls — Handles responsive mobile digital thumb-pads.
+ * TouchControls — Handles mobile digital thumb-pads with Jump and Attack buttons.
  */
 export class TouchControls {
   constructor(inputManager) {
@@ -8,18 +8,19 @@ export class TouchControls {
     this.btnLeft = document.getElementById('touch-left');
     this.btnRight = document.getElementById('touch-right');
     this.btnJump = document.getElementById('touch-jump');
+    this.btnAttack = document.getElementById('touch-attack');
 
     this.leftDown = false;
     this.rightDown = false;
     this.jumpDown = false;
+    this.attackDown = false;
 
     this._bindTouchEvents();
   }
 
   _bindTouchEvents() {
-    if (!this.btnLeft || !this.btnRight || !this.btnJump) return;
-
     const setupBtn = (btn, onDown, onUp) => {
+      if (!btn) return;
       btn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         onDown();
@@ -38,7 +39,7 @@ export class TouchControls {
         btn.classList.remove('active');
       }, { passive: false });
 
-      // Mouse fallback for testing
+      // Mouse fallback
       btn.addEventListener('mousedown', (e) => {
         onDown();
         btn.classList.add('active');
@@ -65,16 +66,28 @@ export class TouchControls {
       this.btnJump,
       () => {
         this.jumpDown = true;
-        this.inputManager.setTouchState(this.leftDown, this.rightDown, true, true);
+        this.inputManager.setTouchState(this.leftDown, this.rightDown, true, true, this.attackDown, false);
       },
       () => {
         this.jumpDown = false;
-        this.inputManager.setTouchState(this.leftDown, this.rightDown, false, false);
+        this.inputManager.setTouchState(this.leftDown, this.rightDown, false, false, this.attackDown, false);
+      }
+    );
+
+    setupBtn(
+      this.btnAttack,
+      () => {
+        this.attackDown = true;
+        this.inputManager.setTouchState(this.leftDown, this.rightDown, this.jumpDown, false, true, true);
+      },
+      () => {
+        this.attackDown = false;
+        this.inputManager.setTouchState(this.leftDown, this.rightDown, this.jumpDown, false, false, false);
       }
     );
   }
 
   _sync() {
-    this.inputManager.setTouchState(this.leftDown, this.rightDown, this.jumpDown);
+    this.inputManager.setTouchState(this.leftDown, this.rightDown, this.jumpDown, false, this.attackDown, false);
   }
 }

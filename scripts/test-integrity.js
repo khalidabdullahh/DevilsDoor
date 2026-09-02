@@ -77,32 +77,23 @@ const requiredGameFiles = [
   'src/css/game.css',
   'src/js/main.js',
   'src/js/core/Game.js',
-  'src/js/core/Camera25D.js',
+  'src/js/core/CinematicCamera3D.js',
   'src/js/core/InputManager.js',
   'src/js/core/AudioManager.js',
   'src/js/core/AnalyticsManager.js',
-  'src/js/render/Renderer25D.js',
-  'src/js/physics/PhysicsWorld.js',
-  'src/js/physics/CollisionBox.js',
-  'src/js/entities/Player.js',
-  'src/js/entities/Door.js',
-  'src/js/entities/ShadowDevil.js',
-  'src/js/entities/Hazard.js',
-  'src/js/deception/DeceptionEngine.js',
-  'src/js/deception/Triggers.js',
-  'src/js/deception/Actions.js',
-  'src/js/intro/IntroSequence.js',
+  'src/js/render/BabylonEngine.js',
+  'src/js/render/Environment3D.js',
+  'src/js/entities/NinjaPlayer3D.js',
+  'src/js/entities/ShadowSentry3D.js',
+  'src/js/entities/DevilDoor3D.js',
+  'src/js/combat/CombatSystem.js',
+  'src/js/physics/PhysicsWorld3D.js',
+  'src/js/levels/Level01_3D.js',
   'src/js/ui/UIManager.js',
-  'src/js/ui/TouchControls.js',
-  'src/js/levels/LevelRegistry.js',
-  'src/js/levels/Level1.js',
-  'src/js/levels/Level2.js',
-  'src/js/levels/Level3.js',
-  'src/js/levels/Level4.js',
-  'src/js/levels/Level5.js'
+  'src/js/ui/TouchControls.js'
 ];
 
-console.log('\n🎮 3. Verifying Game Engine & Modular Codebase (src/):');
+console.log('\n🎮 3. Verifying Babylon 3D Game Engine & Modular Codebase (src/):');
 for (const file of requiredGameFiles) {
   const filePath = path.join(rootDir, file);
   assert(fs.existsSync(filePath), `Game module exists: ${file}`);
@@ -122,25 +113,21 @@ for (const file of requiredWebsiteFiles) {
   assert(fs.existsSync(filePath), `Website asset exists: ${file}`);
 }
 
-// 5. Test Dynamic Level Instantiation & Uniqueness
-console.log('\n🧪 5. Testing Prototype Levels Execution & Uniqueness Matrix:');
+// 5. Test 3D Physics & Level Math Logic
+console.log('\n🧪 5. Testing 3D Physics Collision Engine & Math Validation:');
 
-import { LevelRegistry } from '../src/js/levels/LevelRegistry.js';
+import { PhysicsWorld3D } from '../src/js/physics/PhysicsWorld3D.js';
+const testWorld = new PhysicsWorld3D();
+testWorld.addSolid(0, 0, 10, 2, 2, 'ground');
 
-const totalLevels = LevelRegistry.getTotalLevels();
-assert(totalLevels === 5, `Level Registry reports 5 Prototype Levels (got ${totalLevels})`);
+const moveRes = testWorld.resolveMovement(0, 3, 0.8, 1.8, 0, -2);
+assert(moveRes.grounded === true, 'Player lands on 3D solid ground successfully');
+assert(moveRes.y === 2, 'Player collision resting height is accurately resolved');
 
-const seenTitles = new Set();
-for (let i = 0; i < totalLevels; i++) {
-  const level = LevelRegistry.createLevel(i);
-  assert(level !== null, `Level ${i + 1} instantiates without errors`);
-  assert(level.title && !seenTitles.has(level.title), `Level ${i + 1} has unique title: "${level.title}"`);
-  seenTitles.add(level.title);
-
-  assert(level.physicsWorld.solids.length > 0, `Level ${i + 1} contains solid platforms (${level.physicsWorld.solids.length} solids)`);
-  assert(level.doors.length > 0, `Level ${i + 1} contains exit door (${level.doors.length} door entities)`);
-  assert(level.playerStartX !== undefined && level.playerStartY !== undefined, `Level ${i + 1} has valid start position (${level.playerStartX}, ${level.playerStartY})`);
-}
+const wallSolid = testWorld.addSolid(6, 2, 2, 4, 2, 'wall');
+const wallRes = testWorld.resolveMovement(4.5, 2, 0.8, 1.8, 2, 0);
+assert(wallRes.collidedX === true, 'Horizontal wall collision correctly detected');
+assert(wallRes.x < 5.0, 'Player position prevented from penetrating solid 3D wall');
 
 console.log(`\n============================================================`);
 console.log(`🎉 Integrity Checks Finished: ${passedChecks}/${totalChecks} PASSED.`);
