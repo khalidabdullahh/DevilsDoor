@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DEVIL'S DOOR — 3D Ninja Action-Platformer</title>
-  <meta name="description" content="A 3D dark fantasy ninja action-platformer powered by Babylon.js. Reach the door. Trust nothing." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>DEVIL'S DOOR — Dark Fantasy Ninja Action-Platformer</title>
+  <meta name="description" content="A premium dark fantasy ninja action-platformer featuring 10 full campaign levels, 4 biomes, Demonic Oni boss battles, flowing cloth scarf physics, and deceptive architecture. Reach the door. Trust nothing." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/website/css/website.css" />
 </head>
 <body>
-  <!-- Header Navigation (Cleaned: Single primary CTA rule respected) -->
+  <!-- Header Navigation -->
   <header class="site-header">
     <nav class="nav-container">
       <a href="/" class="brand-link">
@@ -21,13 +21,14 @@
       </a>
       <ul class="nav-links">
         <li><a href="#about">About</a></li>
-        <li><a href="#mechanics">Deception</a></li>
-        <li><a href="#combat">Combat & World</a></li>
-        <li><a href="#progression">Domain Acts</a></li>
+        <li><a href="#campaign">10-Level Campaign</a></li>
+        <li><a href="#combat">Combat & Traps</a></li>
+        <li><a href="#mobile">Mobile Controller</a></li>
         <li><a href="#governance">Governance</a></li>
       </ul>
       <div class="nav-actions">
-        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme" title="Theme (Click to switch)">🌓</button>
+        <a href="/game" class="nav-cta-btn">PLAY GAME</a>
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme" title="Theme">🌓</button>
       </div>
     </nav>
   </header>
@@ -35,16 +36,16 @@
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <div class="hero-badge">FROM THE CREATORS OF AUREX · 3D BABYLON.JS</div>
+      <div class="hero-badge">FROM THE CREATORS OF AUREX · 10-LEVEL CAMPAIGN</div>
       <h1 class="hero-title">DEVIL'S DOOR</h1>
       <h2 class="hero-tagline">REACH THE DOOR. TRUST NOTHING.</h2>
       <p class="hero-description">
-        A dark, atmospheric 3D ninja action-platformer where every death teaches something.
-        Master precision katana combat, agile platforming, and navigate a deceptive 3D world of shifting ruins, crumbling bridges, and false portals.
+        An atmospheric dark fantasy silhouette ninja action-platformer.
+        Master acrobatic double jumps, fluid katana dash-slashes, shuriken throwing, and battle through 10 deceptive campaign levels to conquer the Demonic Oni Gate.
       </p>
       <div class="hero-cta-group">
         <a href="/game" class="btn-cta-primary">
-          <span>PLAY NOW</span>
+          <span>PLAY FULL 10 LEVELS</span>
           <span>➔</span>
         </a>
         <a href="https://github.com/khalidabdullahh/DevilsDoor" target="_blank" rel="noopener noreferrer" class="btn-cta-secondary">
@@ -55,215 +56,178 @@
     </div>
   </section>
 
-  <!-- Section 1: What is Devil's Door? -->
+  <!-- Section 1: Philosophy & Combat -->
   <section id="about" class="section">
     <div class="section-header">
-      <span class="section-tag">01 / PHILOSOPHY</span>
-      <h2 class="section-title">Reach The Door. Trust Nothing.</h2>
+      <span class="section-tag">01 / PHILOSOPHY & ART</span>
+      <h2 class="section-title">Dark Fantasy Silhouette Benchmark</h2>
       <p class="section-subtitle">
-        Your objective is deceptively simple: touch the door to complete the room.
-        The challenge is that the world, routes, hazards, rules, and even the Door will challenge your assumptions.
+        Your objective is deceptively simple: reach the ancient Runic Shrine to ascend.
+        The journey is fraught with deceptive rope bridges, hidden spike pits, swinging pendulum battleaxes, and patrolling Shadow Ninjas.
       </p>
     </div>
 
     <div class="grid-cards">
       <div class="feature-card">
         <span class="card-icon">🥷</span>
-        <h3 class="card-title">Ninja Movement & Combat</h3>
+        <h3 class="card-title">Flowing Cloth Scarf Physics</h3>
         <p class="card-text">
-          Responsive sprint, variable jump height, air control, and fluid katana strikes with knockback and hit sparks against patrolling Shadow Sentries.
-        </p>
-      </div>
-
-      <div class="feature-card">
-        <span class="card-icon">💡</span>
-        <h3 class="card-title">Every Death Teaches</h3>
-        <p class="card-text">
-          Zero arbitrary punishment. Deceptions are discoverable, learnable, and fair. The ideal reaction after failure is: <em>"Ah. Now I understand what happened."</em>
-        </p>
-      </div>
-
-      <div class="feature-card">
-        <span class="card-icon">🏛️</span>
-        <h3 class="card-title">3D Dark Fantasy World</h3>
-        <p class="card-text">
-          Powered by Babylon.js with real-time WebGPU/WebGL rendering, volumetric fog, dynamic shadows, flickering lanterns, and floating cherry blossom particles.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section 2: Deception Engine -->
-  <section id="mechanics" class="section">
-    <div class="section-header">
-      <span class="section-tag">02 / DECEPTION ENGINE</span>
-      <h2 class="section-title">The World Subverts Expectations</h2>
-      <p class="section-subtitle">
-        Powered by a data-driven Trigger-Condition-Action framework, the realm reacts dynamically to your decisions.
-      </p>
-    </div>
-
-    <div class="grid-cards">
-      <div class="feature-card">
-        <span class="card-icon">🌉</span>
-        <h3 class="card-title">Collapsing Bridges & Crypts</h3>
-        <p class="card-text">
-          Obvious high stone spans crumble into the abyss upon your step, safely revealing hidden subterranean crypts and ancient pathways.
-        </p>
-      </div>
-
-      <div class="feature-card">
-        <span class="card-icon">🌪️</span>
-        <h3 class="card-title">Decoy & Shifting Doors</h3>
-        <p class="card-text">
-          Reaching an apparent Door may cause it to dissolve into shadow particles, unlocking genuine subterranean chambers or alternate dimensions.
+          Athletic black silhouette ninja with a conical kasa hat, dual katanas on back, glowing cyan eye slit, and a dynamic 7-node Verlet cloth red scarf that ripples with wind and velocity.
         </p>
       </div>
 
       <div class="feature-card">
         <span class="card-icon">⚔️</span>
-        <h3 class="card-title">Shadow Sentry Combat</h3>
+        <h3 class="card-title">Katana Slashes & Shurikens</h3>
         <p class="card-text">
-          Engage armored ninja sentries with telegraph warnings, vision cones, and fluid swordplay as you fight toward the genuine exit.
+          Execute golden blade dash-slashes through multiple enemies, somersault double-flips, wall slides with sparks, and ranged shuriken star throws.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <span class="card-icon">🌀</span>
+        <h3 class="card-title">Cinematic Exit Ascension</h3>
+        <p class="card-text">
+          Reach the ancient Torii Obelisk Shrine at the end of each level. Watch the vertical celestial light beam erupt as the ninja sheathes their blade and ascends into the cosmic vortex.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- Section 3: Combat & World -->
-  <section id="combat" class="section">
+  <!-- Section 2: 10-Level Campaign Acts -->
+  <section id="campaign" class="section">
     <div class="section-header">
-      <span class="section-tag">03 / ACTION & ATMOSPHERE</span>
-      <h2 class="section-title">Master the Blade, Question the Path</h2>
+      <span class="section-tag">02 / CAMPAIGN ACTS</span>
+      <h2 class="section-title">4 Biomes, 10 Epic Levels</h2>
       <p class="section-subtitle">
-        Cinematic side-focused 3D camera with depth framing and responsive katana combat.
+        Experience escalating difficulty, dynamic deceptions, and tactical enemy encounters across 4 distinct atmospheric biomes.
       </p>
     </div>
 
-    <div class="devil-spotlight">
-      <div class="devil-eye-graphic">
-        <div class="devil-eye-slit"></div>
-      </div>
-      <p class="devil-quote">"The obvious path is not always the correct path. Trust your blade, but doubt the world."</p>
-      <p class="hero-description" style="max-width: 640px;">
-        Level 01: <em>The First Assumption</em> serves as the production vertical slice, establishing the dark fantasy visual benchmark,
-        responsive platforming flow, and signature deceptive architecture.
-      </p>
-    </div>
-  </section>
-
-  <!-- Section 4: Domain Progression -->
-  <section id="progression" class="section">
-    <div class="section-header">
-      <span class="section-tag">04 / 7-LEVEL PRODUCTION ROADMAP</span>
-      <h2 class="section-title">The Devil's Domain</h2>
-      <p class="section-subtitle">
-        One continuous deceptive realm progressing from initial discovery to ultimate mastery.
-      </p>
-    </div>
-
-    <div class="progression-list">
-      <div class="progression-item">
-        <div class="progression-left">
-          <span class="progression-num">LEVEL 01</span>
-          <span class="progression-name">The First Assumption</span>
+    <div class="acts-grid">
+      <div class="act-card">
+        <div class="act-header">
+          <span class="act-num">ACT I</span>
+          <span class="act-title">Mountain Shrines (Lv 1 - 3)</span>
         </div>
-        <span class="progression-tag">Vertical Slice · Bridge Collapse Deception & Sentry Combat</span>
+        <p class="act-desc">
+          Twilight mountain ridges, the famous rope bridge collapse deception, emerald bamboo groves, and the Cavern of Claws with swinging pendulum battleaxes.
+        </p>
       </div>
 
-      <div class="progression-item">
-        <div class="progression-left">
-          <span class="progression-num">LEVEL 02</span>
-          <span class="progression-name">Patience & Peril</span>
+      <div class="act-card">
+        <div class="act-header">
+          <span class="act-num">ACT II</span>
+          <span class="act-title">Ancient Crypts (Lv 4 - 6)</span>
         </div>
-        <span class="progression-tag">Timing Traps & Velocity Rhythm</span>
+        <p class="act-desc">
+          Glacial ice caverns with hanging stalactite icicles, forgotten stone ruins with vertical wall-jump shafts, and venomous crimson thorn forests.
+        </p>
       </div>
 
-      <div class="progression-item">
-        <div class="progression-left">
-          <span class="progression-num">LEVEL 03</span>
-          <span class="progression-name">The False Exit</span>
+      <div class="act-card">
+        <div class="act-header">
+          <span class="act-num">ACT III</span>
+          <span class="act-title">Shadow Stronghold (Lv 7 - 9)</span>
         </div>
-        <span class="progression-tag">Decoy Portals & Subterranean Sanctums</span>
+        <p class="act-desc">
+          Golden desert dunes with burning campfires, burning multi-tier pagoda roofs, and the deadly Hall of 1000 Blades with synchronized pendulum traps.
+        </p>
       </div>
 
-      <div class="progression-item">
-        <div class="progression-left">
-          <span class="progression-num">LEVEL 04</span>
-          <span class="progression-name">Phase Shift</span>
+      <div class="act-card highlight-card">
+        <div class="act-header">
+          <span class="act-num">ACT IV</span>
+          <span class="act-title">Demonic Oni Gate (Lv 10)</span>
         </div>
-        <span class="progression-tag">World-State Manipulation & Platform Polarity</span>
-      </div>
-
-      <div class="progression-item">
-        <div class="progression-left">
-          <span class="progression-num">LEVEL 05</span>
-          <span class="progression-name">Gaze of the Shadow Devil</span>
-        </div>
-        <span class="progression-tag">Stealth, Observation & Environmental Freezes</span>
-      </div>
-
-      <div class="progression-item">
-        <div class="progression-left">
-          <span class="progression-num">LEVEL 06</span>
-          <span class="progression-name">The Hunter</span>
-        </div>
-        <span class="progression-tag">Advanced Enemy AI & Sword Combat</span>
-      </div>
-
-      <div class="progression-item">
-        <div class="progression-left">
-          <span class="progression-num">LEVEL 07</span>
-          <span class="progression-name">The Broken Domain</span>
-        </div>
-        <span class="progression-tag">Endgame Mastery of All Disciplines</span>
+        <p class="act-desc">
+          The ultimate climax: Battle the giant Demonic Oni Samurai Boss with blue armor, dual giant katanas, ground shockwaves, and lightning storms to unlock the true Devil's Door!
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- Section 5: Governance & Open Source -->
+  <!-- Section 3: Mobile Touch Controller -->
+  <section id="mobile" class="section">
+    <div class="section-header">
+      <span class="section-tag">03 / MOBILE ERGONOMICS</span>
+      <h2 class="section-title">100% Touch Responsive Controls</h2>
+      <p class="section-subtitle">
+        Engineered with multi-touch precision for mobile and tablet browsers:
+      </p>
+    </div>
+
+    <div class="grid-cards">
+      <div class="feature-card">
+        <span class="card-icon">◀ ▶</span>
+        <h3 class="card-title">Stylized Triangular D-Pad</h3>
+        <p class="card-text">
+          Generous touch areas on bottom-left for comfortable thumb steering with instant response and zero input delay.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <span class="card-icon">✦ ⚔️ ⬆️</span>
+        <h3 class="card-title">Dedicated Action Cluster</h3>
+        <p class="card-text">
+          Large tactile buttons on bottom-right for JUMP, SLASH, and SHURIKEN. Supports simultaneous multi-touch combinations (e.g. sprint + jump + slash).
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <span class="card-icon">📱</span>
+        <h3 class="card-title">Safe Area & Gesture Lock</h3>
+        <p class="card-text">
+          Fully locked against accidental browser scrolling or pinch-to-zoom (`touch-action: none`) with safe-area padding for modern notched displays.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: Governance & Project Details -->
   <section id="governance" class="section">
-    <div class="governance-card">
-      <span class="governance-badge">OPEN DEVELOPMENT + FOUNDER FINAL AUTHORITY</span>
-      <h2 class="section-title">Open Source, Founder Led</h2>
-      <p class="hero-description">
-        Devil's Door is created by <strong>Khalid Abdullah</strong> (Aurex).
-        We welcome global open-source contributions for mechanics, level proposals, accessibility, and performance
-        under a curated merging model that protects the game's original identity.
+    <div class="section-header">
+      <span class="section-tag">04 / OPEN SOURCE GOVERNANCE</span>
+      <h2 class="section-title">Production Quality & Roadmap</h2>
+      <p class="section-subtitle">
+        Maintained under the authority of founder Khalid Abdullah with complete governance, CI/CD automated test verification, and analytics.
       </p>
-      <div class="hero-cta-group">
-        <a href="https://github.com/khalidabdullahh/DevilsDoor/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" class="btn-cta-secondary">
-          <span>CONTRIBUTION GUIDELINES</span>
-        </a>
-        <a href="https://github.com/khalidabdullahh/DevilsDoor/blob/main/GOVERNANCE.md" target="_blank" rel="noopener noreferrer" class="btn-cta-secondary">
-          <span>GOVERNANCE MODEL</span>
-        </a>
+    </div>
+
+    <div class="governance-meta">
+      <div class="meta-item">
+        <span class="meta-label">Project Owner</span>
+        <span class="meta-value">Khalid Abdullah (Founder & Chief Developer)</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Repository</span>
+        <span class="meta-value"><a href="https://github.com/khalidabdullahh/DevilsDoor" target="_blank" rel="noopener">github.com/khalidabdullahh/DevilsDoor</a></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Total Levels</span>
+        <span class="meta-value">10 Playable Campaign Levels + Boss Battle</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">License</span>
+        <span class="meta-value">MIT License · Open Source</span>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
   <footer class="site-footer">
-    <div class="footer-content">
-      <div class="footer-top">
-        <div class="brand-link">
-          <span class="brand-icon">🚪</span>
-          <span class="brand-text">DEVIL'S DOOR</span>
-        </div>
-        <div class="footer-links">
-          <a href="/game">Play Game</a>
-          <a href="https://github.com/khalidabdullahh/DevilsDoor">GitHub</a>
-          <a href="https://github.com/khalidabdullahh/DevilsDoor/blob/main/LICENSE">License</a>
-          <a href="https://github.com/khalidabdullahh/DevilsDoor/blob/main/docs/MASTER_CONTEXT.md">Documentation</a>
-        </div>
+    <div class="footer-container">
+      <div class="footer-left">
+        <span class="footer-brand">DEVIL'S DOOR</span>
+        <span class="footer-copy">© 2026 Khalid Abdullah. All rights reserved.</span>
       </div>
-      <div class="footer-bottom">
-        <p>© 2026 Khalid Abdullah (Aurex). All rights reserved.</p>
-        <p>REACH THE DOOR. TRUST NOTHING.</p>
+      <div class="footer-right">
+        <a href="/game" class="footer-link">Play Game</a>
+        <a href="https://github.com/khalidabdullahh/DevilsDoor" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
       </div>
     </div>
   </footer>
 
-  <script src="/website/js/website.js"></script>
+  <script type="module" src="/website/js/website.js"></script>
 </body>
 </html>
