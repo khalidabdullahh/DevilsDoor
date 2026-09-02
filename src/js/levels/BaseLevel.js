@@ -3,8 +3,14 @@ import { OniBossEnemy } from '../entities/OniBossEnemy.js';
 
 /**
  * BaseLevel — Master Blueprint for all 10 Campaign Levels.
- * Features organic silhouette terrain, swinging pendulum battleaxes, campfires,
- * clay vessels, hokora shrines, and the Ascending Runic Shrine exit.
+ * Renders authentic Ninja Arashi 2 dark fantasy environments:
+ * - Organic rocky cave ledges, stalactites, stalagmites, and root fringes
+ * - Reaching demon claws with glowing crimson nails (Screenshot 1)
+ * - Spiked demon pods hanging from branches (Screenshot 3)
+ * - Roadside stone shrines (*Hokora*) & ancient clay vases (*Tsubo*) (Screenshot 4)
+ * - Swinging pendulum battleaxes on chains (Screenshot 5)
+ * - Burning campfires with animated embers (Screenshot 1)
+ * - Glowing Runic Shrine with ascending celestial light beam exit (Screenshot 5)
  */
 export class BaseLevel {
   constructor(id, title, biome = 'desert', width = 1800, height = 900) {
@@ -23,6 +29,9 @@ export class BaseLevel {
     this.lanterns = [];
     this.campfires = [];
     this.urns = [];
+    this.hokoraShrines = [];
+    this.demonClaws = [];
+    this.thornPods = [];
     this.pendulumAxes = [];
     this.bridgePlanks = [];
 
@@ -34,8 +43,7 @@ export class BaseLevel {
       y: 480,
       width: 54,
       height: 84,
-      vortexAngle: 0,
-      beamHeight: 0
+      vortexAngle: 0
     };
   }
 
@@ -75,7 +83,6 @@ export class BaseLevel {
       const swingX = axe.anchorX + Math.sin(axe.angle) * axe.length;
       const swingY = axe.anchorY + Math.cos(axe.angle) * axe.length;
 
-      // Check collision with player
       if (player && !player.isDead) {
         if (Math.hypot(player.x - swingX, player.y - swingY) < 32) {
           player.takeDamage(1, Math.cos(axe.angle) > 0 ? 1 : -1, audio);
@@ -84,7 +91,7 @@ export class BaseLevel {
       }
     }
 
-    // 2. Animate Dynamic Collapsing Bridge Planks (if present)
+    // 2. Animate Dynamic Collapsing Bridge Planks
     if (this.deceptionTriggered) {
       this.collapseTime += dt;
       for (let i = 0; i < this.bridgePlanks.length; i++) {
@@ -216,12 +223,27 @@ export class BaseLevel {
       ctx.fill();
     }
 
-    // 2. Campfires (Screenshot 1 Match)
+    // 2. Reaching Demon Claws (Screenshot 1 Match)
+    for (const dc of this.demonClaws) {
+      this._drawDemonClaw(ctx, dc.x - camX, dc.y - camY, dc.rot || 0, dc.scale || 1.0);
+    }
+
+    // 3. Hanging Demon Spiked Pods (Screenshot 3 Match)
+    for (const tp of this.thornPods) {
+      this._drawThornPod(ctx, tp.x - camX, tp.y - camY);
+    }
+
+    // 4. Campfires (Screenshot 1 Match)
     for (const cf of this.campfires) {
       this._drawCampfire(ctx, cf.x - camX, cf.y - camY, time);
     }
 
-    // 3. Terrain Solids
+    // 5. Roadside Stone Shrines (*Hokora* — Screenshot 4 Match)
+    for (const hs of this.hokoraShrines) {
+      this._drawHokoraShrine(ctx, hs.x - camX, hs.y - camY);
+    }
+
+    // 6. Terrain Solids & Organic Rock Details
     ctx.fillStyle = '#05080f';
     ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
     ctx.shadowBlur = 10;
@@ -242,22 +264,32 @@ export class BaseLevel {
 
       ctx.fillRect(sx, sy, solid.width, solid.height);
 
-      // Top grass / moss details
+      // Top organic moss tufts and jagged ledge grass
       if (solid.tag !== 'collapsing_plank') {
         ctx.beginPath();
-        for (let gx = sx; gx < sx + solid.width; gx += 16) {
+        for (let gx = sx; gx < sx + solid.width; gx += 14) {
           ctx.moveTo(gx, sy);
-          ctx.lineTo(gx + 3, sy - 5);
-          ctx.lineTo(gx + 6, sy);
+          ctx.lineTo(gx + 3, sy - 6);
+          ctx.lineTo(gx + 7, sy);
         }
         ctx.fill();
+
+        // Hanging roots beneath ledges
+        if (this.biome !== 'ice') {
+          for (let rx = sx + 20; rx < sx + solid.width - 20; rx += 45) {
+            ctx.beginPath();
+            ctx.moveTo(rx, sy + solid.height);
+            ctx.quadraticCurveTo(rx + 4, sy + solid.height + 12, rx + 2, sy + solid.height + 18);
+            ctx.stroke();
+          }
+        }
       }
 
-      // Hanging Icicles in Ice Biome
+      // Hanging Icicles in Ice Biome (Screenshot 5 Match)
       if (this.biome === 'ice') {
         ctx.fillStyle = '#e0f2fe';
         ctx.beginPath();
-        for (let ix = sx + 8; ix < sx + solid.width - 8; ix += 24) {
+        for (let ix = sx + 8; ix < sx + solid.width - 8; ix += 20) {
           ctx.moveTo(ix, sy + solid.height);
           ctx.lineTo(ix + 4, sy + solid.height + 18);
           ctx.lineTo(ix + 8, sy + solid.height);
@@ -267,22 +299,22 @@ export class BaseLevel {
       }
     }
 
-    // 4. Ancient Clay Urns (*Tsubo* Jars — Screenshot 4 Match)
+    // 7. Ancient Clay Urns (*Tsubo* Jars — Screenshot 4 Match)
     for (const u of this.urns) {
       this._drawClayUrn(ctx, u.x - camX, u.y - camY);
     }
 
-    // 5. Hanging Lanterns
+    // 8. Hanging Lanterns
     for (const l of this.lanterns) {
       this._drawLantern(ctx, l.x - camX, l.y - camY);
     }
 
-    // 6. Swinging Pendulum Battleaxes (Screenshot 5 Match)
+    // 9. Swinging Pendulum Battleaxes (Screenshot 5 Match)
     for (const axe of this.pendulumAxes) {
       this._drawPendulumAxe(ctx, axe, camX, camY);
     }
 
-    // 7. Spike Hazards
+    // 10. Spike Hazards
     for (const h of this.hazards) {
       const hx = h.x - h.width / 2 - camX;
       const hy = h.y - camY;
@@ -303,13 +335,102 @@ export class BaseLevel {
       ctx.fill();
     }
 
-    // 8. Runic Shrine & Ascending Beam Exit
+    // 11. Runic Shrine & Ascending Celestial Beam Exit (Screenshot 5 Match)
     this._drawExitShrine(ctx, this.door.x - camX, this.door.y - camY, this.door.vortexAngle);
+  }
+
+  _drawDemonClaw(ctx, x, y, rot = 0, scale = 1.0) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    ctx.scale(scale, scale);
+
+    ctx.fillStyle = '#05080f';
+    ctx.beginPath();
+    ctx.moveTo(-18, 0);
+    ctx.quadraticCurveTo(-14, 45, -30, 80);
+    ctx.quadraticCurveTo(-10, 60, -4, 40);
+    ctx.quadraticCurveTo(10, 70, 0, 95);
+    ctx.quadraticCurveTo(8, 65, 14, 45);
+    ctx.quadraticCurveTo(28, 80, 26, 105);
+    ctx.quadraticCurveTo(24, 60, 18, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Glowing Red Claw Tips (Screenshot 1 Match)
+    ctx.fillStyle = '#ef4444';
+    ctx.shadowColor = '#ef4444';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(-30, 80, 3, 0, Math.PI * 2);
+    ctx.arc(0, 95, 3, 0, Math.PI * 2);
+    ctx.arc(26, 105, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  _drawThornPod(ctx, x, y) {
+    ctx.save();
+    // Hanging cord
+    ctx.strokeStyle = '#05080f';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(x, y - 35);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+
+    // Spiked Pod Body
+    ctx.fillStyle = '#05080f';
+    ctx.shadowColor = '#ef4444';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(x, y + 16, 22, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Crimson Spikes around pod
+    ctx.fillStyle = '#ef4444';
+    for (let a = 0; a < 8; a++) {
+      const angle = (a * Math.PI * 2) / 8;
+      const sx = x + Math.cos(angle) * 28;
+      const sy = y + 16 + Math.sin(angle) * 28;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  _drawHokoraShrine(ctx, x, y) {
+    ctx.save();
+    ctx.fillStyle = '#05080f';
+
+    // Stone Base
+    ctx.fillRect(x - 14, y - 10, 28, 10);
+    ctx.fillRect(x - 10, y - 24, 20, 14);
+
+    // Curved Stone Roof
+    ctx.beginPath();
+    ctx.moveTo(x - 22, y - 24);
+    ctx.quadraticCurveTo(x, y - 34, x + 22, y - 24);
+    ctx.lineTo(x + 18, y - 18);
+    ctx.quadraticCurveTo(x, y - 26, x - 18, y - 18);
+    ctx.closePath();
+    ctx.fill();
+
+    // Inner Glowing Spirit Core
+    ctx.fillStyle = '#fbbf24';
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(x, y - 16, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
   }
 
   _drawCampfire(ctx, x, y, time) {
     ctx.save();
-    // Warm Light Glow
     const fireHalo = ctx.createRadialGradient(x, y - 10, 4, x, y - 10, 110);
     fireHalo.addColorStop(0, 'rgba(249, 115, 22, 0.45)');
     fireHalo.addColorStop(1, 'rgba(234, 88, 12, 0)');
@@ -318,11 +439,9 @@ export class BaseLevel {
     ctx.arc(x, y - 10, 110, 0, Math.PI * 2);
     ctx.fill();
 
-    // Wood Logs
     ctx.fillStyle = '#05080f';
     ctx.fillRect(x - 14, y - 4, 28, 6);
 
-    // Flickering Flame
     const flicker = Math.sin(time * 12) * 4;
     ctx.fillStyle = '#f97316';
     ctx.shadowColor = '#fbbf24';
@@ -341,7 +460,6 @@ export class BaseLevel {
     ctx.quadraticCurveTo(x, y - 16 + flicker, x + 5, y - 4);
     ctx.closePath();
     ctx.fill();
-
     ctx.restore();
   }
 
@@ -393,7 +511,6 @@ export class BaseLevel {
     const by = ay + Math.cos(axe.angle) * axe.length;
 
     ctx.save();
-    // Chain / Rod
     ctx.strokeStyle = '#05080f';
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -401,13 +518,11 @@ export class BaseLevel {
     ctx.lineTo(bx, by);
     ctx.stroke();
 
-    // Anchor Pin
     ctx.fillStyle = '#05080f';
     ctx.beginPath();
     ctx.arc(ax, ay, 6, 0, Math.PI * 2);
     ctx.fill();
 
-    // Red Crescent Battleaxe Blade
     ctx.save();
     ctx.translate(bx, by);
     ctx.rotate(-axe.angle);
@@ -435,14 +550,14 @@ export class BaseLevel {
     ctx.save();
     ctx.translate(x, y);
 
-    // Ancient Stone Torii Pillars
+    // Torii Pillars
     ctx.fillStyle = '#05080f';
     ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
     ctx.shadowBlur = 14;
     ctx.fillRect(-28, 0, 10, 84);
     ctx.fillRect(18, 0, 10, 84);
 
-    // Glowing Cyan Runic Glyphs
+    // Glowing Cyan Glyphs
     ctx.fillStyle = '#38bdf8';
     ctx.shadowColor = '#38bdf8';
     ctx.shadowBlur = 12;
@@ -451,7 +566,7 @@ export class BaseLevel {
       ctx.fillRect(22, py, 2.5, 5);
     }
 
-    // Top Lintel Beam
+    // Top Beam
     ctx.fillStyle = '#05080f';
     ctx.beginPath();
     ctx.moveTo(-44, -10);
@@ -461,7 +576,7 @@ export class BaseLevel {
     ctx.closePath();
     ctx.fill();
 
-    // Vertical Ascending Celestial Light Beam (Screenshot 5 Match)
+    // Vertical Celestial Light Beam
     const beamGrad = ctx.createLinearGradient(0, 84, 0, -450);
     beamGrad.addColorStop(0, 'rgba(56, 189, 248, 0.75)');
     beamGrad.addColorStop(0.5, 'rgba(14, 165, 233, 0.45)');
@@ -469,7 +584,7 @@ export class BaseLevel {
     ctx.fillStyle = beamGrad;
     ctx.fillRect(-14, -450, 28, 534);
 
-    // Inner Swirling Cosmic Portal
+    // Inner Swirling Vortex
     ctx.save();
     ctx.translate(0, 42);
     ctx.rotate(vortexAngle);

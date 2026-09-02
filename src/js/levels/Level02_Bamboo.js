@@ -3,7 +3,7 @@ import { ShadowNinjaEnemy } from '../entities/ShadowNinjaEnemy.js';
 
 /**
  * Level 02 — "Whispering Bamboo" (Emerald Teal Bamboo Biome).
- * Features dense bamboo silhouettes, multi-tier platforms, and dual scout encounters.
+ * Features dense bamboo silhouettes, roadside Hokora shrines, and dual scout encounters.
  */
 export class Level02_Bamboo extends BaseLevel {
   constructor() {
@@ -23,12 +23,13 @@ export class Level02_Bamboo extends BaseLevel {
     this.solids.push({ x: 600, y: 340, width: 220, height: 24, tag: 'high_branch', active: true });
     this.solids.push({ x: 1100, y: 320, width: 200, height: 24, tag: 'high_branch_2', active: true });
 
-    // 2. Props & Lanterns
+    // 2. Props, Hokora Stone Shrines & Lanterns (Screenshot 4 Match)
     this.lanterns.push({ x: 180, y: 500 });
     this.lanterns.push({ x: 740, y: 420 });
     this.lanterns.push({ x: 1300, y: 500 });
     this.urns.push({ x: 520, y: 540 });
     this.urns.push({ x: 880, y: 460 });
+    this.hokoraShrines.push({ x: 1020, y: 460 });
 
     // 3. Hazards
     this.hazards.push({ x: 640, y: 524, width: 80, height: 24, tag: 'bamboo_pit', active: true });

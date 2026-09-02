@@ -2,8 +2,8 @@ import { BaseLevel } from './BaseLevel.js';
 import { ShadowNinjaEnemy } from '../entities/ShadowNinjaEnemy.js';
 
 /**
- * Level 03 — "Cavern of Claws" (Lilac Cavern Biome).
- * Features swinging pendulum battleaxes and cavern stalactite traps.
+ * Level 03 — "Cavern of Claws" (Lilac Cavern Biome — Screenshot 1 Match).
+ * Features reaching demon claws from ceiling and swinging pendulum battleaxes.
  */
 export class Level03_Cavern extends BaseLevel {
   constructor() {
@@ -22,7 +22,12 @@ export class Level03_Cavern extends BaseLevel {
     // Cavern Ceiling
     this.solids.push({ x: 900, y: 140, width: 1800, height: 140, tag: 'cavern_roof', active: true });
 
-    // 2. Swinging Pendulum Battleaxes (Screenshot 5 Match)
+    // 2. Reaching Demon Claws from Ceiling (Screenshot 1 Match)
+    this.demonClaws.push({ x: 440, y: 140, rot: 0, scale: 1.1 });
+    this.demonClaws.push({ x: 820, y: 140, rot: 0.15, scale: 1.2 });
+    this.demonClaws.push({ x: 1360, y: 140, rot: -0.1, scale: 1.15 });
+
+    // 3. Swinging Pendulum Battleaxes (Screenshot 5 Match)
     this.pendulumAxes.push({
       anchorX: 680,
       anchorY: 140,
@@ -39,7 +44,7 @@ export class Level03_Cavern extends BaseLevel {
       speed: 2.8
     });
 
-    // 3. Spikes & Props
+    // 4. Spikes & Props
     this.hazards.push({ x: 680, y: 524, width: 80, height: 24, tag: 'pit_spikes', active: true });
     this.hazards.push({ x: 1180, y: 484, width: 75, height: 24, tag: 'step_spikes', active: true });
 
@@ -48,7 +53,7 @@ export class Level03_Cavern extends BaseLevel {
     this.urns.push({ x: 420, y: 540 });
     this.urns.push({ x: 960, y: 500 });
 
-    // 4. Enemies
+    // 5. Enemies
     const spearman = new ShadowNinjaEnemy(850, 446, 760, 1050, 'spear');
     const scout = new ShadowNinjaEnemy(1520, 486, 1380, 1680, 'scout');
     this.enemies.push(spearman);

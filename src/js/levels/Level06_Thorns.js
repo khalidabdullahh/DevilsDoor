@@ -2,8 +2,8 @@ import { BaseLevel } from './BaseLevel.js';
 import { ShadowNinjaEnemy } from '../entities/ShadowNinjaEnemy.js';
 
 /**
- * Level 06 — "Crimson Thorns" (Thorn Forest Biome).
- * Features hanging demon pods and dense thorn pit hazards.
+ * Level 06 — "Crimson Thorns" (Thorn Forest Biome — Screenshot 3 Match).
+ * Features hanging demonic spiked pods and poison thorn hazards.
  */
 export class Level06_Thorns extends BaseLevel {
   constructor() {
@@ -22,7 +22,12 @@ export class Level06_Thorns extends BaseLevel {
     // High Branch
     this.solids.push({ x: 1100, y: 340, width: 220, height: 24, tag: 'thorn_branch', active: true });
 
-    // 2. Traps & Hazards
+    // 2. Hanging Demonic Spiked Pods (Screenshot 3 Match)
+    this.thornPods.push({ x: 540, y: 300 });
+    this.thornPods.push({ x: 1040, y: 300 });
+    this.thornPods.push({ x: 1480, y: 320 });
+
+    // 3. Traps & Hazards
     this.hazards.push({ x: 600, y: 524, width: 95, height: 24, tag: 'thorn_pit_1', active: true });
     this.hazards.push({ x: 1040, y: 524, width: 95, height: 24, tag: 'thorn_pit_2', active: true });
     this.hazards.push({ x: 1380, y: 524, width: 75, height: 24, tag: 'floor_spikes', active: true });
@@ -31,7 +36,7 @@ export class Level06_Thorns extends BaseLevel {
     this.lanterns.push({ x: 740, y: 420 });
     this.lanterns.push({ x: 1350, y: 500 });
 
-    // 3. Enemies
+    // 4. Enemies
     const scout1 = new ShadowNinjaEnemy(760, 406, 680, 920, 'scout');
     const scout2 = new ShadowNinjaEnemy(1450, 486, 1300, 1650, 'scout');
     this.enemies.push(scout1);
