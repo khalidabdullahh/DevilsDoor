@@ -1,6 +1,6 @@
 /**
  * NinjaArashiRenderer — Multi-Biome Master Parallax & Silhouette Engine.
- * Supports 5 distinct atmospheric biomes:
+ * Supports 5 distinct atmospheric biomes with dynamic Hi-DPI scaling:
  * - 'bamboo': Emerald Teal Mist & vertical bamboo stalks (Screenshots 4 & 5)
  * - 'cavern': Lilac Violet Caverns with reaching demon claws & pendulum battleaxes (Screenshot 1)
  * - 'ice': Glacial Ice Blue with hanging icicles & snow mist (Screenshot 5)
@@ -31,6 +31,7 @@ export class NinjaArashiRenderer {
       this.height = this.canvas.height;
     };
     window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', resize);
     resize();
   }
 
@@ -219,64 +220,39 @@ export class NinjaArashiRenderer {
     ctx.restore();
   }
 
-  _drawCurvedRoof(ctx, x, y, width) {
+  _drawCurvedRoof(ctx, cx, cy, width) {
     ctx.beginPath();
-    ctx.moveTo(x - width, y);
-    ctx.quadraticCurveTo(x, y - 12, x + width, y);
-    ctx.lineTo(x + width * 0.75, y - 6);
-    ctx.quadraticCurveTo(x, y - 16, x - width * 0.75, y - 6);
+    ctx.moveTo(cx - width / 2 - 8, cy);
+    ctx.quadraticCurveTo(cx, cy - 14, cx + width / 2 + 8, cy);
+    ctx.lineTo(cx + width / 2, cy + 6);
+    ctx.quadraticCurveTo(cx, cy - 4, cx - width / 2, cy + 6);
     ctx.closePath();
     ctx.fill();
   }
 
   _drawParticles(ctx, biome, w, h) {
     ctx.save();
-    const wind = Math.sin(this.time * 1.8) * 30;
+    let pColor = 'rgba(251, 191, 36, 0.75)'; // Golden embers
+    if (biome === 'bamboo') pColor = 'rgba(167, 243, 208, 0.7)'; // Emerald leaves
+    if (biome === 'cavern') pColor = 'rgba(216, 180, 254, 0.7)'; // Lilac spores
+    if (biome === 'ice') pColor = 'rgba(224, 242, 254, 0.85)'; // Snowflakes
+    if (biome === 'boss') pColor = 'rgba(244, 63, 94, 0.85)'; // Crimson embers
 
+    ctx.fillStyle = pColor;
     for (const p of this.particles) {
-      p.x += (p.vx + wind) * 0.016;
+      p.x += p.vx * 0.016;
       p.y += p.vy * 0.016;
       p.rot += p.rotSpeed * 0.016;
 
-      if (p.x < -60) p.x = w + 60;
-      if (p.y > h + 40) {
-        p.y = -40;
-        p.x = Math.random() * (w + 200) - 100;
-      }
+      if (p.x < -50) p.x = w + 50;
+      if (p.y > h + 50) p.y = -50;
 
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rot);
-
-      if (biome === 'ice') {
-        // Snow Flake Particle
-        ctx.fillStyle = '#e0f2fe';
-        ctx.shadowColor = '#bae6fd';
-        ctx.shadowBlur = 8;
-        ctx.beginPath();
-        ctx.arc(0, 0, p.size * 0.6, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (biome === 'bamboo') {
-        // Spirit Energy Wisp
-        ctx.fillStyle = '#6ee7b7';
-        ctx.shadowColor = '#34d399';
-        ctx.shadowBlur = 10;
-        ctx.beginPath();
-        ctx.arc(0, 0, p.size * 0.5, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Crimson Cherry Blossom Petal
-        ctx.fillStyle = '#ef4444';
-        ctx.shadowColor = '#f87171';
-        ctx.shadowBlur = 6;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, p.size, p.size * 0.45, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
       ctx.restore();
     }
-
     ctx.restore();
   }
 }

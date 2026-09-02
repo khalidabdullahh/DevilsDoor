@@ -2,7 +2,7 @@ import { AnalyticsManager } from '../core/AnalyticsManager.js';
 
 /**
  * UIManager — Manages HUD elements, health hearts, death counters, campaign modals,
- * and rewarded ad level-skip popups.
+ * and rewarded ad level-skip popups. Supports free orientation (portrait & landscape).
  */
 export class UIManager {
   constructor(game) {
@@ -25,10 +25,8 @@ export class UIManager {
     this.btnModalHome = document.getElementById('btn-modal-home');
 
     this.loadingOverlay = document.getElementById('loading-overlay');
-    this.rotateOverlay = document.getElementById('rotate-overlay');
 
     this._bindEvents();
-    this._initOrientationWatcher();
   }
 
   _bindEvents() {
@@ -73,31 +71,6 @@ export class UIManager {
         window.location.href = '/';
       });
     }
-  }
-
-  _initOrientationWatcher() {
-    const checkOrientation = () => {
-      const isPortrait = window.innerHeight > window.innerWidth && window.innerWidth < 768;
-      if (this.rotateOverlay) {
-        if (isPortrait) {
-          this.rotateOverlay.classList.remove('hidden');
-          if (this.game && !this.game.isPaused) {
-            this.game.setPaused(true);
-            this._wasPausedByOrientation = true;
-          }
-        } else {
-          this.rotateOverlay.classList.add('hidden');
-          if (this.game && this._wasPausedByOrientation) {
-            this.game.setPaused(false);
-            this._wasPausedByOrientation = false;
-          }
-        }
-      }
-    };
-
-    window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', checkOrientation);
-    checkOrientation();
   }
 
   hideLoading() {
