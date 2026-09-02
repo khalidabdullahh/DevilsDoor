@@ -47,6 +47,7 @@ const testEndpoints = [
   { path: '/src/css/game.css', expectedType: 'text/css', desc: 'Game Stylesheet' },
   { path: '/src/js/main.js', expectedType: 'application/javascript', desc: 'Main Game Module' },
   { path: '/src/js/core/Game.js', expectedType: 'application/javascript', desc: 'Game Coordinator Module' },
+  { path: '/src/js/core/AdManager.js', expectedType: 'application/javascript', desc: 'AdManager Module' },
   { path: '/src/js/entities/OniBossEnemy.js', expectedType: 'application/javascript', desc: 'Oni Boss Enemy Entity' },
   { path: '/src/js/levels/LevelRegistry.js', expectedType: 'application/javascript', desc: 'Level Registry Module' },
   { path: '/src/js/levels/Level10_OniBoss.js', expectedType: 'application/javascript', desc: 'Level 10 Boss Module' }

@@ -1,5 +1,8 @@
+import { AnalyticsManager } from '../core/AnalyticsManager.js';
+
 /**
- * UIManager — Manages HUD elements, health hearts, death counters, and campaign modals.
+ * UIManager — Manages HUD elements, health hearts, death counters, campaign modals,
+ * and rewarded ad level-skip popups.
  */
 export class UIManager {
   constructor(game) {
@@ -21,7 +24,11 @@ export class UIManager {
     this.btnModalRestart = document.getElementById('btn-modal-restart');
     this.btnModalHome = document.getElementById('btn-modal-home');
 
+    this.loadingOverlay = document.getElementById('loading-overlay');
+    this.rotateOverlay = document.getElementById('rotate-overlay');
+
     this._bindEvents();
+    this._initOrientationWatcher();
   }
 
   _bindEvents() {
@@ -54,8 +61,10 @@ export class UIManager {
 
     if (this.btnModalRestart) {
       this.btnModalRestart.addEventListener('click', () => {
+        const restartAction = this.restartAction;
         this.hideModal();
-        if (this.game) this.game.restartLevel();
+        if (restartAction) restartAction();
+        else if (this.game) this.game.restartLevel();
       });
     }
 
@@ -63,6 +72,40 @@ export class UIManager {
       this.btnModalHome.addEventListener('click', () => {
         window.location.href = '/';
       });
+    }
+  }
+
+  _initOrientationWatcher() {
+    const checkOrientation = () => {
+      const isPortrait = window.innerHeight > window.innerWidth && window.innerWidth < 768;
+      if (this.rotateOverlay) {
+        if (isPortrait) {
+          this.rotateOverlay.classList.remove('hidden');
+          if (this.game && !this.game.isPaused) {
+            this.game.setPaused(true);
+            this._wasPausedByOrientation = true;
+          }
+        } else {
+          this.rotateOverlay.classList.add('hidden');
+          if (this.game && this._wasPausedByOrientation) {
+            this.game.setPaused(false);
+            this._wasPausedByOrientation = false;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    checkOrientation();
+  }
+
+  hideLoading() {
+    if (this.loadingOverlay) {
+      this.loadingOverlay.classList.add('fade-out');
+      setTimeout(() => {
+        this.loadingOverlay.classList.add('hidden');
+      }, 350);
     }
   }
 
@@ -91,6 +134,9 @@ export class UIManager {
     this.modalTitle.textContent = 'PAUSED';
     this.modalDescription.textContent = 'Trust nothing. The obvious path is rarely the true route.';
     this.btnModalPrimary.textContent = 'RESUME';
+    this.btnModalRestart.textContent = 'RESTART LEVEL';
+    this.btnModalRestart.classList.remove('hidden');
+    this.restartAction = null;
     this.primaryAction = () => {
       if (this.game) this.game.setPaused(false);
     };
@@ -113,7 +159,29 @@ export class UIManager {
       this.btnModalPrimary.textContent = 'NEXT LEVEL ➔';
     }
 
+    this.btnModalRestart.textContent = 'RESTART LEVEL';
+    this.btnModalRestart.classList.remove('hidden');
+    this.restartAction = null;
     this.primaryAction = onNext;
+    this.modalOverlay.classList.remove('hidden');
+  }
+
+  showRewardedSkipModal(levelIndex, onWatch, onDecline) {
+    if (this.game) this.game.setPaused(true);
+    AnalyticsManager.track('rewarded_ad_offer', { levelId: levelIndex });
+
+    this.modalTitle.textContent = 'TOO MANY DEATHS?';
+    this.modalDescription.textContent = 'Stuck on this deceptive path? Watch a short 5-second ad to unlock and skip to the next level!';
+    this.btnModalPrimary.textContent = 'WATCH & SKIP';
+    this.btnModalRestart.textContent = 'NO THANKS';
+    this.btnModalRestart.classList.remove('hidden');
+
+    this.primaryAction = onWatch;
+    this.restartAction = () => {
+      if (this.game) this.game.setPaused(false);
+      if (onDecline) onDecline();
+    };
+
     this.modalOverlay.classList.remove('hidden');
   }
 

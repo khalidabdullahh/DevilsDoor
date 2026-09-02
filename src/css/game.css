@@ -50,7 +50,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Top HUD Overlay (Ninja Avatar & Star Status)
+   Top HUD Overlay (Ninja Avatar & Status)
    ========================================================================== */
 .hud-overlay {
   position: absolute;
@@ -60,7 +60,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: env(safe-area-inset-top, 16px) 24px 12px 24px;
+  padding: env(safe-area-inset-top, 16px) calc(env(safe-area-inset-right, 24px) + 12px) 12px calc(env(safe-area-inset-left, 24px) + 12px);
   pointer-events: none;
   z-index: 20;
 }
@@ -73,15 +73,15 @@ html, body {
 }
 
 .hud-avatar-box {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   background: rgba(15, 23, 42, 0.85);
   border: 2px solid var(--accent-cyan);
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
 }
 
@@ -128,7 +128,7 @@ html, body {
 .hud-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   pointer-events: auto;
 }
 
@@ -150,14 +150,14 @@ html, body {
   background: var(--bg-hud);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--text-primary);
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  font-size: 1.05rem;
+  font-size: 1rem;
   backdrop-filter: blur(8px);
   transition: transform 0.1s ease, border-color 0.2s ease;
 }
@@ -168,7 +168,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Mobile Touch Controls Overlay (Exact Ninja Arashi 2 Layout)
+   Mobile Touch Controls Overlay (Responsive Ninja Arashi Layout)
    ========================================================================== */
 .touch-overlay {
   position: absolute;
@@ -178,16 +178,15 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 0 32px calc(env(safe-area-inset-bottom, 24px) + 16px) 32px;
+  padding: 0 calc(env(safe-area-inset-right, 24px) + 16px) calc(env(safe-area-inset-bottom, 24px) + 16px) calc(env(safe-area-inset-left, 24px) + 16px);
 }
 
 .touch-dpad {
   display: flex;
-  gap: 20px;
+  gap: clamp(12px, 2.5vw, 24px);
   pointer-events: auto;
 }
 
-/* Stylized Triangular Arrow Buttons matching Screenshot 5 */
 .touch-btn {
   pointer-events: auto;
   touch-action: none;
@@ -205,17 +204,17 @@ html, body {
 }
 
 .dpad-btn {
-  width: 74px;
-  height: 74px;
+  width: clamp(62px, 11vw, 76px);
+  height: clamp(62px, 11vw, 76px);
   border-radius: 20px;
-  font-size: 1.6rem;
+  font-size: clamp(1.4rem, 2.8vw, 1.7rem);
   color: #e2e8f0;
 }
 
 .touch-actions {
   display: flex;
   align-items: flex-end;
-  gap: 16px;
+  gap: clamp(12px, 2vw, 18px);
   pointer-events: auto;
 }
 
@@ -229,32 +228,32 @@ html, body {
 }
 
 .jump-btn {
-  width: 84px;
-  height: 84px;
+  width: clamp(72px, 13vw, 86px);
+  height: clamp(72px, 13vw, 86px);
   background: rgba(56, 189, 248, 0.22);
   border-color: rgba(56, 189, 248, 0.6);
   color: var(--accent-cyan);
-  font-size: 0.95rem;
+  font-size: clamp(0.85rem, 1.8vw, 0.95rem);
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
 }
 
 .attack-btn {
-  width: 74px;
-  height: 74px;
+  width: clamp(64px, 11vw, 76px);
+  height: clamp(64px, 11vw, 76px);
   background: rgba(251, 191, 36, 0.22);
   border-color: rgba(251, 191, 36, 0.6);
   color: var(--accent-gold);
-  font-size: 0.85rem;
+  font-size: clamp(0.75rem, 1.6vw, 0.85rem);
   box-shadow: 0 0 14px rgba(251, 191, 36, 0.35);
 }
 
 .shuriken-btn {
-  width: 66px;
-  height: 66px;
+  width: clamp(56px, 10vw, 68px);
+  height: clamp(56px, 10vw, 68px);
   background: rgba(168, 85, 247, 0.22);
   border-color: rgba(168, 85, 247, 0.6);
   color: #c084fc;
-  font-size: 1.3rem;
+  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
   box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
 }
 
@@ -265,14 +264,14 @@ html, body {
 }
 
 /* ==========================================================================
-   Modals (Victory & Pause)
+   Modals (Victory, Pause, Rewarded Ad Skip)
    ========================================================================== */
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(5, 8, 15, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(5, 8, 15, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -288,9 +287,9 @@ html, body {
 .modal-card {
   background: #0f172a;
   border: 2px solid var(--accent-cyan);
-  box-shadow: 0 0 32px rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 36px rgba(56, 189, 248, 0.35);
   border-radius: 16px;
-  padding: 36px 44px;
+  padding: 36px 40px;
   max-width: 440px;
   width: 90%;
   text-align: center;
@@ -351,4 +350,179 @@ html, body {
 .btn-secondary:active {
   transform: scale(0.96);
   border-color: var(--accent-cyan);
+}
+
+/* ==========================================================================
+   Loading Overlay
+   ========================================================================== */
+#loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: #07090e;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  z-index: 200;
+  transition: opacity 0.35s ease;
+}
+
+#loading-overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-title {
+  font-weight: 900;
+  font-size: 1.8rem;
+  letter-spacing: 0.15em;
+  color: var(--accent-gold);
+}
+
+.loading-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(56, 189, 248, 0.2);
+  border-top-color: var(--accent-cyan);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Portrait Orientation Overlay (Graceful Cinematic Prompt)
+   ========================================================================== */
+#rotate-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 9, 14, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 32px;
+  gap: 18px;
+  z-index: 300;
+}
+
+#rotate-overlay.hidden {
+  display: none;
+}
+
+.rotate-icon {
+  font-size: 3.4rem;
+  animation: rotatePhone 2s ease-in-out infinite;
+}
+
+@keyframes rotatePhone {
+  0%, 10% { transform: rotate(0deg); }
+  50%, 60% { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.rotate-title {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  letter-spacing: 0.1em;
+}
+
+.rotate-desc {
+  font-size: 1rem;
+  color: var(--text-muted);
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Rewarded Ad Overlay (Provider-Agnostic Monetization)
+   ========================================================================== */
+#ad-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 7, 18, 0.95);
+  backdrop-filter: blur(16px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 250;
+}
+
+#ad-overlay.hidden {
+  display: none;
+}
+
+.ad-card {
+  background: #0f172a;
+  border: 2px solid var(--accent-gold);
+  box-shadow: 0 0 32px rgba(251, 191, 36, 0.3);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 480px;
+  width: 90%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ad-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--accent-gold);
+  background: rgba(251, 191, 36, 0.15);
+  padding: 4px 12px;
+  border-radius: 12px;
+  align-self: center;
+}
+
+.ad-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #f8fafc;
+}
+
+.ad-desc {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.ad-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+#ad-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  transition: width 0.1s linear;
+}
+
+#ad-timer {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.hidden {
+  display: none !important;
 }

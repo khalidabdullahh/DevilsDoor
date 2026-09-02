@@ -13,6 +13,20 @@
     <!-- Main Game Canvas -->
     <canvas id="game-canvas"></canvas>
 
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+      <h1 class="loading-title">DEVIL'S DOOR</h1>
+      <div class="loading-spinner"></div>
+      <p class="loading-subtitle">ENTERING THE SHADOWS...</p>
+    </div>
+
+    <!-- Portrait Orientation Overlay -->
+    <div id="rotate-overlay" class="hidden">
+      <div class="rotate-icon">📱</div>
+      <h2 class="rotate-title">ROTATE YOUR DEVICE</h2>
+      <p class="rotate-desc">Devil's Door is best experienced in landscape orientation.</p>
+    </div>
+
     <!-- Top HUD Overlay -->
     <header id="game-hud" class="hud-overlay">
       <div class="hud-left">
@@ -60,6 +74,20 @@
           <button id="btn-modal-restart" class="btn-secondary">RESTART LEVEL</button>
           <button id="btn-modal-home" class="btn-secondary">EXIT TO MENU</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Rewarded Ad Overlay -->
+    <div id="ad-overlay" class="hidden">
+      <div class="ad-card">
+        <span class="ad-badge">SPONSORED REWARD</span>
+        <h3 class="ad-title">DEVIL'S SANCTUM</h3>
+        <p class="ad-desc">Prepare for the next trial. Unlock your ascension by watching this message.</p>
+        <div class="ad-progress-track">
+          <div id="ad-progress-fill"></div>
+        </div>
+        <span id="ad-timer">Reward in 5s</span>
+        <button id="btn-ad-close" class="btn-primary hidden">CLAIM SKIP REWARD ➔</button>
       </div>
     </div>
   </div>

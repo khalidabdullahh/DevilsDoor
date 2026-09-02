@@ -1,5 +1,5 @@
 /**
- * test-integrity.js — Automated Integrity Test Suite for 10-Level Campaign.
+ * test-integrity.js — Automated Integrity Test Suite for 10-Level Campaign & AdManager.
  */
 
 import fs from 'fs';
@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
-console.log('🚪 [DEVIL\'S DOOR] Running 10-Level System Integrity Checks...\n');
+console.log('🚪 [DEVIL\'S DOOR] Running 10-Level System Integrity & Ad Checks...\n');
 
 let passedChecks = 0;
 let totalChecks = 0;
@@ -73,7 +73,7 @@ for (const doc of requiredDocs) {
   assert(fs.existsSync(docPath), `Doc exists: ${doc}`);
 }
 
-// 3. Check All 10 Level Modules & Boss Codebase
+// 3. Check All 10 Level Modules, Boss Codebase & AdManager
 const requiredGameFiles = [
   'src/index.html',
   'src/css/game.css',
@@ -83,6 +83,7 @@ const requiredGameFiles = [
   'src/js/core/InputManager.js',
   'src/js/core/AudioManager.js',
   'src/js/core/AnalyticsManager.js',
+  'src/js/core/AdManager.js',
   'src/js/render/NinjaArashiRenderer.js',
   'src/js/entities/NinjaArashiPlayer.js',
   'src/js/entities/ShadowNinjaEnemy.js',
@@ -104,7 +105,7 @@ const requiredGameFiles = [
   'src/js/ui/TouchControls.js'
 ];
 
-console.log('\n🎮 3. Verifying 10-Level Campaign Modules & Boss Codebase (src/):');
+console.log('\n🎮 3. Verifying 10-Level Campaign Modules, Boss & Ad Codebase (src/):');
 for (const file of requiredGameFiles) {
   const filePath = path.join(rootDir, file);
   assert(fs.existsSync(filePath), `Module exists: ${file}`);

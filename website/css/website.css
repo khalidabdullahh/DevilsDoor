@@ -1,5 +1,5 @@
 /* ==========================================================================
-   DEVIL'S DOOR — OFFICIAL MARKETING PORTAL STYLESHEET
+   DEVIL'S DOOR — COMMERCIAL MARKETING PORTAL STYLESHEET
    Reach The Door. Trust Nothing.
    ========================================================================== */
 
@@ -62,7 +62,7 @@ body {
 
 .brand-text {
   font-weight: 900;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   letter-spacing: 0.15em;
 }
 
@@ -76,13 +76,13 @@ body {
 .nav-links a {
   text-decoration: none;
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   transition: color 0.2s ease;
 }
 
 .nav-links a:hover {
-  color: var(--text-primary);
+  color: var(--accent-cyan);
 }
 
 .nav-actions {
@@ -161,20 +161,31 @@ body {
   letter-spacing: 0.1em;
 }
 
+/* High Contrast Hero Title for both Dark and Light Themes */
 .hero-title {
-  font-size: 3.6rem;
+  font-size: 3.8rem;
   font-weight: 900;
-  letter-spacing: 0.1em;
-  background: linear-gradient(135deg, #f8fafc, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.12em;
+  color: var(--text-primary);
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="light"] .hero-title,
+:root:not([data-theme="dark"]) .hero-title {
+  color: #0f172a;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .hero-title {
+  color: #f8fafc;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.85);
 }
 
 .hero-tagline {
-  font-size: 1.4rem;
+  font-size: 1.45rem;
   font-weight: 800;
   letter-spacing: 0.15em;
-  color: var(--accent-gold);
+  color: var(--accent-amber);
 }
 
 .hero-description {
@@ -258,7 +269,7 @@ body {
 }
 
 .section-title {
-  font-size: 2.2rem;
+  font-size: 2.3rem;
   font-weight: 900;
   letter-spacing: 0.05em;
   margin-bottom: 16px;
@@ -266,7 +277,7 @@ body {
 }
 
 .section-subtitle {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   color: var(--text-secondary);
   line-height: 1.6;
 }
@@ -276,15 +287,15 @@ body {
    ========================================================================== */
 .grid-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 24px;
 }
 
 .feature-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 32px 28px;
+  padding: 32px 26px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -329,6 +340,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  transition: transform 0.2s ease;
+}
+
+.act-card:hover {
+  transform: translateY(-4px);
 }
 
 .act-header {
@@ -345,9 +361,15 @@ body {
 }
 
 .act-title {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 800;
   color: var(--text-primary);
+}
+
+.act-levels {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
 }
 
 .act-desc {
@@ -366,45 +388,50 @@ body {
 }
 
 /* ==========================================================================
-   Governance Metadata
+   Boss Section
    ========================================================================== */
-.governance-meta {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 32px 28px;
+.boss-section {
+  text-align: center;
+  background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.1) 0%, transparent 70%);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  margin-top: 40px;
+  margin-bottom: 60px;
 }
 
-.meta-item {
+.boss-content {
+  max-width: 720px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 18px;
 }
 
-.meta-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.meta-value {
-  font-size: 1rem;
-  font-weight: 700;
+.boss-title {
+  font-size: 2.8rem;
+  font-weight: 900;
   color: var(--text-primary);
+  letter-spacing: 0.1em;
 }
 
-.meta-value a {
-  color: var(--accent-cyan);
-  text-decoration: none;
+.boss-tagline {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--accent-crimson);
+  letter-spacing: 0.05em;
 }
 
-.meta-value a:hover {
-  text-decoration: underline;
+.boss-desc {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.btn-cta-large {
+  padding: 16px 36px;
+  font-size: 1.1rem;
+  margin-top: 8px;
 }
 
 /* ==========================================================================
@@ -430,7 +457,7 @@ body {
   font-weight: 900;
   font-size: 1.1rem;
   letter-spacing: 0.12em;
-  color: var(--accent-gold);
+  color: var(--accent-amber);
   margin-right: 16px;
 }
 
@@ -452,7 +479,7 @@ body {
 }
 
 .footer-link:hover {
-  color: var(--text-primary);
+  color: var(--accent-cyan);
 }
 
 /* ==========================================================================
@@ -463,13 +490,16 @@ body {
     display: none;
   }
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 2.6rem;
   }
   .hero-tagline {
     font-size: 1.15rem;
   }
   .section-title {
-    font-size: 1.7rem;
+    font-size: 1.8rem;
+  }
+  .boss-title {
+    font-size: 2rem;
   }
   .section {
     padding: 60px 20px;

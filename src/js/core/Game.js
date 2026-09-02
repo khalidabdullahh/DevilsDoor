@@ -3,9 +3,11 @@ import { Camera2D } from './Camera2D.js';
 import { NinjaArashiPlayer } from '../entities/NinjaArashiPlayer.js';
 import { LevelRegistry } from '../levels/LevelRegistry.js';
 import { AnalyticsManager } from './AnalyticsManager.js';
+import { AdManager } from './AdManager.js';
 
 /**
- * Game — Master Coordinator for Devil's Door: 10-Level Campaign & Ascension Engine.
+ * Game — Master Coordinator for Devil's Door: 10-Level Campaign, Ad Monetization,
+ * and Cinematic Ascension Engine.
  */
 export class Game {
   constructor(canvas, inputManager, audioManager, uiManager) {
@@ -18,10 +20,14 @@ export class Game {
     this.camera = null;
     this.player = null;
     this.level = null;
+    this.adManager = null;
 
     this.currentLevelIndex = 1;
     this.totalLevels = LevelRegistry.TOTAL_LEVELS;
     this.deaths = 0;
+    this.levelDeaths = 0;
+    this.rewardOfferShownThisLevel = false;
+
     this.isPaused = false;
     this.isTransitioning = false;
     this.deathResetTimer = 0;
@@ -42,6 +48,7 @@ export class Game {
     this.renderer = new NinjaArashiRenderer(this.canvas);
     this.camera = new Camera2D(window.innerWidth, window.innerHeight);
     this.player = new NinjaArashiPlayer(100, 220);
+    this.adManager = new AdManager(this);
 
     this.loadLevel(1);
 
@@ -51,11 +58,18 @@ export class Game {
     if (this.audio) {
       this.audio.startAmbientDrone();
     }
+
+    if (this.ui) {
+      this.ui.hideLoading();
+    }
   }
 
   loadLevel(levelNumber) {
     this.currentLevelIndex = Math.min(this.totalLevels, Math.max(1, levelNumber));
     this.level = LevelRegistry.getLevel(this.currentLevelIndex);
+    this.levelDeaths = 0;
+    this.rewardOfferShownThisLevel = false;
+
     this.player.reset(this.level.playerStartX, this.level.playerStartY);
     this.camera.snapTo(this.player.x, this.player.y);
     this.camera.setBounds(0, this.level.width || 1900, 0, this.level.height || 950);
@@ -76,6 +90,8 @@ export class Game {
   restartLevel() {
     if (!this.level) return;
     this.deaths++;
+    this.levelDeaths++;
+
     this.level.reset();
     this.player.reset(this.level.playerStartX, this.level.playerStartY);
     this.camera.snapTo(this.player.x, this.player.y);
@@ -89,7 +105,35 @@ export class Game {
       this.player.maxHealth
     );
 
-    AnalyticsManager.track('level_retry', { levelId: this.currentLevelIndex, deaths: this.deaths });
+    AnalyticsManager.track('player_death', { levelId: this.currentLevelIndex, totalDeaths: this.deaths, levelDeaths: this.levelDeaths });
+
+    // 7th Death Rewarded Level Skip Offer
+    if (this.levelDeaths >= 7 && !this.rewardOfferShownThisLevel && this.currentLevelIndex < this.totalLevels) {
+      this.rewardOfferShownThisLevel = true;
+      this.ui.showRewardedSkipModal(
+        this.currentLevelIndex,
+        () => {
+          // Player chose to watch ad
+          this.adManager.showRewardedAd(
+            (rewardVerified) => {
+              if (rewardVerified) {
+                AnalyticsManager.track('level_skipped', { levelId: this.currentLevelIndex });
+                this.loadLevel(this.currentLevelIndex + 1);
+                this.setPaused(false);
+              }
+            },
+            (err) => {
+              console.warn('[AdManager] Ad failed:', err);
+              this.setPaused(false);
+            }
+          );
+        },
+        () => {
+          // Player declined
+          this.setPaused(false);
+        }
+      );
+    }
   }
 
   setPaused(paused) {
@@ -107,7 +151,7 @@ export class Game {
     const camX = this.camera.getCamX();
     const camY = this.camera.getCamY();
 
-    this.renderer.render(camX, camY, this.level, this.player, this.level.enemies);
+    this.renderer.render(camX, camY, this.level, this.player, this.level ? this.level.enemies : []);
 
     this.input.update();
     requestAnimationFrame((t) => this._loop(t));
@@ -204,9 +248,9 @@ export class Game {
     if (this.audio) this.audio.playLevelComplete();
 
     // Calculate stars
-    const stars = this.deaths === 0 ? 3 : (this.deaths <= 2 ? 2 : 1);
+    const stars = this.levelDeaths === 0 ? 3 : (this.levelDeaths <= 2 ? 2 : 1);
     LevelRegistry.saveProgress(this.currentLevelIndex, stars);
-    AnalyticsManager.track('level_complete', { levelId: this.currentLevelIndex, deaths: this.deaths, stars });
+    AnalyticsManager.track('level_complete', { levelId: this.currentLevelIndex, deaths: this.levelDeaths, stars });
 
     setTimeout(() => {
       this.ui.showVictoryModal(this.currentLevelIndex, this.totalLevels, this.deaths, stars, () => {
