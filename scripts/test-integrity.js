@@ -120,12 +120,13 @@ const testLevel = new Level01_Arashi();
 
 assert(testLevel.solids.length > 0, `Level 01 contains solids (${testLevel.solids.length} solids)`);
 assert(testLevel.bridgePlanks.length === 8, `Level 01 has 8 dynamic collapsing rope bridge planks`);
-assert(testLevel.enemies.length === 1, `Level 01 has 1 Shadow Spearman guard`);
-assert(testLevel.door !== null && testLevel.door.x > 1000, `Level 01 has genuine Devil's Door exit`);
+assert(testLevel.enemies.length === 2, `Level 01 has 2 Shadow Ninja enemies (Scout and Spearman)`);
+assert(testLevel.hazards.length === 3, `Level 01 has 3 hazards (Ceiling Spikes, Bamboo Pit, Floor Spikes)`);
+assert(testLevel.door !== null && testLevel.door.x > 1500, `Level 01 has genuine Devil's Door exit at end of arena`);
 
-const landingRes = testLevel.resolve2D(120, 200, 32, 54, 0, 200);
+const landingRes = testLevel.resolve2D(100, 150, 32, 54, 0, 200);
 assert(landingRes.grounded === true, `Player lands on starting cliff platform`);
-assert(landingRes.y === 306, `Landing height is precisely resolved (y = 306)`);
+assert(landingRes.y === 226, `Landing height is precisely resolved (y = 226)`);
 
 console.log(`\n============================================================`);
 console.log(`🎉 Integrity Checks Finished: ${passedChecks}/${totalChecks} PASSED.`);

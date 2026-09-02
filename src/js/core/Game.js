@@ -5,7 +5,7 @@ import { Level01_Arashi } from '../levels/Level01_Arashi.js';
 import { AnalyticsManager } from './AnalyticsManager.js';
 
 /**
- * Game — Master Coordinator for Devil's Door: Ninja Arashi 2 Visual Benchmark.
+ * Game — Master Coordinator for Devil's Door: Clean Visuals, Combat & Trap Synergy.
  */
 export class Game {
   constructor(canvas, inputManager, audioManager, uiManager) {
@@ -39,7 +39,7 @@ export class Game {
   init() {
     this.renderer = new NinjaArashiRenderer(this.canvas);
     this.camera = new Camera2D(window.innerWidth, window.innerHeight);
-    this.player = new NinjaArashiPlayer(120, 300);
+    this.player = new NinjaArashiPlayer(100, 220);
 
     this.loadLevel(1);
 
@@ -55,7 +55,7 @@ export class Game {
     this.level = new Level01_Arashi();
     this.player.reset(this.level.playerStartX, this.level.playerStartY);
     this.camera.snapTo(this.player.x, this.player.y);
-    this.camera.setBounds(0, 1400, 0, 950);
+    this.camera.setBounds(0, 1800, 0, 950);
 
     this.isTransitioning = false;
     this.ui.updateHUD(
@@ -148,7 +148,7 @@ export class Game {
       }
     }
 
-    // 4. Update Level Deception & Enemies
+    // 4. Update Level Deception, Enemies & Trap Interactions
     this.level.update(dt, this.player, this.audio, this.camera);
 
     // 5. Update Camera Tracking

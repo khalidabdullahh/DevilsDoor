@@ -1,5 +1,5 @@
 /**
- * Camera2D — Smooth tracking camera with forward look-ahead and trauma-based screen shake.
+ * Camera2D — Smooth Dynamic Action Follow Camera with Zoom & Trauma Screen Shake.
  */
 export class Camera2D {
   constructor(viewportWidth = 1280, viewportHeight = 720) {
@@ -11,7 +11,7 @@ export class Camera2D {
     this.targetX = 0;
     this.targetY = 0;
 
-    this.lerpSpeed = 0.08;
+    this.lerpSpeed = 0.09;
     this.lookAheadX = 0;
     this.targetLookAhead = 0;
 
@@ -20,7 +20,7 @@ export class Camera2D {
     this.shakeY = 0;
 
     this.minX = 0;
-    this.maxX = 1400;
+    this.maxX = 1800;
     this.minY = 0;
     this.maxY = 900;
   }
@@ -37,8 +37,8 @@ export class Camera2D {
   }
 
   snapTo(x, y) {
-    this.x = x - this.viewportWidth / 2;
-    this.y = y - this.viewportHeight / 2;
+    this.x = x - this.viewportWidth * 0.35;
+    this.y = y - this.viewportHeight * 0.45;
     this.targetX = this.x;
     this.targetY = this.y;
   }
@@ -49,11 +49,11 @@ export class Camera2D {
 
     if (player) {
       const pvx = player.vx || 0;
-      this.targetLookAhead = player.facing * Math.min(120, Math.abs(pvx) * 0.25);
-      this.lookAheadX += (this.targetLookAhead - this.lookAheadX) * 0.05;
+      this.targetLookAhead = player.facing * Math.min(140, Math.abs(pvx) * 0.28);
+      this.lookAheadX += (this.targetLookAhead - this.lookAheadX) * 0.06;
 
-      const idealX = player.x + this.lookAheadX - this.viewportWidth / 2;
-      const idealY = player.y - this.viewportHeight * 0.55;
+      const idealX = player.x + this.lookAheadX - this.viewportWidth * 0.38;
+      const idealY = player.y - this.viewportHeight * 0.52;
 
       this.targetX = Math.max(this.minX, Math.min(this.maxX - this.viewportWidth, idealX));
       this.targetY = Math.max(this.minY, Math.min(this.maxY - this.viewportHeight, idealY));
