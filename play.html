@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Devil's Door — 3D Ninja Action-Platformer</title>
+  <meta name="description" content="A 3D dark fantasy ninja action-platformer powered by Babylon.js. Reach the door. Trust nothing." />
+  <meta name="theme-color" content="#07090e" />
+  <link rel="stylesheet" href="/src/css/game.css" />
+  <!-- Babylon.js 3D Engine -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+</head>
+<body>
+  <div id="game-container">
+    <!-- Main 3D Babylon Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Top HUD Overlay -->
+    <header id="game-hud" class="hud-overlay">
+      <div class="hud-left">
+        <span class="hud-brand">DEVIL'S DOOR</span>
+        <span id="level-display" class="hud-badge">LEVEL 01</span>
+      </div>
+      <div class="hud-center">
+        <span id="level-title" class="hud-title">The First Assumption</span>
+        <span id="health-display" class="hud-health" title="Ninja Health">❤️❤️❤️</span>
+      </div>
+      <div class="hud-right">
+        <div class="hud-deaths">
+          <span class="death-icon">💀</span>
+          <span id="death-count">0</span>
+        </div>
+        <button id="btn-restart" class="hud-btn" title="Restart Level (R)" aria-label="Restart Level">↻</button>
+        <button id="btn-audio" class="hud-btn" title="Toggle Audio" aria-label="Toggle Audio">🔊</button>
+        <button id="btn-menu" class="hud-btn" title="Pause Menu (Esc)" aria-label="Pause Menu">⏸</button>
+      </div>
+    </header>
+
+    <!-- Mobile Touch Controls Overlay -->
+    <div id="touch-controls" class="touch-overlay">
+      <div class="touch-dpad">
+        <button id="touch-left" class="touch-btn dpad-btn" aria-label="Move Left">◀</button>
+        <button id="touch-right" class="touch-btn dpad-btn" aria-label="Move Right">▶</button>
+      </div>
+      <div class="touch-actions">
+        <button id="touch-attack" class="touch-btn action-btn attack-btn" aria-label="Attack">SLASH</button>
+        <button id="touch-jump" class="touch-btn action-btn jump-btn" aria-label="Jump">JUMP</button>
+      </div>
+    </div>
+
+    <!-- Pause & Victory Modal Overlay -->
+    <div id="modal-overlay" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <h2 id="modal-title" class="modal-heading">PAUSED</h2>
+        <p id="modal-description" class="modal-body">Press Resume to continue your ascent through the Devil's Domain.</p>
+        <div class="modal-actions">
+          <button id="btn-modal-primary" class="btn-primary">RESUME</button>
+          <button id="btn-modal-restart" class="btn-secondary">RESTART LEVEL</button>
+          <button id="btn-modal-home" class="btn-secondary">EXIT TO MENU</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts: Native ECMAScript Modules -->
+  <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>
