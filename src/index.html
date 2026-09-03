@@ -47,79 +47,110 @@
       </div>
     </header>
 
-    <!-- Mobile Touch Controls Overlay with Authentic Ninja Arashi Artwork Logos -->
+    <!-- Mobile Touch Controls Overlay with Authentic Ninja Arashi 2 Artwork Logos -->
     <div id="touch-controls" class="touch-overlay">
       <div class="touch-dpad">
-        <!-- Move Left: Ninja Running Left Logo -->
+        <!-- Move Left: Ornate Engraved Steel Kunai Arrow -->
         <button id="touch-left" class="touch-btn dpad-btn" aria-label="Move Left" title="Move Left">
-          <svg viewBox="0 0 48 48" width="38" height="38" class="btn-icon">
-            <path d="M40 16 L34 24 L40 32" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.6"/>
-            <path d="M34 16 L28 24 L34 32" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <ellipse cx="18" cy="14" rx="9" ry="3.5" fill="#f8fafc"/>
-            <circle cx="18" cy="15" r="4" fill="#f8fafc"/>
-            <rect x="14" y="14.5" width="4" height="1.5" fill="#38bdf8"/>
-            <path d="M14 18 L22 18 L19 28 L11 28 Z" fill="#f8fafc"/>
-            <path d="M12 27 L6 36 L11 38 L15 30 Z" fill="#f8fafc"/>
-            <path d="M18 27 L25 33 L22 36 L15 30 Z" fill="#f8fafc"/>
-            <path d="M22 17 Q 32 15, 36 22 Q 28 20, 20 19 Z" fill="#ef4444"/>
+          <svg viewBox="0 0 64 64" width="46" height="46" class="btn-icon">
+            <defs>
+              <linearGradient id="silverGradL" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="50%" stop-color="#94a3b8"/>
+                <stop offset="100%" stop-color="#475569"/>
+              </linearGradient>
+              <linearGradient id="arrowGlowL" x1="100%" y1="0%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#0284c7"/>
+              </linearGradient>
+            </defs>
+            <path d="M48 12 L22 32 L48 52 L40 52 L14 32 L40 12 Z" fill="url(#silverGradL)"/>
+            <path d="M54 18 L34 32 L54 46 L48 46 L28 32 L48 18 Z" fill="url(#arrowGlowL)" opacity="0.85"/>
+            <polygon points="30,32 44,22 44,42" fill="#f8fafc"/>
           </svg>
         </button>
 
-        <!-- Move Right: Ninja Running Right Logo -->
+        <!-- Move Right: Ornate Engraved Steel Kunai Arrow -->
         <button id="touch-right" class="touch-btn dpad-btn" aria-label="Move Right" title="Move Right">
-          <svg viewBox="0 0 48 48" width="38" height="38" class="btn-icon">
-            <path d="M8 16 L14 24 L8 32" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.6"/>
-            <path d="M14 16 L20 24 L14 32" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <ellipse cx="30" cy="14" rx="9" ry="3.5" fill="#f8fafc"/>
-            <circle cx="30" cy="15" r="4" fill="#f8fafc"/>
-            <rect x="30" y="14.5" width="4" height="1.5" fill="#38bdf8"/>
-            <path d="M26 18 L34 18 L37 28 L29 28 Z" fill="#f8fafc"/>
-            <path d="M36 27 L42 36 L37 38 L33 30 Z" fill="#f8fafc"/>
-            <path d="M30 27 L23 33 L26 36 L33 30 Z" fill="#f8fafc"/>
-            <path d="M26 17 Q 16 15, 12 22 Q 20 20, 28 19 Z" fill="#ef4444"/>
+          <svg viewBox="0 0 64 64" width="46" height="46" class="btn-icon">
+            <defs>
+              <linearGradient id="silverGradR" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="50%" stop-color="#94a3b8"/>
+                <stop offset="100%" stop-color="#475569"/>
+              </linearGradient>
+              <linearGradient id="arrowGlowR" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#0284c7"/>
+              </linearGradient>
+            </defs>
+            <path d="M16 12 L42 32 L16 52 L24 52 L50 32 L24 12 Z" fill="url(#silverGradR)"/>
+            <path d="M10 18 L30 32 L10 46 L16 46 L36 32 L16 18 Z" fill="url(#arrowGlowR)" opacity="0.85"/>
+            <polygon points="34,32 20,22 20,42" fill="#f8fafc"/>
           </svg>
         </button>
       </div>
 
       <div class="touch-actions">
-        <!-- Shuriken: 4-Pointed Ninja Star Logo -->
+        <!-- Shuriken Star Button -->
         <button id="touch-shuriken" class="touch-btn action-btn shuriken-btn" aria-label="Throw Shuriken" title="Throw Shuriken">
-          <svg viewBox="0 0 48 48" width="38" height="38" class="btn-icon">
-            <g transform="translate(24,24)">
-              <path d="M0 -20 L4 -6 L18 -18 L6 -4 L20 0 L6 4 L18 18 L4 6 L0 20 L-4 6 L-18 18 L-6 4 L-20 0 L-6 -4 L-18 -18 L-4 -6 Z" fill="#c084fc"/>
-              <path d="M0 -20 L4 -6 L0 0 L-4 -6 Z" fill="#e9d5ff" opacity="0.6"/>
-              <path d="M20 0 L6 4 L0 0 L6 -4 Z" fill="#e9d5ff" opacity="0.6"/>
-              <path d="M0 20 L-4 6 L0 0 L4 6 Z" fill="#e9d5ff" opacity="0.6"/>
-              <path d="M-20 0 L-6 -4 L0 0 L-6 4 Z" fill="#e9d5ff" opacity="0.6"/>
-              <circle cx="0" cy="0" r="4.5" fill="#0f172a"/>
-              <circle cx="0" cy="0" r="4.5" stroke="#c084fc" stroke-width="1.5" fill="none"/>
+          <svg viewBox="0 0 64 64" width="44" height="44" class="btn-icon">
+            <defs>
+              <linearGradient id="shurikenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#e9d5ff"/>
+                <stop offset="50%" stop-color="#c084fc"/>
+                <stop offset="100%" stop-color="#7e22ce"/>
+              </linearGradient>
+            </defs>
+            <g transform="translate(32, 26)">
+              <path d="M0 -22 L5 -7 L20 -20 L7 -5 L22 0 L7 5 L20 20 L5 7 L0 22 L-5 7 L-20 20 L-7 5 L-22 0 L-7 -5 L-20 -20 L-5 -7 Z" fill="url(#shurikenGrad)"/>
+              <path d="M0 -22 L5 -7 L0 0 L-5 -7 Z" fill="#ffffff" opacity="0.6"/>
+              <path d="M22 0 L7 5 L0 0 L7 -5 Z" fill="#ffffff" opacity="0.6"/>
+              <path d="M0 22 L-5 7 L0 0 L5 7 Z" fill="#ffffff" opacity="0.6"/>
+              <path d="M-22 0 L-7 -5 L0 0 L-7 5 Z" fill="#ffffff" opacity="0.6"/>
+              <circle cx="0" cy="0" r="5" fill="#0f172a"/>
+              <circle cx="0" cy="0" r="5" stroke="#c084fc" stroke-width="1.8" fill="none"/>
             </g>
+            <text x="32" y="58" font-size="8" font-weight="900" text-anchor="middle" fill="#c084fc" letter-spacing="0.5">STAR</text>
           </svg>
         </button>
 
-        <!-- Slash: Curved Katana Blade Slash Arc Logo -->
+        <!-- Dash Slash Katana Button -->
         <button id="touch-attack" class="touch-btn action-btn attack-btn" aria-label="Dash Slash" title="Dash Slash">
-          <svg viewBox="0 0 48 48" width="42" height="42" class="btn-icon">
-            <path d="M8 38 C 14 20, 26 10, 40 8 C 30 18, 18 32, 8 38 Z" fill="#fbbf24" opacity="0.45"/>
-            <path d="M10 36 C 18 20, 28 12, 38 10" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" fill="none"/>
-            <path d="M14 32 C 22 18, 30 14, 36 12" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            <line x1="6" y1="42" x2="11" y2="35" stroke="#f8fafc" stroke-width="4.5" stroke-linecap="round"/>
-            <circle cx="11" cy="35" r="3.5" fill="#f59e0b"/>
-            <circle cx="39" cy="9" r="2.5" fill="#ffffff"/>
+          <svg viewBox="0 0 64 64" width="48" height="48" class="btn-icon">
+            <defs>
+              <linearGradient id="slashGlow" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#d97706"/>
+                <stop offset="50%" stop-color="#fbbf24"/>
+                <stop offset="100%" stop-color="#ffffff"/>
+              </linearGradient>
+            </defs>
+            <path d="M12 48 C 20 28, 36 14, 54 10 C 42 22, 26 38, 12 48 Z" fill="url(#slashGlow)"/>
+            <path d="M14 46 C 22 28, 38 16, 52 12" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <line x1="8" y1="54" x2="15" y2="45" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="53" cy="11" r="3" fill="#ffffff"/>
+            <text x="32" y="58" font-size="8.5" font-weight="900" text-anchor="middle" fill="#fbbf24" letter-spacing="1">SLASH</text>
           </svg>
         </button>
 
-        <!-- Jump: Leaping Acrobat Ninja with Upward Wind Logo -->
+        <!-- Acrobat Jump Button -->
         <button id="touch-jump" class="touch-btn action-btn jump-btn" aria-label="Jump" title="Jump / Double Jump">
-          <svg viewBox="0 0 48 48" width="44" height="44" class="btn-icon">
-            <path d="M24 4 L17 11 L21 11 L21 14 L27 14 L27 11 L31 11 Z" fill="#38bdf8"/>
-            <ellipse cx="24" cy="17" rx="8.5" ry="3.5" fill="#f8fafc"/>
-            <circle cx="24" cy="18" r="4" fill="#f8fafc"/>
-            <rect x="23" y="17.5" width="4" height="1.5" fill="#38bdf8"/>
-            <path d="M20 21 L28 21 L30 29 L24 28 L18 29 Z" fill="#f8fafc"/>
-            <path d="M18 28 L12 34 L16 37 L21 31 Z" fill="#f8fafc"/>
-            <path d="M30 28 L36 34 L32 37 L27 31 Z" fill="#f8fafc"/>
-            <path d="M19 20 Q 11 22, 9 32 Q 13 26, 20 22 Z" fill="#ef4444"/>
+          <svg viewBox="0 0 64 64" width="50" height="50" class="btn-icon">
+            <defs>
+              <linearGradient id="jumpGlow" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#0284c7"/>
+                <stop offset="100%" stop-color="#38bdf8"/>
+              </linearGradient>
+            </defs>
+            <path d="M32 6 L22 16 L27 16 L27 20 L37 20 L37 16 L42 16 Z" fill="url(#jumpGlow)"/>
+            <ellipse cx="32" cy="24" rx="11" ry="4" fill="#f8fafc"/>
+            <circle cx="32" cy="25" r="4.5" fill="#f8fafc"/>
+            <rect x="31" y="24" width="4" height="2" fill="#38bdf8"/>
+            <path d="M26 29 L38 29 L41 38 L32 36 L23 38 Z" fill="#f8fafc"/>
+            <path d="M23 37 L16 45 L20 48 L27 41 Z" fill="#f8fafc"/>
+            <path d="M41 37 L48 45 L44 48 L37 41 Z" fill="#f8fafc"/>
+            <path d="M26 28 Q 16 32, 14 44 Q 19 36, 28 30 Z" fill="#ef4444"/>
+            <text x="32" y="58" font-size="9" font-weight="900" text-anchor="middle" fill="#38bdf8" letter-spacing="1">JUMP</text>
           </svg>
         </button>
       </div>
