@@ -4,8 +4,11 @@ import { OniBossEnemy } from '../entities/OniBossEnemy.js';
 /**
  * EndlessWorld — Infinite Procedural Chunk Generator & Biome Controller for Devil's Door v2.0.
  * Generates continuous dark fantasy terrain chunks, hazards, enemies, and collectibles
- * based on the 18 reference screenshots in Archive.
- * Cycles seamlessly across 5 signature biomes every 3 minutes (180 seconds).
+ * based on the 18 reference screenshots in Archive and user uploaded image:
+ * - Oni Stone Pillars with carved stone arms holding up platforms
+ * - Dead winter trees with branching bare twigs
+ * - Embedded red spears & katanas stuck in stone
+ * - 3-Minute dynamic biome rotation across 5 signature realms
  */
 export class EndlessWorld {
   constructor() {
@@ -32,6 +35,9 @@ export class EndlessWorld {
     this.pendulumAxes = [];
     this.skullSawWheels = [];
     this.campfires = [];
+    this.oniPillars = []; // Carved demon stone pillars holding platforms
+    this.deadTrees = []; // Bare branching winter trees
+    this.embeddedWeapons = []; // Red spears and katanas in ground
     this.diamonds = []; // Collectible glowing gems
 
     // Procedural Generation State
@@ -42,13 +48,13 @@ export class EndlessWorld {
     this.playerStartY = 480;
 
     // Difficulty and Boss State
-    this.nextBossDistance = 1000; // Demonic Oni Boss every 1000 meters
+    this.nextBossDistance = 1000;
 
     this._initStartingZone();
   }
 
   _initStartingZone() {
-    // Initial safe starting runway
+    // Initial safe runway
     this.solids.push({
       x: 0,
       y: 560,
@@ -61,8 +67,11 @@ export class EndlessWorld {
     this.lanterns.push({ x: 160, y: 520 });
     this.lanterns.push({ x: 480, y: 520 });
     this.lanterns.push({ x: 800, y: 520 });
-
     this.campfires.push({ x: 320, y: 554 });
+
+    // Embedded weapons in ground (Archive image 5 & user image 1)
+    this.embeddedWeapons.push({ x: 420, y: 560, type: 'spear' });
+    this.embeddedWeapons.push({ x: 435, y: 560, type: 'katana' });
 
     // Initial warm-up diamonds
     this.diamonds.push({ x: 300, y: 510, collected: false });
@@ -90,7 +99,7 @@ export class EndlessWorld {
     const px = player ? player.x : 0;
     const py = player ? player.y : 0;
 
-    // 2. Continuous Ahead Generation (Keep generating 2400px ahead of player)
+    // 2. Continuous Ahead Generation (Keep generating 2800px ahead of player)
     while (this.generatedDistance < px + 2800) {
       this._generateNextChunk();
     }
@@ -111,7 +120,6 @@ export class EndlessWorld {
       axe.bladeX = axe.pivotX + Math.sin(axe.angle) * axe.length;
       axe.bladeY = axe.pivotY + Math.cos(axe.angle) * axe.length;
 
-      // Hazard collision with player
       if (player && !player.isDead) {
         const d = Math.hypot(player.x - axe.bladeX, (player.y + 20) - axe.bladeY);
         if (d < 46) {
@@ -172,8 +180,6 @@ export class EndlessWorld {
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const e = this.enemies[i];
       e.update(dt, player, audio, camera, this);
-
-      // Despawn far behind enemies
       if (e.x < px - 1200) {
         this.enemies.splice(i, 1);
       }
@@ -189,6 +195,9 @@ export class EndlessWorld {
     this.skullSawWheels = this.skullSawWheels.filter(s => s.x > despawnThreshold);
     this.diamonds = this.diamonds.filter(d => d.x > despawnThreshold && !d.collected);
     this.campfires = this.campfires.filter(c => c.x > despawnThreshold);
+    this.oniPillars = this.oniPillars.filter(p => p.x > despawnThreshold);
+    this.deadTrees = this.deadTrees.filter(t => t.x > despawnThreshold);
+    this.embeddedWeapons = this.embeddedWeapons.filter(w => w.x > despawnThreshold);
   }
 
   _generateNextChunk() {
@@ -232,6 +241,17 @@ export class EndlessWorld {
       active: true
     });
 
+    // Dead Tree on edge (Image 1)
+    if (Math.random() > 0.3) {
+      this.deadTrees.push({ x: startX + width * 0.75, y: groundY });
+    }
+
+    // Embedded weapons
+    if (Math.random() > 0.4) {
+      this.embeddedWeapons.push({ x: startX + width * 0.82, y: groundY, type: 'spear' });
+      this.embeddedWeapons.push({ x: startX + width * 0.85, y: groundY, type: 'katana' });
+    }
+
     // Lanterns & Props
     this.lanterns.push({ x: startX + 180, y: groundY - 40 });
     this.lanterns.push({ x: startX + width - 180, y: groundY - 40 });
@@ -250,7 +270,7 @@ export class EndlessWorld {
 
     // Shadow Enemy
     const enemyType = Math.random() > 0.45 ? 'scout' : 'spear';
-    const enemy = new ShadowNinjaEnemy(startX + width * 0.7, groundY - 54, startX + 200, startX + width - 80, enemyType);
+    const enemy = new ShadowNinjaEnemy(startX + width * 0.6, groundY - 54, startX + 200, startX + width - 80, enemyType);
     this.enemies.push(enemy);
 
     // Arc of Diamonds
@@ -263,7 +283,7 @@ export class EndlessWorld {
     }
 
     this.lastGroundY = groundY;
-    this.generatedDistance = startX + width + 90; // Small jump gap
+    this.generatedDistance = startX + width + 90;
   }
 
   _buildCollapsingBridgeChunk(startX) {
@@ -292,7 +312,7 @@ export class EndlessWorld {
       }
     }
 
-    // Bottom Chasm Spikes below bridge
+    // Bottom Chasm Spikes
     this.hazards.push({
       x: bridgeStartX,
       y: 780,
@@ -308,7 +328,7 @@ export class EndlessWorld {
   _buildHighLedgeWallJumpChunk(startX) {
     const groundY = 560;
 
-    // High upper ledge
+    // High upper ledge held up by Oni Stone Demon Pillar (Exact match to User Image 1)
     this.solids.push({
       x: startX,
       y: 340,
@@ -316,6 +336,13 @@ export class EndlessWorld {
       height: 480,
       tag: 'high_cliff',
       active: true
+    });
+
+    this.oniPillars.push({
+      x: startX + 240,
+      y: 340,
+      width: 80,
+      height: 240
     });
 
     // Hanging spikes on ceiling
@@ -341,7 +368,6 @@ export class EndlessWorld {
     const enemy = new ShadowNinjaEnemy(startX + 680, groundY - 54, startX + 580, startX + 1000, 'spear');
     this.enemies.push(enemy);
 
-    // High airborne diamonds
     for (let i = 0; i < 4; i++) {
       this.diamonds.push({
         x: startX + 120 + i * 70,
@@ -366,7 +392,6 @@ export class EndlessWorld {
       active: true
     });
 
-    // Swinging Pendulum Axe on tall wooden mast (Archive image 14 & 17)
     this.pendulumAxes.push({
       pivotX: startX + width * 0.48,
       pivotY: 160,
@@ -379,10 +404,8 @@ export class EndlessWorld {
       bladeY: 450
     });
 
-    // Hokora stone shrine
     this.hokoraShrines.push({ x: startX + 160, y: groundY });
 
-    // Scout Enemy
     const enemy = new ShadowNinjaEnemy(startX + width * 0.75, groundY - 54, startX + width * 0.55, startX + width - 60, 'scout');
     this.enemies.push(enemy);
 
@@ -402,7 +425,6 @@ export class EndlessWorld {
       active: true
     });
 
-    // Giant Demonic Skull Saw Gear (Archive images 1 & 10)
     this.skullSawWheels.push({
       x: startX + 380,
       y: 440,
@@ -415,7 +437,6 @@ export class EndlessWorld {
       moveRange: 60
     });
 
-    // Demon claws reaching from ground
     this.demonClaws.push({ x: startX + 680, y: groundY });
 
     this.generatedDistance = startX + width + 90;
@@ -434,7 +455,6 @@ export class EndlessWorld {
       active: true
     });
 
-    // Elevated Pagoda Platform
     this.solids.push({
       x: startX + 320,
       y: 400,
@@ -444,13 +464,11 @@ export class EndlessWorld {
       active: true
     });
 
-    // Two tactical enemies
     const scout = new ShadowNinjaEnemy(startX + 240, groundY - 54, startX + 80, startX + 360, 'scout');
     const spearman = new ShadowNinjaEnemy(startX + 780, groundY - 54, startX + 640, startX + 940, 'spear');
     this.enemies.push(scout);
     this.enemies.push(spearman);
 
-    // Diamonds on upper platform
     this.diamonds.push({ x: startX + 380, y: 340, collected: false });
     this.diamonds.push({ x: startX + 440, y: 320, collected: false });
     this.diamonds.push({ x: startX + 500, y: 340, collected: false });
@@ -471,12 +489,120 @@ export class EndlessWorld {
   }
 
   draw(ctx, camX, camY, time) {
-    // 1. Draw Lanterns with Atmospheric Glow
+    // 1. Draw Oni Demon Stone Pillars (Exact match to User Image 1)
+    for (const p of this.oniPillars) {
+      const px = p.x - camX;
+      const py = p.y - camY;
+
+      ctx.save();
+      // Stone Pillar Base
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(px - 24, py + 20, 48, p.height);
+
+      // Carved Oni Demon Mask in Stone Center
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.arc(px, py + 80, 18, 0, Math.PI * 2);
+      ctx.fill();
+      // Glowing Demon Eyes
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(px - 8, py + 76, 5, 3);
+      ctx.fillRect(px + 3, py + 76, 5, 3);
+
+      // Two Stone Muscular Arms holding up the platform from below (Image 1)
+      ctx.fillStyle = '#475569';
+      // Left Arm & Hand
+      ctx.beginPath();
+      ctx.moveTo(px - 20, py + 70);
+      ctx.lineTo(px - 44, py + 30);
+      ctx.lineTo(px - 44, py);
+      ctx.lineTo(px - 32, py);
+      ctx.lineTo(px - 14, py + 60);
+      ctx.closePath();
+      ctx.fill();
+
+      // Right Arm & Hand
+      ctx.beginPath();
+      ctx.moveTo(px + 20, py + 70);
+      ctx.lineTo(px + 44, py + 30);
+      ctx.lineTo(px + 44, py);
+      ctx.lineTo(px + 32, py);
+      ctx.lineTo(px + 14, py + 60);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 2. Draw Dead Winter Trees with Intricate Branching (User Image 1)
+    for (const t of this.deadTrees) {
+      const tx = t.x - camX;
+      const ty = t.y - camY;
+
+      ctx.save();
+      ctx.fillStyle = '#05070d';
+      // Main Twisted Trunk
+      ctx.fillRect(tx - 6, ty - 140, 12, 140);
+      // Intricate Bare Twigs & Forks
+      ctx.beginPath();
+      ctx.moveTo(tx, ty - 80);
+      ctx.lineTo(tx - 36, ty - 120);
+      ctx.lineTo(tx - 48, ty - 165);
+      ctx.lineTo(tx - 30, ty - 150);
+      ctx.lineTo(tx - 24, ty - 185);
+
+      ctx.moveTo(tx, ty - 100);
+      ctx.lineTo(tx + 38, ty - 135);
+      ctx.lineTo(tx + 54, ty - 175);
+      ctx.lineTo(tx + 32, ty - 160);
+      ctx.lineTo(tx + 42, ty - 195);
+      ctx.lineWidth = 3.5;
+      ctx.strokeStyle = '#05070d';
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 3. Draw Embedded Red Weapons in Ground (User Image 1)
+    for (const w of this.embeddedWeapons) {
+      const wx = w.x - camX;
+      const wy = w.y - camY;
+
+      ctx.save();
+      if (w.type === 'spear') {
+        // Red Naginata Spear stuck in stone
+        ctx.strokeStyle = '#05070d';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(wx, wy);
+        ctx.lineTo(wx + 6, wy - 55);
+        ctx.stroke();
+
+        // Red Spear Head
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(wx + 6, wy - 55);
+        ctx.lineTo(wx + 12, wy - 78);
+        ctx.lineTo(wx + 2, wy - 65);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // Red Katana Blade stuck in ground
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(wx, wy);
+        ctx.lineTo(wx - 6, wy - 42);
+        ctx.lineTo(wx - 2, wy - 48);
+        ctx.lineTo(wx + 4, wy);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // 4. Draw Lanterns with Atmospheric Glow
     for (const l of this.lanterns) {
       const lx = l.x - camX;
       const ly = l.y - camY;
 
-      // Outer Warm Halo
       const halo = ctx.createRadialGradient(lx, ly, 4, lx, ly, 38);
       halo.addColorStop(0, 'rgba(251, 191, 36, 0.45)');
       halo.addColorStop(1, 'rgba(251, 191, 36, 0)');
@@ -485,7 +611,6 @@ export class EndlessWorld {
       ctx.arc(lx, ly, 38, 0, Math.PI * 2);
       ctx.fill();
 
-      // Japanese Lantern Housing
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(lx - 9, ly - 14, 18, 22);
       ctx.fillStyle = '#fbbf24';
@@ -494,7 +619,7 @@ export class EndlessWorld {
       ctx.fillRect(lx - 12, ly - 16, 24, 4);
     }
 
-    // 2. Draw Campfires with Flickering Embers
+    // 5. Draw Campfires with Flickering Embers
     for (const c of this.campfires) {
       const cx = c.x - camX;
       const cy = c.y - camY;
@@ -508,7 +633,6 @@ export class EndlessWorld {
       ctx.arc(cx, cy - 8, 48, 0, Math.PI * 2);
       ctx.fill();
 
-      // Flame Tongue
       const flicker = Math.sin(time * 12) * 4;
       ctx.fillStyle = '#f59e0b';
       ctx.beginPath();
@@ -518,13 +642,12 @@ export class EndlessWorld {
       ctx.fill();
     }
 
-    // 3. Draw Collectible Glowing Diamonds
+    // 6. Draw Collectible Glowing Diamonds
     for (const d of this.diamonds) {
       if (d.collected) continue;
       const dx = d.x - camX;
       const dy = d.y - camY + Math.sin(time * 4 + d.x) * 5;
 
-      // Glow Aura
       const gemHalo = ctx.createRadialGradient(dx, dy, 2, dx, dy, 22);
       gemHalo.addColorStop(0, 'rgba(56, 189, 248, 0.6)');
       gemHalo.addColorStop(1, 'rgba(56, 189, 248, 0)');
@@ -533,7 +656,6 @@ export class EndlessWorld {
       ctx.arc(dx, dy, 22, 0, Math.PI * 2);
       ctx.fill();
 
-      // Faceted Diamond
       ctx.fillStyle = '#38bdf8';
       ctx.beginPath();
       ctx.moveTo(dx, dy - 12);
@@ -553,7 +675,7 @@ export class EndlessWorld {
       ctx.fill();
     }
 
-    // 4. Draw Terrain Solids with Biome Snow/Grass Top Caps
+    // 7. Draw Terrain Solids with Thick Pure White Snow Caps & Icicles (User Image 1)
     for (const s of this.solids) {
       if (!s.active) continue;
       const sx = s.x - camX;
@@ -563,48 +685,46 @@ export class EndlessWorld {
       if (s.rot) {
         ctx.translate(sx + s.width / 2, sy + s.height / 2);
         ctx.rotate(s.rot);
-        ctx.fillStyle = '#0f172a';
+        ctx.fillStyle = '#05070d';
         ctx.fillRect(-s.width / 2, -s.height / 2, s.width, s.height);
         ctx.restore();
         continue;
       }
 
-      // Main Dark Silhouette Ledge
-      ctx.fillStyle = '#080c14';
+      // Main Deep Black Silhouette Ledge
+      ctx.fillStyle = '#05070d';
       ctx.fillRect(sx, sy, s.width, s.height);
 
-      // Biome Cap Styling (Snow in winter, Moss in bamboo, Red stone in crypts)
+      // Biome Cap Styling
       if (this.biome === 'snow') {
-        // Snow Frost Top Cap (Archive image 3 & 5)
-        ctx.fillStyle = '#e2e8f0';
-        ctx.fillRect(sx, sy, s.width, 6);
-        // Hanging Icicles
-        for (let ix = sx + 8; ix < sx + s.width - 8; ix += 20) {
+        // Thick Pure White Snow Blanket on top (User Image 1)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(sx - 4, sy - 4, s.width + 8, 14);
+
+        // Hanging Icicles & Snow Dripping Tufts (User Image 1)
+        for (let ix = sx + 4; ix < sx + s.width - 4; ix += 18) {
           ctx.beginPath();
-          ctx.moveTo(ix, sy + 6);
-          ctx.lineTo(ix + 4, sy + 14);
-          ctx.lineTo(ix + 8, sy + 6);
+          ctx.moveTo(ix, sy + 10);
+          ctx.lineTo(ix + 5, sy + 22);
+          ctx.lineTo(ix + 10, sy + 10);
           ctx.closePath();
           ctx.fill();
         }
       } else if (this.biome === 'bamboo') {
-        // Emerald Moss Rim
         ctx.fillStyle = '#059669';
-        ctx.fillRect(sx, sy, s.width, 4);
+        ctx.fillRect(sx, sy, s.width, 5);
       } else if (this.biome === 'thorns') {
-        // Crimson Demonic Rim
         ctx.fillStyle = '#be123c';
-        ctx.fillRect(sx, sy, s.width, 4);
+        ctx.fillRect(sx, sy, s.width, 5);
       } else {
-        // Golden Grass Fringe
         ctx.fillStyle = '#d97706';
-        ctx.fillRect(sx, sy, s.width, 3);
+        ctx.fillRect(sx, sy, s.width, 4);
       }
 
       ctx.restore();
     }
 
-    // 5. Draw Hazards (Spike Pits)
+    // 8. Draw Hazards (Spike Pits)
     for (const h of this.hazards) {
       if (!h.active) continue;
       const hx = h.x - camX;
@@ -612,7 +732,7 @@ export class EndlessWorld {
       const hw = h.width || 60;
       const count = Math.max(3, Math.floor(hw / 14));
 
-      ctx.fillStyle = '#0f172a';
+      ctx.fillStyle = '#05070d';
       for (let i = 0; i < count; i++) {
         const px = hx + i * 14;
         ctx.beginPath();
@@ -630,14 +750,13 @@ export class EndlessWorld {
       }
     }
 
-    // 6. Draw Swinging Pendulum Battleaxes (Archive image 14 & 17)
+    // 9. Draw Swinging Pendulum Battleaxes (Archive image 14 & 17)
     for (const axe of this.pendulumAxes) {
       const px = axe.pivotX - camX;
       const py = axe.pivotY - camY;
       const bx = axe.bladeX - camX;
       const by = axe.bladeY - camY;
 
-      // Tall wooden pillar mast
       ctx.fillStyle = '#261a14';
       ctx.fillRect(px - 6, py - 40, 12, 480);
       ctx.fillStyle = '#be123c';
@@ -645,7 +764,6 @@ export class EndlessWorld {
       ctx.arc(px, py - 40, 8, 0, Math.PI * 2);
       ctx.fill();
 
-      // Steel suspension cord
       ctx.strokeStyle = '#64748b';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
@@ -653,7 +771,6 @@ export class EndlessWorld {
       ctx.lineTo(bx, by);
       ctx.stroke();
 
-      // Crescent Battleaxe Head
       ctx.save();
       ctx.translate(bx, by);
       ctx.rotate(axe.angle);
@@ -672,7 +789,7 @@ export class EndlessWorld {
       ctx.restore();
     }
 
-    // 7. Draw Giant Spinning Skull-Saw Gears (Archive image 1 & 10)
+    // 10. Draw Giant Spinning Skull-Saw Gears (Archive image 1 & 10)
     for (const saw of this.skullSawWheels) {
       const sx = saw.x - camX;
       const sy = saw.y - camY;
@@ -681,7 +798,6 @@ export class EndlessWorld {
       ctx.translate(sx, sy);
       ctx.rotate(saw.rotation);
 
-      // Outer Crimson Saw Teeth Rim
       ctx.fillStyle = '#ef4444';
       const teeth = 8;
       for (let i = 0; i < teeth; i++) {
@@ -692,25 +808,21 @@ export class EndlessWorld {
         ctx.restore();
       }
 
-      // Outer Spiked Wheel
       ctx.fillStyle = '#991b1b';
       ctx.beginPath();
       ctx.arc(0, 0, saw.radius, 0, Math.PI * 2);
       ctx.fill();
 
-      // Inner Dark Skull Hub
       ctx.fillStyle = '#0f172a';
       ctx.beginPath();
       ctx.arc(0, 0, saw.radius * 0.65, 0, Math.PI * 2);
       ctx.fill();
 
-      // Demonic Glowing Eye Sockets
       ctx.fillStyle = '#ef4444';
       ctx.beginPath();
       ctx.arc(-8, -4, 4, 0, Math.PI * 2);
       ctx.arc(8, -4, 4, 0, Math.PI * 2);
       ctx.fill();
-
       ctx.restore();
     }
   }

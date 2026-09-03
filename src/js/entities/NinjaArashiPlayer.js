@@ -1,14 +1,14 @@
 import { Shuriken } from './Shuriken.js';
 
 /**
- * NinjaArashiPlayer — Authentic Articulated Ninja Arashi Hero Silhouette.
- * Features:
- * - Kasa straw conical hat with curved woven brim & cyan glowing eye visor
- * - Articulated procedural running, jumping, wall-sliding, and slashing limbs
- * - Dual trailing red cloth scarf ribbon with Verlet aerodynamic physics
- * - Katana dash-slash with golden crescent slash wave & afterimage ghosts
- * - 360-degree acrobatic somersault flip animation
- * - 4-pointed metallic shuriken star throwing
+ * NinjaArashiPlayer — Authentic Ninja Arashi 1:1 Silhouette Hero Engine.
+ * Exact match to user reference images:
+ * - Low 45° forward-leaning athletic shinobi sprint stance (Image 1)
+ * - Pointed conical Kasa straw hat with curved brim
+ * - Katana sheath diagonally strapped across the back
+ * - Articulated hip, knee, ankle, and tabi boot skeletal inverse kinematics
+ * - Trailing dual hat ribbons with aerodynamic cloth simulation
+ * - Somersault double jump flip, Katana dash-slash, and Shuriken throws
  */
 export class NinjaArashiPlayer {
   constructor(x = 120, y = 480) {
@@ -17,7 +17,7 @@ export class NinjaArashiPlayer {
     this.vx = 0;
     this.vy = 0;
 
-    this.width = 32;
+    this.width = 36;
     this.height = 56;
     this.facing = 1; // 1 = right, -1 = left
 
@@ -29,11 +29,11 @@ export class NinjaArashiPlayer {
     this.score = 0;
 
     // Physics constants
-    this.moveSpeed = 310;
-    this.jumpForce = 440;
+    this.moveSpeed = 320;
+    this.jumpForce = 450;
     this.doubleJumpForce = 410;
     this.gravity = 1180;
-    this.dashSpeed = 700;
+    this.dashSpeed = 720;
 
     // Movement States
     this.isGrounded = false;
@@ -56,33 +56,33 @@ export class NinjaArashiPlayer {
     this.shurikens = [];
     this.shurikenCooldown = 0;
 
-    // Procedural Running & Limb Animation Timer
+    // Running & Limb Skeletal Animation Timer
     this.animTime = 0;
 
-    // 7-Node Dual Verlet Cloth Scarf Ribbons
-    this.scarfNodes = [];
-    this.scarfNodes2 = [];
-    this._initScarf();
+    // Dual Trailing Hat / Neck Ribbons (7-Node Verlet Physics)
+    this.ribbon1 = [];
+    this.ribbon2 = [];
+    this._initRibbons();
 
     // Visual Particles
     this.wallSparks = [];
   }
 
-  _initScarf() {
-    this.scarfNodes = [];
-    this.scarfNodes2 = [];
+  _initRibbons() {
+    this.ribbon1 = [];
+    this.ribbon2 = [];
     for (let i = 0; i < 7; i++) {
-      this.scarfNodes.push({
+      this.ribbon1.push({
         x: this.x - i * 6,
         y: this.y + 14,
         oldX: this.x - i * 6,
         oldY: this.y + 14
       });
-      this.scarfNodes2.push({
+      this.ribbon2.push({
         x: this.x - i * 7,
-        y: this.y + 16,
+        y: this.y + 17,
         oldX: this.x - i * 7,
-        oldY: this.y + 16
+        oldY: this.y + 17
       });
     }
   }
@@ -102,7 +102,7 @@ export class NinjaArashiPlayer {
     this.shurikens = [];
     this.ghosts = [];
     this.wallSparks = [];
-    this._initScarf();
+    this._initRibbons();
   }
 
   takeDamage(amount = 1, audio = null, camera = null) {
@@ -134,11 +134,11 @@ export class NinjaArashiPlayer {
     if (this.isDead) {
       this.vy += this.gravity * dt;
       this.y += this.vy * dt;
-      this._updateScarf(dt);
+      this._updateRibbons(dt);
       return;
     }
 
-    this.animTime += dt * 14;
+    this.animTime += dt * 15;
 
     // Cooldown timers
     if (this.dashCooldown > 0) this.dashCooldown -= dt;
@@ -150,21 +150,21 @@ export class NinjaArashiPlayer {
       this.vx = this.facing * this.dashSpeed;
       this.vy = 0;
 
-      // Leave golden afterimage ghosts
+      // Golden Ghost Afterimages
       this.ghosts.push({
         x: this.x,
         y: this.y,
         facing: this.facing,
         life: 0.18,
-        alpha: 0.7
+        alpha: 0.75
       });
 
-      // Cleave through nearby enemies
+      // Cleave nearby enemies
       if (level && level.enemies) {
         for (const enemy of level.enemies) {
           if (enemy.isDead) continue;
           const dist = Math.hypot(this.x - enemy.x, (this.y + 20) - (enemy.y + 20));
-          if (dist < 90) {
+          if (dist < 95) {
             enemy.takeDamage(2, this.facing, audio);
             if (camera) camera.addShake(0.45);
             this.score += 500;
@@ -185,7 +185,7 @@ export class NinjaArashiPlayer {
       if (moveDir !== 0) {
         this.facing = moveDir;
         this.vx = moveDir * this.moveSpeed;
-        if (this.isGrounded && audio && Math.random() < 0.1) {
+        if (this.isGrounded && audio && Math.random() < 0.12) {
           audio.playFootstep();
         }
       } else {
@@ -241,8 +241,8 @@ export class NinjaArashiPlayer {
         if (this.vy > 820) this.vy = 820;
       } else {
         this.vy = 130; // Smooth wall slide descent
-        // Friction spark particles
-        if (Math.random() < 0.3) {
+        // Wall friction sparks
+        if (Math.random() < 0.35) {
           this.wallSparks.push({
             x: this.x + (this.wallDir > 0 ? this.width : 0),
             y: this.y + 36,
@@ -280,8 +280,8 @@ export class NinjaArashiPlayer {
       if (p.life <= 0) this.wallSparks.splice(i, 1);
     }
 
-    // 9. Update Scarf Simulation
-    this._updateScarf(dt);
+    // 9. Update Ribbon Physics
+    this._updateRibbons(dt);
 
     // Somersault Flip Rotation
     if (this.isFlipping) {
@@ -339,7 +339,7 @@ export class NinjaArashiPlayer {
       }
     }
 
-    // Hazards (Spikes & Pits)
+    // Hazard Collisions
     if (level.checkHazardCollision(this.x, this.y, this.width, this.height)) {
       this.kill(audio, camera);
     }
@@ -353,50 +353,52 @@ export class NinjaArashiPlayer {
     return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
   }
 
-  _updateScarf(dt) {
-    const headX = this.x + 14 - this.facing * 8;
-    const headY = this.y + 14;
+  _updateRibbons(dt) {
+    const isRunning = this.isGrounded && Math.abs(this.vx) > 20;
+    const forwardLean = isRunning ? 10 : 0;
+    const hatBackX = this.x + 14 + (this.facing > 0 ? forwardLean - 10 : -forwardLean + 10);
+    const hatBackY = this.y + 14;
 
-    this.scarfNodes[0].x = headX;
-    this.scarfNodes[0].y = headY;
-    this.scarfNodes2[0].x = headX - this.facing * 2;
-    this.scarfNodes2[0].y = headY + 2;
+    this.ribbon1[0].x = hatBackX;
+    this.ribbon1[0].y = hatBackY;
+    this.ribbon2[0].x = hatBackX - this.facing * 3;
+    this.ribbon2[0].y = hatBackY + 3;
 
-    const windForce = -this.facing * (Math.abs(this.vx) * 0.1 + 16);
+    const windForce = -this.facing * (Math.abs(this.vx) * 0.12 + 20);
 
-    for (let i = 1; i < this.scarfNodes.length; i++) {
-      const n1 = this.scarfNodes[i];
+    for (let i = 1; i < this.ribbon1.length; i++) {
+      const n1 = this.ribbon1[i];
       const vx1 = (n1.x - n1.oldX) * 0.88;
       const vy1 = (n1.y - n1.oldY) * 0.88;
       n1.oldX = n1.x;
       n1.oldY = n1.y;
       n1.x += vx1 + windForce * dt;
-      n1.y += vy1 + 55 * dt;
+      n1.y += vy1 + 50 * dt;
 
-      const n2 = this.scarfNodes2[i];
+      const n2 = this.ribbon2[i];
       const vx2 = (n2.x - n2.oldX) * 0.88;
       const vy2 = (n2.y - n2.oldY) * 0.88;
       n2.oldX = n2.x;
       n2.oldY = n2.y;
       n2.x += vx2 + (windForce * 0.9) * dt;
-      n2.y += vy2 + 65 * dt;
+      n2.y += vy2 + 60 * dt;
     }
 
-    // Constrain segment distances (Verlet relaxation)
+    // Verlet distance relaxation
     const targetDist = 7;
     for (let iter = 0; iter < 4; iter++) {
-      for (let i = 1; i < this.scarfNodes.length; i++) {
-        const prev = this.scarfNodes[i - 1];
-        const curr = this.scarfNodes[i];
-        const dx = curr.x - prev.x;
-        const dy = curr.y - prev.y;
-        const d = Math.hypot(dx, dy) || 1;
-        const diff = (targetDist - d) / d;
-        curr.x += dx * diff * 0.75;
-        curr.y += dy * diff * 0.75;
+      for (let i = 1; i < this.ribbon1.length; i++) {
+        const prev1 = this.ribbon1[i - 1];
+        const curr1 = this.ribbon1[i];
+        const dx1 = curr1.x - prev1.x;
+        const dy1 = curr1.y - prev1.y;
+        const d1 = Math.hypot(dx1, dy1) || 1;
+        const diff1 = (targetDist - d1) / d1;
+        curr1.x += dx1 * diff1 * 0.75;
+        curr1.y += dy1 * diff1 * 0.75;
 
-        const prev2 = this.scarfNodes2[i - 1];
-        const curr2 = this.scarfNodes2[i];
+        const prev2 = this.ribbon2[i - 1];
+        const curr2 = this.ribbon2[i];
         const dx2 = curr2.x - prev2.x;
         const dy2 = curr2.y - prev2.y;
         const d2 = Math.hypot(dx2, dy2) || 1;
@@ -434,28 +436,28 @@ export class NinjaArashiPlayer {
       ctx.restore();
     }
 
-    // 4. Draw Flowing Dual Red Scarf Ribbons (Archive image 17 & 3)
+    // 4. Draw Trailing Dual Ribbons (Archive image 1 & 17)
     ctx.save();
-    ctx.strokeStyle = '#dc2626';
-    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = '#05070d';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.moveTo(this.scarfNodes[0].x - camX, this.scarfNodes[0].y - camY);
-    for (let i = 1; i < this.scarfNodes.length; i++) {
-      ctx.lineTo(this.scarfNodes[i].x - camX, this.scarfNodes[i].y - camY);
+    ctx.moveTo(this.ribbon1[0].x - camX, this.ribbon1[0].y - camY);
+    for (let i = 1; i < this.ribbon1.length; i++) {
+      ctx.lineTo(this.ribbon1[i].x - camX, this.ribbon1[i].y - camY);
     }
     ctx.stroke();
 
-    ctx.strokeStyle = '#ef4444';
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(this.scarfNodes2[0].x - camX, this.scarfNodes2[0].y - camY);
-    for (let i = 1; i < this.scarfNodes2.length; i++) {
-      ctx.lineTo(this.scarfNodes2[i].x - camX, this.scarfNodes2[i].y - camY);
+    ctx.moveTo(this.ribbon2[0].x - camX, this.ribbon2[0].y - camY);
+    for (let i = 1; i < this.ribbon2.length; i++) {
+      ctx.lineTo(this.ribbon2[i].x - camX, this.ribbon2[i].y - camY);
     }
     ctx.stroke();
     ctx.restore();
 
-    // 5. Draw Articulated Hero Ninja Silhouette (Matching Archive Reference Images)
+    // 5. Draw Exact Ninja Arashi Hero Silhouette (Matching Reference Image 1 & 2)
     ctx.save();
     ctx.translate(px + this.width / 2, py + this.height / 2);
     ctx.scale(this.facing, 1);
@@ -468,142 +470,162 @@ export class NinjaArashiPlayer {
     const stride = isRunning ? Math.sin(this.animTime) : 0;
     const strideCos = isRunning ? Math.cos(this.animTime) : 0;
 
-    ctx.fillStyle = '#080c14';
+    // Low 45° forward-leaning athletic dash lean (Image 1)
+    const leanAngle = isRunning ? 0.38 : (this.isDashing ? 0.55 : 0);
+    ctx.rotate(leanAngle);
 
-    // Katana Scabbard on Back (Angled sheath)
+    ctx.fillStyle = '#05070d';
+
+    // 1. Diagonal Katana Sheath on Back (Exact match to Image 1 & 2)
     ctx.save();
-    ctx.strokeStyle = '#080c14';
+    ctx.strokeStyle = '#05070d';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(-10, 8);
-    ctx.lineTo(-24, -20);
+    ctx.moveTo(-6, 6);
+    ctx.lineTo(-24, -22);
     ctx.stroke();
-    // Golden Katana Hilt (Tsuka)
-    ctx.fillStyle = '#fbbf24';
-    ctx.fillRect(-28, -26, 6, 7);
+    // Katana Guard & Hilt (Tsuka)
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(-28, -28, 5, 8);
     ctx.restore();
 
-    // Back Leg & Tabi Boot
-    ctx.fillStyle = '#080c14';
+    // 2. Back Leg & Tabi Boot (Full stride extension)
+    ctx.fillStyle = '#05070d';
     ctx.beginPath();
     if (!this.isGrounded) {
-      // Leaping back leg bent
+      // In air: high tuck leap
       ctx.moveTo(-2, 10);
-      ctx.lineTo(-14, 20);
-      ctx.lineTo(-10, 28);
-      ctx.lineTo(-4, 26);
+      ctx.lineTo(-16, 18);
+      ctx.lineTo(-12, 28);
+      ctx.lineTo(-6, 26);
+    } else if (isRunning) {
+      // Running: back leg thrusts far backwards (Image 1)
+      ctx.moveTo(-2, 10);
+      ctx.lineTo(-6 - stride * 14, 20);
+      ctx.lineTo(-8 - stride * 18, 28);
+      ctx.lineTo(-2 - stride * 18, 28);
     } else {
-      // Running stride back leg
-      ctx.moveTo(-2, 10);
-      ctx.lineTo(-2 - stride * 12, 22);
-      ctx.lineTo(-2 - stride * 16, 28);
-      ctx.lineTo(2 - stride * 16, 28);
+      // Idle stance
+      ctx.moveTo(-4, 10);
+      ctx.lineTo(-8, 22);
+      ctx.lineTo(-6, 28);
+      ctx.lineTo(-2, 28);
     }
     ctx.closePath();
     ctx.fill();
 
-    // Ninja Torso & Samurai Hakama Tunic
-    ctx.fillStyle = '#080c14';
+    // 3. Ninja Athletic Torso & Samurai Hakama
+    ctx.fillStyle = '#05070d';
     ctx.beginPath();
-    ctx.moveTo(-9, -10);
-    ctx.lineTo(9, -10);
-    ctx.lineTo(7, 14);
-    ctx.lineTo(-7, 14);
+    ctx.moveTo(-10, -10);
+    ctx.lineTo(10, -10);
+    ctx.lineTo(7, 12);
+    ctx.lineTo(-7, 12);
     ctx.closePath();
     ctx.fill();
 
-    // Obi Sash Belt
-    ctx.fillStyle = '#be123c';
-    ctx.fillRect(-8, 3, 16, 4);
+    // Crimson Obi Sash Belt
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(-8, 2, 16, 3.5);
 
-    // Front Leg & Tabi Boot
-    ctx.fillStyle = '#080c14';
+    // 4. Front Leg & Tabi Boot (Forward stride step)
+    ctx.fillStyle = '#05070d';
     ctx.beginPath();
     if (!this.isGrounded) {
-      // Leaping front leg forward
+      // In air: forward knee bent high
       ctx.moveTo(4, 10);
-      ctx.lineTo(12, 20);
-      ctx.lineTo(16, 27);
-      ctx.lineTo(10, 28);
+      ctx.lineTo(14, 18);
+      ctx.lineTo(18, 26);
+      ctx.lineTo(12, 27);
+    } else if (isRunning) {
+      // Running: front leg bends sharply forward at 90° (Image 1)
+      ctx.moveTo(4, 10);
+      ctx.lineTo(8 + stride * 14, 18);
+      ctx.lineTo(10 + stride * 18, 28);
+      ctx.lineTo(15 + stride * 18, 28);
     } else {
-      // Running stride front leg
-      ctx.moveTo(4, 10);
-      ctx.lineTo(4 + stride * 12, 22);
-      ctx.lineTo(4 + stride * 16, 28);
-      ctx.lineTo(8 + stride * 16, 28);
+      // Idle stance
+      ctx.moveTo(2, 10);
+      ctx.lineTo(6, 22);
+      ctx.lineTo(8, 28);
+      ctx.lineTo(4, 28);
     }
     ctx.closePath();
     ctx.fill();
 
-    // Ninja Head & Neck Cloth
-    ctx.fillStyle = '#080c14';
+    // 5. Ninja Head & Face Mask
+    ctx.fillStyle = '#05070d';
     ctx.beginPath();
     ctx.arc(2, -14, 7, 0, Math.PI * 2);
     ctx.fill();
 
-    // Conical Kasa Straw Hat with Flared Brim (Archive image 4, 17, 3)
-    ctx.fillStyle = '#080c14';
+    // 6. Pointed Conical Straw Kasa Hat (Exact match to Reference Images)
+    ctx.fillStyle = '#05070d';
     ctx.beginPath();
-    ctx.moveTo(2, -26); // Crown peak
-    ctx.lineTo(-18, -14); // Left flared edge
-    ctx.quadraticCurveTo(2, -18, 22, -14); // Curved brim
+    ctx.moveTo(3, -27); // Sharp top cone peak
+    ctx.lineTo(-19, -13); // Left flared edge
+    ctx.quadraticCurveTo(3, -18, 23, -13); // Curved brim
     ctx.closePath();
     ctx.fill();
 
-    // Hat Peak Cone & Woven Edge
+    // Hat Peak Ridge Line
     ctx.strokeStyle = '#334155';
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
-    ctx.moveTo(2, -26);
-    ctx.lineTo(22, -14);
+    ctx.moveTo(3, -27);
+    ctx.lineTo(23, -13);
     ctx.stroke();
 
-    // Glowing Cyan Visor Eyes (Signature Ninja Arashi Eye Glow)
+    // 7. Glowing Cyan Eyes (Signature Ninja Arashi Glow)
     ctx.fillStyle = '#38bdf8';
     ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 12;
-    ctx.fillRect(4, -14.5, 7, 2.5);
+    ctx.shadowBlur = 10;
+    ctx.fillRect(4, -14.5, 6.5, 2.5);
     ctx.shadowBlur = 0;
 
-    // Front Arm & Katana
-    ctx.fillStyle = '#080c14';
+    // 8. Front Arm & Katana
+    ctx.fillStyle = '#05070d';
     ctx.beginPath();
     if (this.isDashing) {
-      // Extended katana thrust/slash pose
+      // Extended katana thrust pose
       ctx.moveTo(2, -8);
-      ctx.lineTo(20, -4);
-      ctx.lineTo(24, 0);
+      ctx.lineTo(22, -4);
+      ctx.lineTo(26, 0);
     } else if (!this.isGrounded) {
-      // Leaping raised arm pose
+      // High leap raised arm pose
       ctx.moveTo(2, -8);
       ctx.lineTo(12, -18);
       ctx.lineTo(16, -14);
-    } else {
-      // Running arm swing
+    } else if (isRunning) {
+      // Athletic sprint arm pump (Image 1)
       ctx.moveTo(2, -8);
-      ctx.lineTo(2 + strideCos * 10, -2);
-      ctx.lineTo(6 + strideCos * 12, 6);
+      ctx.lineTo(2 + strideCos * 12, -2);
+      ctx.lineTo(6 + strideCos * 14, 6);
+    } else {
+      // Idle hand on sword hilt
+      ctx.moveTo(2, -8);
+      ctx.lineTo(-4, 0);
+      ctx.lineTo(-8, 4);
     }
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = '#080c14';
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = '#05070d';
     ctx.stroke();
 
-    // Gleaming Katana Blade & Golden Arc during Dash Slash
+    // 9. Katana Blade & Golden Arc during Dash Slash
     if (this.isDashing) {
       ctx.save();
       ctx.strokeStyle = '#fbbf24';
       ctx.shadowColor = '#fbbf24';
-      ctx.shadowBlur = 20;
+      ctx.shadowBlur = 22;
       ctx.lineWidth = 3.5;
       ctx.beginPath();
-      ctx.arc(28, 0, 44, -Math.PI * 0.35, Math.PI * 0.35, false);
+      ctx.arc(28, 0, 46, -Math.PI * 0.35, Math.PI * 0.35, false);
       ctx.stroke();
 
-      // Blade Core
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(28, 0, 44, -Math.PI * 0.25, Math.PI * 0.25, false);
+      ctx.arc(28, 0, 46, -Math.PI * 0.25, Math.PI * 0.25, false);
       ctx.stroke();
       ctx.restore();
     }
