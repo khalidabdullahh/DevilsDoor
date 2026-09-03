@@ -1,10 +1,11 @@
 /**
- * NinjaArashiRenderer — Painterly Dark Fantasy Visual Benchmark Engine for Devil's Door v2.0.
- * Recreates the exact artistic aesthetic from the 18 Archive reference screenshots:
- * - Multi-stop atmospheric sky gradients with glowing celestial sun/moon halos
- * - Parallax mountain ridges, distant Torii gates, multi-tier pagoda temples & frosted pine trees
+ * NinjaArashiRenderer — Painterly Dark Fantasy Visual Benchmark Engine for Devil's Door.
+ * Recreates the authentic artistic aesthetic from all 16 Archive reference screenshots:
+ * - Multi-stop atmospheric sky gradients with radiant celestial sun/moon halos
+ * - Parallax mountain ridges, distant Torii gates, multi-tier pagoda castles & frosted pine trees
+ * - Dense vertical bamboo groves, waterfall streaks, glowing runes, and stone obelisks
  * - Wet reflective ground puddles reflecting the crimson/ice twilight sky
- * - Weather particles: Golden embers, snow flurries, swirling bamboo leaves, demonic spores
+ * - Dynamic weather particles: Golden embers, snowflakes, emerald bamboo leaves, lilac spores, mist
  */
 export class NinjaArashiRenderer {
   constructor(canvas) {
@@ -15,7 +16,7 @@ export class NinjaArashiRenderer {
     this.height = canvas.height;
 
     this.particles = [];
-    this.numParticles = 36;
+    this.numParticles = 38;
     this._initParticles();
 
     this.time = 0;
@@ -58,13 +59,13 @@ export class NinjaArashiRenderer {
 
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Biome Sky Gradient & Radiant Celestial Body (Archive images 4, 3, 14, 10, 16)
+    // 1. Biome Sky Gradient & Radiant Celestial Body (Archive images 4, 3, 14, 10, 16, 15)
     this._drawAtmosphericSky(ctx, biome, w, h);
 
     // 2. Far Parallax Mountain Ranges & Torii Gate (0.12x parallax)
     this._drawParallaxLayer1(ctx, biome, camX * 0.12, w, h);
 
-    // 3. Mid Parallax Pagoda Temples, Frosted Pines & Bamboo Groves (0.32x parallax)
+    // 3. Mid Parallax Pagoda Temples, Frosted Pines, Bamboo & Waterfalls (0.32x parallax)
     this._drawParallaxLayer2(ctx, biome, camX * 0.32, w, h);
 
     // 4. Playable World Chunks, Terrain, Props & Hazards (1.0x)
@@ -86,7 +87,7 @@ export class NinjaArashiRenderer {
 
     ctx.restore();
 
-    // 5. Ground Wet Reflection Sheen (Archive image 4)
+    // 5. Ground Wet Reflection Sheen (Archive image 4 & 13)
     this._drawReflectiveWaterSheen(ctx, biome, camY, w, h);
 
     // 6. Atmospheric Weather Particle Simulation
@@ -100,7 +101,7 @@ export class NinjaArashiRenderer {
 
     switch (biome) {
       case 'snow':
-        // Frozen Abyss (Archive images 3, 5, 7)
+        // Frozen Abyss (Archive images 3, 5, 7, 9)
         skyGrad.addColorStop(0, '#061320');
         skyGrad.addColorStop(0.35, '#0f2942');
         skyGrad.addColorStop(0.7, '#1e486b');
@@ -110,7 +111,7 @@ export class NinjaArashiRenderer {
         break;
 
       case 'bamboo':
-        // Whispering Bamboo Grove (Archive image 14)
+        // Whispering Bamboo Grove (Archive images 2, 8, 14)
         skyGrad.addColorStop(0, '#022119');
         skyGrad.addColorStop(0.4, '#064e3b');
         skyGrad.addColorStop(0.75, '#047857');
@@ -120,7 +121,7 @@ export class NinjaArashiRenderer {
         break;
 
       case 'thorns':
-        // Demonic Thorn Crypts (Archive images 10, 17)
+        // Demonic Thorn Crypts (Archive images 6, 10, 17)
         skyGrad.addColorStop(0, '#12071a');
         skyGrad.addColorStop(0.35, '#2c103e');
         skyGrad.addColorStop(0.7, '#581c87');
@@ -139,6 +140,16 @@ export class NinjaArashiRenderer {
         moonHalo = 'rgba(153, 246, 228, 0.45)';
         break;
 
+      case 'ruins':
+        // Ancient Temple Ruins (Archive images 11, 12, 13)
+        skyGrad.addColorStop(0, '#1c1917');
+        skyGrad.addColorStop(0.4, '#292524');
+        skyGrad.addColorStop(0.75, '#44403c');
+        skyGrad.addColorStop(1, '#78716c');
+        moonColor = '#fef08a';
+        moonHalo = 'rgba(254, 240, 138, 0.4)';
+        break;
+
       case 'sunset':
       default:
         // Crimson Twilight Sky (Archive image 4)
@@ -155,7 +166,7 @@ export class NinjaArashiRenderer {
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // Radiant Sun / Moon Orb (Archive images 4 & 14)
+    // Radiant Celestial Sun/Moon Orb
     const moonX = w * 0.76;
     const moonY = h * 0.24;
     const moonR = 68;
@@ -184,6 +195,7 @@ export class NinjaArashiRenderer {
     if (biome === 'bamboo') ridgeColor = '#042820';
     if (biome === 'thorns') ridgeColor = '#24083a';
     if (biome === 'waterfall') ridgeColor = '#042b2d';
+    if (biome === 'ruins') ridgeColor = '#1c1917';
 
     ctx.fillStyle = ridgeColor;
     ctx.globalAlpha = 0.5;
@@ -211,7 +223,7 @@ export class NinjaArashiRenderer {
       this._drawToriiGate(ctx, toriiX, toriiY, 78);
     }
 
-    // Distant Waterfall Streaks in Waterfall Realm (Archive image 1)
+    // Distant Waterfall Streaks in Waterfall Realm (Archive image 1, 16)
     if (biome === 'waterfall') {
       const wfX = (w * 0.35) - (offsetX * 0.35 % w);
       ctx.fillStyle = 'rgba(204, 251, 241, 0.25)';
@@ -236,15 +248,14 @@ export class NinjaArashiRenderer {
       const py = h * 0.62;
 
       if (biome === 'bamboo') {
-        // Vertical Bamboo Groves with Segment Nodes (Archive image 14)
         this._drawBambooStalk(ctx, px, py - 120, 12, 260);
         this._drawBambooStalk(ctx, px + 50, py - 90, 8, 230);
         this._drawBambooStalk(ctx, px + 130, py - 140, 14, 280);
       } else if (biome === 'snow') {
-        // Frosted Jagged Dead Pine Trees (Archive images 3, 5, 7)
         this._drawFrostedTree(ctx, px, py);
+      } else if (biome === 'ruins') {
+        this._drawStoneArchRuins(ctx, px, py);
       } else {
-        // Multi-tier Japanese Pagoda Temple Castle (Archive images 4, 16)
         this._drawPagodaCastle(ctx, px, py);
       }
     }
@@ -256,10 +267,8 @@ export class NinjaArashiRenderer {
     ctx.save();
     ctx.fillStyle = '#06040d';
     const h = width * 0.8;
-    // Two Main Pillars
     ctx.fillRect(x - width / 2, y, 9, h);
     ctx.fillRect(x + width / 2 - 9, y, 9, h);
-    // Upper Curved Kasagi Lintel
     ctx.beginPath();
     ctx.moveTo(x - width / 2 - 18, y - 8);
     ctx.quadraticCurveTo(x, y - 14, x + width / 2 + 18, y - 8);
@@ -267,7 +276,6 @@ export class NinjaArashiRenderer {
     ctx.quadraticCurveTo(x, y - 6, x - width / 2 - 16, y);
     ctx.closePath();
     ctx.fill();
-    // Shimaki Lintel below
     ctx.fillRect(x - width / 2 - 8, y + 10, width + 16, 7);
     ctx.restore();
   }
@@ -275,18 +283,22 @@ export class NinjaArashiRenderer {
   _drawPagodaCastle(ctx, px, py) {
     ctx.save();
     ctx.fillStyle = '#06040d';
-    // Base Fort Tower
     ctx.fillRect(px - 28, py, 56, 75);
-    // Lower Roof Tier
     this._drawCurvedRoof(ctx, px, py, 72);
-    // Mid Tower
     ctx.fillRect(px - 20, py - 22, 40, 24);
     this._drawCurvedRoof(ctx, px, py - 22, 56);
-    // Upper Tower
     ctx.fillRect(px - 14, py - 44, 28, 24);
     this._drawCurvedRoof(ctx, px, py - 44, 42);
-    // Spire Finial (Sorin)
     ctx.fillRect(px - 2, py - 62, 4, 18);
+    ctx.restore();
+  }
+
+  _drawStoneArchRuins(ctx, px, py) {
+    ctx.save();
+    ctx.fillStyle = '#06040d';
+    ctx.fillRect(px - 32, py - 60, 14, 90);
+    ctx.fillRect(px + 18, py - 60, 14, 90);
+    ctx.fillRect(px - 38, py - 70, 76, 14);
     ctx.restore();
   }
 
@@ -302,7 +314,6 @@ export class NinjaArashiRenderer {
 
   _drawBambooStalk(ctx, x, y, width, height) {
     ctx.fillRect(x, y, width, height);
-    // Horizontal bamboo nodes
     for (let ny = y + 25; ny < y + height; ny += 35) {
       ctx.fillRect(x - 2, ny, width + 4, 4);
     }
@@ -311,9 +322,7 @@ export class NinjaArashiRenderer {
   _drawFrostedTree(ctx, x, y) {
     ctx.save();
     ctx.fillStyle = '#06040d';
-    // Main Jagged Trunk
     ctx.fillRect(x - 7, y - 110, 14, 110);
-    // Bare Jagged Branches (Archive images 5 & 7)
     ctx.beginPath();
     ctx.moveTo(x, y - 65);
     ctx.lineTo(x - 42, y - 95);
@@ -327,21 +336,26 @@ export class NinjaArashiRenderer {
   }
 
   _drawReflectiveWaterSheen(ctx, biome, camY, w, h) {
-    if (biome !== 'sunset' && biome !== 'waterfall') return;
+    if (biome !== 'sunset' && biome !== 'waterfall' && biome !== 'ruins') return;
 
     ctx.save();
-    ctx.fillStyle = biome === 'sunset' ? 'rgba(239, 68, 68, 0.08)' : 'rgba(45, 212, 191, 0.08)';
+    let sheenColor = 'rgba(239, 68, 68, 0.08)';
+    if (biome === 'waterfall') sheenColor = 'rgba(45, 212, 191, 0.08)';
+    if (biome === 'ruins') sheenColor = 'rgba(251, 191, 36, 0.06)';
+
+    ctx.fillStyle = sheenColor;
     ctx.fillRect(0, h * 0.75, w, h * 0.25);
     ctx.restore();
   }
 
   _drawParticles(ctx, biome, w, h) {
     ctx.save();
-    let pColor = 'rgba(251, 191, 36, 0.85)'; // Golden embers for sunset
-    if (biome === 'bamboo') pColor = 'rgba(167, 243, 208, 0.8)'; // Emerald bamboo leaves
-    if (biome === 'thorns') pColor = 'rgba(216, 180, 254, 0.8)'; // Lilac spores
-    if (biome === 'snow') pColor = 'rgba(241, 245, 249, 0.95)'; // Snowflakes
-    if (biome === 'waterfall') pColor = 'rgba(153, 246, 228, 0.9)'; // Waterfall mist
+    let pColor = 'rgba(251, 191, 36, 0.85)';
+    if (biome === 'bamboo') pColor = 'rgba(167, 243, 208, 0.8)';
+    if (biome === 'thorns') pColor = 'rgba(216, 180, 254, 0.8)';
+    if (biome === 'snow') pColor = 'rgba(241, 245, 249, 0.95)';
+    if (biome === 'waterfall') pColor = 'rgba(153, 246, 228, 0.9)';
+    if (biome === 'ruins') pColor = 'rgba(253, 230, 138, 0.85)';
 
     ctx.fillStyle = pColor;
     for (const p of this.particles) {

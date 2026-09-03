@@ -79,8 +79,9 @@ export class Game {
     if (!charData) return;
     this.selectedCharacter = charData;
 
-    // Update Player stats based on selected character
+    // Update Player stats and sprite rendering based on selected character
     if (this.player) {
+      this.player.setHeroType(charData.id);
       if (charData.stats) {
         this.player.moveSpeed = 260 + (charData.stats.speed / 100) * 110;
         this.player.jumpForce = 390 + (charData.stats.jump / 100) * 90;

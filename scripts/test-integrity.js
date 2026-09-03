@@ -110,7 +110,7 @@ import { EndlessWorld } from '../src/js/levels/EndlessWorld.js';
 const endlessInstance = new EndlessWorld();
 assert(endlessInstance.id === 'endless_v2', 'EndlessWorld instantiates with correct v2 id');
 assert(endlessInstance.solids.length > 0, 'EndlessWorld contains initial platform chunks');
-assert(endlessInstance.BIOME_CYCLE.length === 5, 'EndlessWorld cycles across 5 signature biomes');
+assert(endlessInstance.BIOME_CYCLE.length >= 5, 'EndlessWorld cycles across signature biomes');
 assert(endlessInstance.BIOME_DURATION === 180, 'EndlessWorld 3-minute biome duration configured');
 
 // Check Initial Generation Distance

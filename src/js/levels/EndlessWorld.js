@@ -16,8 +16,8 @@ export class EndlessWorld {
     this.id = 'endless_v2';
     this.biome = 'sunset';
 
-    // Biome Sequence (Every 180s = 3 minutes)
-    this.BIOME_CYCLE = ['sunset', 'snow', 'bamboo', 'thorns', 'waterfall'];
+    // Biome Sequence (Every 180s = 3 minutes across all 16 Archive scenes)
+    this.BIOME_CYCLE = ['sunset', 'snow', 'bamboo', 'thorns', 'waterfall', 'ruins'];
     this.biomeIndex = 0;
     this.biomeTimer = 0;
     this.BIOME_DURATION = 180;
