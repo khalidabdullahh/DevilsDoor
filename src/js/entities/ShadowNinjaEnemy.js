@@ -1,8 +1,9 @@
 /**
- * ShadowNinjaEnemy — High-Aggression Ninja Arashi Combat Enemy AI.
+ * ShadowNinjaEnemy — High-Aggression Ninja Arashi Combat Enemy AI for Devil's Door v2.0.
  * Types:
- * - 'scout': Fast dual-blade ninja that sprints and slashes.
+ * - 'scout': Fast agile dual-blade shadow ninja that sprints and slashes.
  * - 'spear': Armored naginata guard with long-range lunging thrusts.
+ * - 'archer': Ranged sentry with crossbow firing poisoned bolts.
  */
 export class ShadowNinjaEnemy {
   constructor(x = 720, y = 506, patrolMin = 600, patrolMax = 840, type = 'scout') {
@@ -16,13 +17,13 @@ export class ShadowNinjaEnemy {
     this.height = 54;
     this.facing = -1; // Face left towards player's approach
 
-    this.patrolSpeed = type === 'scout' ? 90 : 70;
-    this.chaseSpeed = type === 'scout' ? 220 : 160;
-    this.attackRange = type === 'scout' ? 65 : 105;
-    this.detectRange = 460;
+    this.patrolSpeed = type === 'scout' ? 95 : (type === 'archer' ? 50 : 70);
+    this.chaseSpeed = type === 'scout' ? 230 : (type === 'archer' ? 120 : 160);
+    this.attackRange = type === 'scout' ? 65 : (type === 'archer' ? 340 : 105);
+    this.detectRange = 480;
     this.hearingRange = 280;
 
-    this.maxHealth = 2;
+    this.maxHealth = type === 'spear' ? 3 : 2;
     this.health = this.maxHealth;
     this.isDead = false;
 
@@ -33,6 +34,7 @@ export class ShadowNinjaEnemy {
 
     this.animTime = 0;
     this.deathParticles = [];
+    this.arrows = [];
   }
 
   takeDamage(amount = 1, hitFacing = 1, audio = null) {
@@ -84,6 +86,24 @@ export class ShadowNinjaEnemy {
       return;
     }
 
+    // Update fired arrows
+    for (let i = this.arrows.length - 1; i >= 0; i--) {
+      const arr = this.arrows[i];
+      arr.x += arr.vx * dt;
+      arr.life -= dt;
+
+      if (player && !player.isDead) {
+        const d = Math.hypot(player.x - arr.x, (player.y + 20) - arr.y);
+        if (d < 28) {
+          player.takeDamage(1, audio, camera);
+          this.arrows.splice(i, 1);
+          continue;
+        }
+      }
+
+      if (arr.life <= 0) this.arrows.splice(i, 1);
+    }
+
     this.animTime += dt;
     const px = player ? player.x : 0;
     const py = player ? player.y : 0;
@@ -102,9 +122,9 @@ export class ShadowNinjaEnemy {
       }
     }
 
-    // 2. Continuous Proximity & Vision Awareness
-    const playerInSight = (dirToPlayer === this.facing && distToPlayer < this.detectRange && yDist < 120);
-    const playerHeard = (distToPlayer < this.hearingRange && yDist < 120);
+    // 2. Proximity & Vision Awareness
+    const playerInSight = (dirToPlayer === this.facing && distToPlayer < this.detectRange && yDist < 140);
+    const playerHeard = (distToPlayer < this.hearingRange && yDist < 140);
 
     if (this.state === 'patrol' && (playerInSight || playerHeard)) {
       this.state = 'chase';
@@ -127,15 +147,12 @@ export class ShadowNinjaEnemy {
 
       case 'chase':
         this.facing = dirToPlayer;
-        if (xDist <= this.attackRange) {
-          // Within striking distance -> Start Attack Windup!
+        if (xDist <= this.attackRange && yDist < 100) {
           this.state = 'windup';
-          this.stateTimer = 0.22;
-        } else if (distToPlayer < this.detectRange + 150 && yDist < 140) {
-          // Sprint aggressively towards player
+          this.stateTimer = this.type === 'scout' ? 0.22 : 0.35;
+        } else if (distToPlayer < this.detectRange + 150 && yDist < 160) {
           this.x += this.facing * this.chaseSpeed * dt;
         } else {
-          // Lost player -> Resume patrol
           this.state = 'patrol';
         }
         break;
@@ -144,44 +161,51 @@ export class ShadowNinjaEnemy {
         this.facing = dirToPlayer;
         this.stateTimer -= dt;
         if (this.stateTimer <= 0) {
-          // Execute Lunge Attack!
           this.state = 'attack';
           this.stateTimer = 0.28;
           this.hasHitPlayerThisAttack = false;
-          if (audio) audio.playKatanaSlash();
+
+          if (this.type === 'archer') {
+            // Fire poisonous bolt
+            this.arrows.push({
+              x: this.x + this.facing * 18,
+              y: this.y + 18,
+              vx: this.facing * 520,
+              life: 2.2
+            });
+            if (audio) audio.playShurikenThrow();
+          } else {
+            if (audio) audio.playKatanaSlash();
+          }
         }
         break;
 
       case 'attack':
         this.stateTimer -= dt;
-        // Forward lunging impulse
-        this.x += this.facing * (this.chaseSpeed * 0.9) * dt;
+        if (this.type !== 'archer') {
+          this.x += this.facing * (this.chaseSpeed * 0.9) * dt;
+        }
 
         // Damage Player during active swing
-        if (!this.hasHitPlayerThisAttack && xDist < (this.type === 'spear' ? 95 : 65) && yDist < 50) {
-          if (player && !player.isDead) {
-            player.takeDamage(1, this.facing, audio);
+        if (!this.hasHitPlayerThisAttack && player && !player.isDead && !player.isDashing) {
+          const hitRange = this.type === 'spear' ? 85 : 55;
+          const hit = (dirToPlayer === this.facing && xDist < hitRange && yDist < 50);
+          if (hit) {
             this.hasHitPlayerThisAttack = true;
-            if (camera) camera.addShake(0.45);
+            player.takeDamage(1, audio, camera);
           }
         }
 
         if (this.stateTimer <= 0) {
           this.state = 'cooldown';
-          this.stateTimer = 0.45;
+          this.stateTimer = this.type === 'scout' ? 0.45 : 0.75;
         }
         break;
 
       case 'cooldown':
         this.stateTimer -= dt;
-        this.facing = dirToPlayer;
         if (this.stateTimer <= 0) {
-          if (xDist <= this.attackRange + 40) {
-            this.state = 'windup';
-            this.stateTimer = 0.2;
-          } else {
-            this.state = 'chase';
-          }
+          this.state = 'chase';
         }
         break;
 
@@ -196,183 +220,87 @@ export class ShadowNinjaEnemy {
 
   draw(ctx, camX, camY) {
     if (this.isDead) {
-      ctx.save();
       for (const p of this.deathParticles) {
-        ctx.fillStyle = '#05080f';
-        ctx.shadowColor = '#ef4444';
-        ctx.shadowBlur = 8;
+        ctx.save();
+        ctx.fillStyle = '#ef4444';
         ctx.globalAlpha = p.alpha;
-        ctx.beginPath();
-        ctx.arc(p.x - camX, p.y - camY, p.size, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.translate(p.x - camX, p.y - camY);
+        ctx.rotate(p.rot);
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx.restore();
       }
-      ctx.restore();
       return;
     }
 
-    const drawX = this.x - camX;
-    const drawY = this.y - camY;
+    const sx = this.x - camX;
+    const sy = this.y - camY;
+
+    // Draw Crossbow Arrows
+    for (const arr of this.arrows) {
+      ctx.save();
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(arr.x - camX, arr.y - camY);
+      ctx.lineTo((arr.x - camX) - (arr.vx > 0 ? 18 : -18), arr.y - camY);
+      ctx.stroke();
+      ctx.restore();
+    }
 
     ctx.save();
-    ctx.translate(drawX, drawY);
+    ctx.translate(sx + this.width / 2, sy + this.height / 2);
 
-    // 1. Health Hearts Display above Head
-    ctx.font = 'bold 12px sans-serif';
-    ctx.textAlign = 'center';
-    let hearts = '';
-    for (let i = 0; i < this.maxHealth; i++) {
-      hearts += i < this.health ? '❤️' : '🖤';
-    }
-    ctx.fillText(hearts, 0, -14);
+    // Main Shadow Silhouette Body
+    ctx.fillStyle = '#080c14';
+    ctx.fillRect(-12, -18, 24, 40);
 
-    ctx.scale(this.facing, 1);
-
-    // Pitch Black Silhouette
-    ctx.fillStyle = '#05080f';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-    ctx.shadowBlur = 8;
-
-    // Legs
-    const isMoving = this.state === 'patrol' || this.state === 'chase';
-    const legCycle = Math.sin(this.animTime * (this.state === 'chase' ? 16 : 9)) * 7;
+    // Head Silhouette
     ctx.beginPath();
-    ctx.ellipse(isMoving ? -5 - legCycle : -5, 46, 5, 9, 0.2, 0, Math.PI * 2);
-    ctx.ellipse(isMoving ? 5 + legCycle : 5, 46, 5, 9, -0.2, 0, Math.PI * 2);
+    ctx.arc(0, -22, 9, 0, Math.PI * 2);
     ctx.fill();
 
-    // Torso
-    ctx.beginPath();
-    ctx.roundRect(-10, 18, 20, 26, 3);
-    ctx.fill();
-
-    // Shoulder Plates
-    ctx.beginPath();
-    ctx.moveTo(-14, 20);
-    ctx.lineTo(-4, 16);
-    ctx.lineTo(-4, 28);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(14, 20);
-    ctx.lineTo(4, 16);
-    ctx.lineTo(4, 28);
-    ctx.closePath();
-    ctx.fill();
-
-    // Head
-    ctx.beginPath();
-    ctx.arc(0, 12, 10, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Conical Straw Hat
-    ctx.beginPath();
-    ctx.moveTo(-20, 8);
-    ctx.lineTo(0, -3);
-    ctx.lineTo(20, 8);
-    ctx.closePath();
-    ctx.fill();
-
-    // Glowing Crimson Eye (Flares intensely in chase/windup/attack)
-    const isAlert = this.state === 'chase' || this.state === 'windup' || this.state === 'attack';
+    // Red Demonic Eyes
     ctx.fillStyle = '#ef4444';
     ctx.shadowColor = '#ef4444';
-    ctx.shadowBlur = isAlert ? 22 : 8;
-    ctx.beginPath();
-    ctx.ellipse(5, 11, isAlert ? 5 : 3.5, 1.8, 0.1, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.shadowBlur = 10;
+    ctx.fillRect(this.facing > 0 ? 2 : -8, -24, 6, 3);
+    ctx.shadowBlur = 0;
 
-    // Weapon Presentation
-    ctx.fillStyle = '#05080f';
-    ctx.strokeStyle = '#05080f';
-    ctx.lineWidth = 3;
-
-    const isWindup = this.state === 'windup';
-    const isAttacking = this.state === 'attack';
-
+    // Weapon Rendering
     if (this.type === 'spear') {
-      // Naginata Spear
-      const spearAngle = isWindup ? -0.4 : (isAttacking ? 0.2 : 0);
-      const thrustOffset = isAttacking ? 34 : (isWindup ? -12 : 0);
-
-      ctx.save();
-      ctx.rotate(spearAngle);
-
-      // Shaft
-      ctx.beginPath();
-      ctx.moveTo(-12, 34);
-      ctx.lineTo(38 + thrustOffset, 16);
-      ctx.stroke();
-
-      // Blade
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = '#e2e8f0';
-      ctx.beginPath();
-      ctx.moveTo(38 + thrustOffset, 16);
-      ctx.quadraticCurveTo(52 + thrustOffset, 12, 58 + thrustOffset, 6);
-      ctx.stroke();
-
-      // Tassel
-      ctx.fillStyle = '#dc2626';
-      ctx.beginPath();
-      ctx.arc(38 + thrustOffset, 16, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Red Slash Arc on Attack
-      if (isAttacking) {
-        ctx.strokeStyle = '#ef4444';
-        ctx.shadowColor = '#ef4444';
-        ctx.shadowBlur = 16;
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.arc(32 + thrustOffset, 14, 28, -0.6, 0.6);
-        ctx.stroke();
-      }
-
-      ctx.restore();
-    } else {
-      // Dual Katana Blade
-      const slashAngle = isWindup ? -0.6 : (isAttacking ? 0.5 : 0);
-      const slashX = isAttacking ? 22 : (isWindup ? -8 : 0);
-
-      ctx.save();
-      ctx.rotate(slashAngle);
-
+      // Naginata Long Spear (Archive image 16)
+      ctx.strokeStyle = '#64748b';
       ctx.lineWidth = 3.5;
-      ctx.strokeStyle = '#e2e8f0';
       ctx.beginPath();
-      ctx.moveTo(4, 26);
-      ctx.lineTo(28 + slashX, 10);
+      ctx.moveTo(0, 8);
+      ctx.lineTo(this.facing * 44, -18);
       ctx.stroke();
 
+      // Red Spear Blade Tip
+      ctx.fillStyle = '#ef4444';
       ctx.beginPath();
-      ctx.moveTo(-4, 30);
-      ctx.lineTo(18 + slashX, 22);
+      ctx.moveTo(this.facing * 44, -18);
+      ctx.lineTo(this.facing * 58, -24);
+      ctx.lineTo(this.facing * 48, -12);
+      ctx.closePath();
+      ctx.fill();
+    } else if (this.type === 'archer') {
+      // Crossbow
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(this.facing * 16, -6, 12, -Math.PI * 0.4, Math.PI * 0.4, false);
       ctx.stroke();
-
-      // Crimson Slash Ribbon on Attack
-      if (isAttacking) {
-        ctx.strokeStyle = '#ef4444';
-        ctx.shadowColor = '#ef4444';
-        ctx.shadowBlur = 16;
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.arc(14 + slashX, 18, 30, -Math.PI / 3, Math.PI / 3);
-        ctx.stroke();
-      }
-
-      ctx.restore();
+    } else {
+      // Dual Katana Blades
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(-4, 0);
+      ctx.lineTo(this.facing * 28, 6);
+      ctx.stroke();
     }
 
     ctx.restore();
-  }
-
-  getBounds() {
-    return {
-      x: this.x - this.width / 2,
-      y: this.y,
-      width: this.width,
-      height: this.height
-    };
   }
 }

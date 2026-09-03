@@ -1,5 +1,5 @@
 /* ==========================================================================
-   DEVIL'S DOOR — MASTER GAME STYLESHEET (NINJA ARASHI 2 BENCHMARK)
+   DEVIL'S DOOR v2.0 — MASTER GAME STYLESHEET (ENDLESS ACTION-PLATFORMER)
    ========================================================================== */
 
 :root {
@@ -50,7 +50,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Top HUD Overlay (Ninja Avatar & Status)
+   Top HUD Overlay (Devil's Door v2.0 Endless Edition)
    ========================================================================== */
 .hud-overlay {
   position: absolute;
@@ -112,12 +112,29 @@ html, body {
   gap: 4px;
 }
 
-.hud-title {
+.hud-metrics {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-hud);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 4px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.hud-metric-item {
+  font-size: 0.95rem;
   font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hud-metric-item strong {
   font-size: 1.05rem;
-  letter-spacing: 0.08em;
-  color: #f1f5f9;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  color: #38bdf8;
 }
 
 .hud-health {
@@ -132,14 +149,14 @@ html, body {
   pointer-events: auto;
 }
 
-.hud-deaths {
+.hud-highscore {
   background: var(--bg-hud);
-  border: 1px solid rgba(239, 68, 68, 0.4);
+  border: 1px solid rgba(251, 191, 36, 0.4);
   padding: 6px 14px;
   border-radius: 20px;
   font-weight: 800;
-  font-size: 0.9rem;
-  color: var(--accent-crimson);
+  font-size: 0.85rem;
+  color: var(--accent-gold);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -269,7 +286,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Modals (Victory, Pause, Rewarded Ad Skip)
+   Modals (Game Over, Victory, Pause, Rewarded Ad)
    ========================================================================== */
 .modal-backdrop {
   position: absolute;

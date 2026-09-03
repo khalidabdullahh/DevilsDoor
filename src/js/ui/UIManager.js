@@ -1,16 +1,18 @@
 import { AnalyticsManager } from '../core/AnalyticsManager.js';
 
 /**
- * UIManager — Manages HUD elements, health hearts, death counters, campaign modals,
- * and rewarded ad level-skip popups. Supports free orientation (portrait & landscape).
+ * UIManager — Manages HUD elements, meters, score, diamonds, high score,
+ * and game over modal for Devil's Door v2.0 Endless Platformer.
  */
 export class UIManager {
   constructor(game) {
     this.game = game;
 
-    this.levelDisplay = document.getElementById('level-display');
-    this.levelTitle = document.getElementById('level-title');
-    this.deathCount = document.getElementById('death-count');
+    this.distanceDisplay = document.getElementById('distance-display');
+    this.diamondsDisplay = document.getElementById('diamonds-display');
+    this.scoreDisplay = document.getElementById('score-display');
+    this.highScoreDisplay = document.getElementById('highscore-display');
+    this.biomeDisplay = document.getElementById('biome-display');
     this.healthDisplay = document.getElementById('health-display');
 
     this.btnRestart = document.getElementById('btn-restart');
@@ -32,7 +34,7 @@ export class UIManager {
   _bindEvents() {
     if (this.btnRestart) {
       this.btnRestart.addEventListener('click', () => {
-        if (this.game) this.game.restartLevel();
+        if (this.game) this.game.restartGame();
       });
     }
 
@@ -62,7 +64,7 @@ export class UIManager {
         const restartAction = this.restartAction;
         this.hideModal();
         if (restartAction) restartAction();
-        else if (this.game) this.game.restartLevel();
+        else if (this.game) this.game.restartGame();
       });
     }
 
@@ -82,16 +84,28 @@ export class UIManager {
     }
   }
 
-  updateHUD(levelIndex, totalLevels, title, deaths, health = 3, maxHealth = 3) {
-    if (this.levelDisplay) {
-      const pad = String(levelIndex).padStart(2, '0');
-      this.levelDisplay.textContent = `LEVEL ${pad}/${totalLevels}`;
+  updateEndlessHUD(distance, score, diamonds, highScore, health = 3, maxHealth = 3, biome = 'sunset') {
+    if (this.distanceDisplay) {
+      this.distanceDisplay.textContent = `${distance.toLocaleString()}m`;
     }
-    if (this.levelTitle) {
-      this.levelTitle.textContent = title;
+    if (this.diamondsDisplay) {
+      this.diamondsDisplay.textContent = `${diamonds}`;
     }
-    if (this.deathCount) {
-      this.deathCount.textContent = String(deaths);
+    if (this.scoreDisplay) {
+      this.scoreDisplay.textContent = score.toLocaleString();
+    }
+    if (this.highScoreDisplay) {
+      this.highScoreDisplay.textContent = `BEST: ${highScore.toLocaleString()}`;
+    }
+    if (this.biomeDisplay) {
+      const biomeLabels = {
+        sunset: '🌅 SUNSET FORTRESS',
+        snow: '❄️ FROZEN ABYSS',
+        bamboo: '🎋 BAMBOO GROVE',
+        thorns: '🩸 DEMONIC CRYPT',
+        waterfall: '🌫️ SKY WATERFALL'
+      };
+      this.biomeDisplay.textContent = biomeLabels[biome] || 'DEVIL\'S DESCENT';
     }
     if (this.healthDisplay) {
       let hearts = '';
@@ -105,56 +119,36 @@ export class UIManager {
   showPauseModal() {
     if (this.game) this.game.setPaused(true);
     this.modalTitle.textContent = 'PAUSED';
-    this.modalDescription.textContent = 'Trust nothing. The obvious path is rarely the true route.';
+    this.modalDescription.textContent = 'Take breath, shinobi. The endless descent awaits your blade.';
     this.btnModalPrimary.textContent = 'RESUME';
-    this.btnModalRestart.textContent = 'RESTART LEVEL';
+    this.btnModalRestart.textContent = 'RESTART RUN';
     this.btnModalRestart.classList.remove('hidden');
-    this.restartAction = null;
+    this.restartAction = () => {
+      if (this.game) this.game.restartGame();
+    };
     this.primaryAction = () => {
       if (this.game) this.game.setPaused(false);
     };
     this.modalOverlay.classList.remove('hidden');
   }
 
-  showVictoryModal(levelIndex, totalLevels, totalDeaths, stars, onNext) {
+  showGameOverModal(distance, score, diamonds, highScore, onRestart) {
     if (this.game) this.game.setPaused(true);
 
-    const pad = String(levelIndex).padStart(2, '0');
-    let starStr = '⭐'.repeat(stars);
+    const isNewHigh = score >= highScore && score > 0;
+    this.modalTitle.textContent = isNewHigh ? '🏆 NEW RECORD!' : '💀 SHADOW FALLEN';
+    this.modalDescription.innerHTML = `
+      <div style="display: flex; justify-content: space-around; margin: 16px 0; font-size: 1.15rem; font-weight: 800;">
+        <div><span>📏 Distance:</span> <strong style="color: #38bdf8;">${distance.toLocaleString()}m</strong></div>
+        <div><span>💎 Gems:</span> <strong style="color: #fbbf24;">${diamonds}</strong></div>
+      </div>
+      <div style="font-size: 1.3rem; font-weight: 900; color: #f8fafc; margin-bottom: 8px;">Score: ${score.toLocaleString()}</div>
+      <div style="font-size: 0.95rem; color: #94a3b8;">All-Time Best: ${highScore.toLocaleString()}</div>
+    `;
 
-    if (levelIndex >= totalLevels) {
-      this.modalTitle.textContent = '👑 CAMPAIGN CONQUERED!';
-      this.modalDescription.textContent = `You reached the Final Devil's Door and defeated the Demonic Oni! Total deaths: ${totalDeaths}. Rating: ${starStr}`;
-      this.btnModalPrimary.textContent = 'PLAY AGAIN';
-    } else {
-      this.modalTitle.textContent = `LEVEL ${pad} CONQUERED!`;
-      this.modalDescription.textContent = `You ascended through the Runic Shrine with ${totalDeaths} deaths. Rating: ${starStr}`;
-      this.btnModalPrimary.textContent = 'NEXT LEVEL ➔';
-    }
-
-    this.btnModalRestart.textContent = 'RESTART LEVEL';
-    this.btnModalRestart.classList.remove('hidden');
-    this.restartAction = null;
-    this.primaryAction = onNext;
-    this.modalOverlay.classList.remove('hidden');
-  }
-
-  showRewardedSkipModal(levelIndex, onWatch, onDecline) {
-    if (this.game) this.game.setPaused(true);
-    AnalyticsManager.track('rewarded_ad_offer', { levelId: levelIndex });
-
-    this.modalTitle.textContent = 'TOO MANY DEATHS?';
-    this.modalDescription.textContent = 'Stuck on this deceptive path? Watch a short 5-second ad to unlock and skip to the next level!';
-    this.btnModalPrimary.textContent = 'WATCH & SKIP';
-    this.btnModalRestart.textContent = 'NO THANKS';
-    this.btnModalRestart.classList.remove('hidden');
-
-    this.primaryAction = onWatch;
-    this.restartAction = () => {
-      if (this.game) this.game.setPaused(false);
-      if (onDecline) onDecline();
-    };
-
+    this.btnModalPrimary.textContent = 'PLAY AGAIN ➔';
+    this.btnModalRestart.classList.add('hidden');
+    this.primaryAction = onRestart;
     this.modalOverlay.classList.remove('hidden');
   }
 

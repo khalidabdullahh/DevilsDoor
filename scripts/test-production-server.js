@@ -1,5 +1,5 @@
 /**
- * test-production-server.js — Production-like Vercel routing and MIME type tester.
+ * test-production-server.js — Production-like Vercel routing and MIME type tester for v2.0.
  */
 import fs from 'fs';
 import path from 'path';
@@ -48,9 +48,9 @@ const testEndpoints = [
   { path: '/src/js/main.js', expectedType: 'application/javascript', desc: 'Main Game Module' },
   { path: '/src/js/core/Game.js', expectedType: 'application/javascript', desc: 'Game Coordinator Module' },
   { path: '/src/js/core/AdManager.js', expectedType: 'application/javascript', desc: 'AdManager Module' },
+  { path: '/src/js/levels/EndlessWorld.js', expectedType: 'application/javascript', desc: 'Endless World Generator Module' },
   { path: '/src/js/entities/OniBossEnemy.js', expectedType: 'application/javascript', desc: 'Oni Boss Enemy Entity' },
-  { path: '/src/js/levels/LevelRegistry.js', expectedType: 'application/javascript', desc: 'Level Registry Module' },
-  { path: '/src/js/levels/Level10_OniBoss.js', expectedType: 'application/javascript', desc: 'Level 10 Boss Module' }
+  { path: '/src/js/entities/ShadowNinjaEnemy.js', expectedType: 'application/javascript', desc: 'Shadow Ninja Enemy Entity' }
 ];
 
 let passed = 0;

@@ -1,8 +1,8 @@
 {
   "name": "devils-door",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "REACH THE DOOR. TRUST NOTHING. A 2.5D deceptive platformer from the creators of Aurex.",
+  "description": "DEVIL'S DOOR v2.0 — Endless Dark Fantasy Ninja Action-Platformer. Procedural chunks, 3-minute dynamic biome cycles, and high-octane shadow combat. Created by Khalid Abdullah.",
   "main": "src/index.html",
   "scripts": {
     "dev": "python3 -m http.server 8080",
@@ -12,13 +12,12 @@
   },
   "keywords": [
     "devils-door",
-    "game",
-    "platformer",
-    "2.5d",
-    "deceptive-platformer",
-    "html5",
-    "webgl",
-    "aurex",
+    "v2",
+    "endless-runner",
+    "action-platformer",
+    "ninja-arashi",
+    "dark-fantasy",
+    "html5-game",
     "khalid-abdullah"
   ],
   "author": "Khalid Abdullah",

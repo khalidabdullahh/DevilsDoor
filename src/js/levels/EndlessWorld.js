@@ -1,0 +1,717 @@
+import { ShadowNinjaEnemy } from '../entities/ShadowNinjaEnemy.js';
+import { OniBossEnemy } from '../entities/OniBossEnemy.js';
+
+/**
+ * EndlessWorld — Infinite Procedural Chunk Generator & Biome Controller for Devil's Door v2.0.
+ * Generates continuous dark fantasy terrain chunks, hazards, enemies, and collectibles
+ * based on the 18 reference screenshots in Archive.
+ * Cycles seamlessly across 5 signature biomes every 3 minutes (180 seconds).
+ */
+export class EndlessWorld {
+  constructor() {
+    this.title = "Devil's Endless Descent";
+    this.id = 'endless_v2';
+    this.biome = 'sunset'; // Initial biome
+
+    // Biome Cycle Sequence (Every 180 seconds = 3 minutes)
+    this.BIOME_CYCLE = ['sunset', 'snow', 'bamboo', 'thorns', 'waterfall'];
+    this.biomeIndex = 0;
+    this.biomeTimer = 0;
+    this.BIOME_DURATION = 180; // 3 minutes per biome in seconds
+
+    // World Entity Collections
+    this.solids = [];
+    this.hazards = [];
+    this.enemies = [];
+    this.projectiles = [];
+    this.lanterns = [];
+    this.bridgePlanks = [];
+    this.demonClaws = [];
+    this.thornPods = [];
+    this.hokoraShrines = [];
+    this.pendulumAxes = [];
+    this.skullSawWheels = [];
+    this.campfires = [];
+    this.diamonds = []; // Collectible glowing gems
+
+    // Procedural Generation State
+    this.generatedDistance = 0;
+    this.chunkIndex = 0;
+    this.lastGroundY = 560;
+    this.playerStartX = 120;
+    this.playerStartY = 480;
+
+    // Difficulty and Boss State
+    this.nextBossDistance = 1000; // Demonic Oni Boss every 1000 meters
+
+    this._initStartingZone();
+  }
+
+  _initStartingZone() {
+    // Initial safe starting runway
+    this.solids.push({
+      x: 0,
+      y: 560,
+      width: 900,
+      height: 340,
+      tag: 'ground_start',
+      active: true
+    });
+
+    this.lanterns.push({ x: 160, y: 520 });
+    this.lanterns.push({ x: 480, y: 520 });
+    this.lanterns.push({ x: 800, y: 520 });
+
+    this.campfires.push({ x: 320, y: 554 });
+
+    // Initial warm-up diamonds
+    this.diamonds.push({ x: 300, y: 510, collected: false });
+    this.diamonds.push({ x: 350, y: 480, collected: false });
+    this.diamonds.push({ x: 400, y: 510, collected: false });
+
+    this.generatedDistance = 900;
+
+    // Pre-generate ahead
+    while (this.generatedDistance < 3200) {
+      this._generateNextChunk();
+    }
+  }
+
+  update(dt, player, audio, camera) {
+    // 1. Update 3-Minute Biome Cycle
+    this.biomeTimer += dt;
+    if (this.biomeTimer >= this.BIOME_DURATION) {
+      this.biomeTimer = 0;
+      this.biomeIndex = (this.biomeIndex + 1) % this.BIOME_CYCLE.length;
+      this.biome = this.BIOME_CYCLE[this.biomeIndex];
+      if (camera) camera.addShake(0.3);
+    }
+
+    const px = player ? player.x : 0;
+    const py = player ? player.y : 0;
+
+    // 2. Continuous Ahead Generation (Keep generating 2400px ahead of player)
+    while (this.generatedDistance < px + 2800) {
+      this._generateNextChunk();
+    }
+
+    // 3. Demonic Oni Boss Encounter Spawning
+    const currentMeters = Math.floor(px / 10);
+    if (currentMeters >= this.nextBossDistance) {
+      this.nextBossDistance += 1000;
+      const boss = new OniBossEnemy(px + 900, 480);
+      this.enemies.push(boss);
+      if (audio) audio.playEnemyAlert();
+      if (camera) camera.addShake(0.8);
+    }
+
+    // 4. Update Swinging Pendulum Axes
+    for (const axe of this.pendulumAxes) {
+      axe.angle = Math.sin(performance.now() * 0.0018 * axe.speed + axe.phase) * axe.maxAngle;
+      axe.bladeX = axe.pivotX + Math.sin(axe.angle) * axe.length;
+      axe.bladeY = axe.pivotY + Math.cos(axe.angle) * axe.length;
+
+      // Hazard collision with player
+      if (player && !player.isDead) {
+        const d = Math.hypot(player.x - axe.bladeX, (player.y + 20) - axe.bladeY);
+        if (d < 46) {
+          player.takeDamage(1, audio, camera);
+        }
+      }
+    }
+
+    // 5. Update Spinning Skull-Saw Wheels (Archive image 1 & 10)
+    for (const saw of this.skullSawWheels) {
+      saw.rotation += dt * saw.rotSpeed;
+      if (saw.moves) {
+        saw.y = saw.baseY + Math.sin(performance.now() * 0.002 * saw.moveSpeed) * saw.moveRange;
+      }
+      if (player && !player.isDead) {
+        const d = Math.hypot(player.x - saw.x, (player.y + 20) - saw.y);
+        if (d < saw.radius + 14) {
+          player.takeDamage(1, audio, camera);
+        }
+      }
+    }
+
+    // 6. Update Collapsing Bridge Planks
+    for (const plank of this.bridgePlanks) {
+      if (plank.isFalling) {
+        plank.vy = (plank.vy || 0) + 750 * dt;
+        plank.y += plank.vy * dt;
+        plank.rot += 1.8 * dt;
+        if (plank.y > 1400) plank.active = false;
+      } else if (player && plank.active) {
+        const onPlank = (player.x >= plank.x - 24 && player.x <= plank.x + plank.width + 24 &&
+                         Math.abs(player.y + 50 - plank.y) < 16 && player.onGround);
+        if (onPlank) {
+          plank.touchTimer = (plank.touchTimer || 0) + dt;
+          if (plank.touchTimer > 0.18) {
+            plank.isFalling = true;
+            if (audio) audio.playStoneCollapse();
+            if (camera) camera.addShake(0.3);
+          }
+        }
+      }
+    }
+
+    // 7. Update Collectible Diamonds
+    for (const d of this.diamonds) {
+      if (!d.collected && player) {
+        const dist = Math.hypot(player.x - d.x, (player.y + 20) - d.y);
+        if (dist < 38) {
+          d.collected = true;
+          player.diamonds = (player.diamonds || 0) + 1;
+          player.score = (player.score || 0) + 250;
+          if (audio) audio.playFootstep();
+        }
+      }
+    }
+
+    // 8. Update Enemies
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      const e = this.enemies[i];
+      e.update(dt, player, audio, camera, this);
+
+      // Despawn far behind enemies
+      if (e.x < px - 1200) {
+        this.enemies.splice(i, 1);
+      }
+    }
+
+    // 9. Memory Cleanup: Despawn far behind entities
+    const despawnThreshold = px - 1400;
+    this.solids = this.solids.filter(s => (s.x + s.width) > despawnThreshold);
+    this.hazards = this.hazards.filter(h => (h.x + (h.width || 60)) > despawnThreshold);
+    this.lanterns = this.lanterns.filter(l => l.x > despawnThreshold);
+    this.bridgePlanks = this.bridgePlanks.filter(b => b.x > despawnThreshold && b.active);
+    this.pendulumAxes = this.pendulumAxes.filter(a => a.pivotX > despawnThreshold);
+    this.skullSawWheels = this.skullSawWheels.filter(s => s.x > despawnThreshold);
+    this.diamonds = this.diamonds.filter(d => d.x > despawnThreshold && !d.collected);
+    this.campfires = this.campfires.filter(c => c.x > despawnThreshold);
+  }
+
+  _generateNextChunk() {
+    const startX = this.generatedDistance;
+    const chunkType = Math.floor(Math.random() * 6);
+    this.chunkIndex++;
+
+    switch (chunkType) {
+      case 0:
+        this._buildStandardGroundChunk(startX);
+        break;
+      case 1:
+        this._buildCollapsingBridgeChunk(startX);
+        break;
+      case 2:
+        this._buildHighLedgeWallJumpChunk(startX);
+        break;
+      case 3:
+        this._buildPendulumAxeHazardChunk(startX);
+        break;
+      case 4:
+        this._buildSpinningSkullSawChunk(startX);
+        break;
+      case 5:
+      default:
+        this._buildTacticalCombatArenaChunk(startX);
+        break;
+    }
+  }
+
+  _buildStandardGroundChunk(startX) {
+    const width = 800 + Math.floor(Math.random() * 400);
+    const groundY = 560 + (Math.random() > 0.5 ? -40 : 20);
+
+    this.solids.push({
+      x: startX,
+      y: groundY,
+      width: width,
+      height: 380,
+      tag: 'ground',
+      active: true
+    });
+
+    // Lanterns & Props
+    this.lanterns.push({ x: startX + 180, y: groundY - 40 });
+    this.lanterns.push({ x: startX + width - 180, y: groundY - 40 });
+
+    // Spikes hazard
+    if (Math.random() > 0.4) {
+      this.hazards.push({
+        x: startX + width * 0.45,
+        y: groundY - 16,
+        width: 80,
+        height: 24,
+        tag: 'ground_spikes',
+        active: true
+      });
+    }
+
+    // Shadow Enemy
+    const enemyType = Math.random() > 0.45 ? 'scout' : 'spear';
+    const enemy = new ShadowNinjaEnemy(startX + width * 0.7, groundY - 54, startX + 200, startX + width - 80, enemyType);
+    this.enemies.push(enemy);
+
+    // Arc of Diamonds
+    for (let i = 0; i < 4; i++) {
+      this.diamonds.push({
+        x: startX + 260 + i * 50,
+        y: groundY - 60 - Math.sin(i / 3 * Math.PI) * 40,
+        collected: false
+      });
+    }
+
+    this.lastGroundY = groundY;
+    this.generatedDistance = startX + width + 90; // Small jump gap
+  }
+
+  _buildCollapsingBridgeChunk(startX) {
+    const bridgeStartX = startX;
+    const plankCount = 7 + Math.floor(Math.random() * 4);
+    const groundY = 560;
+
+    for (let i = 0; i < plankCount; i++) {
+      const px = bridgeStartX + i * 52;
+      const plank = {
+        x: px,
+        y: groundY,
+        originalY: groundY,
+        width: 48,
+        height: 14,
+        tag: 'collapsing_plank',
+        active: true,
+        isFalling: false,
+        rot: 0
+      };
+      this.solids.push(plank);
+      this.bridgePlanks.push(plank);
+
+      if (i % 2 === 0) {
+        this.diamonds.push({ x: px + 24, y: groundY - 45, collected: false });
+      }
+    }
+
+    // Bottom Chasm Spikes below bridge
+    this.hazards.push({
+      x: bridgeStartX,
+      y: 780,
+      width: plankCount * 54,
+      height: 40,
+      tag: 'abyss_spikes',
+      active: true
+    });
+
+    this.generatedDistance = bridgeStartX + plankCount * 52 + 80;
+  }
+
+  _buildHighLedgeWallJumpChunk(startX) {
+    const groundY = 560;
+
+    // High upper ledge
+    this.solids.push({
+      x: startX,
+      y: 340,
+      width: 480,
+      height: 480,
+      tag: 'high_cliff',
+      active: true
+    });
+
+    // Hanging spikes on ceiling
+    this.hazards.push({
+      x: startX + 60,
+      y: 180,
+      width: 260,
+      height: 28,
+      tag: 'ceiling_spikes',
+      active: true
+    });
+
+    // Lower landing step
+    this.solids.push({
+      x: startX + 560,
+      y: groundY,
+      width: 500,
+      height: 380,
+      tag: 'ground_lower',
+      active: true
+    });
+
+    const enemy = new ShadowNinjaEnemy(startX + 680, groundY - 54, startX + 580, startX + 1000, 'spear');
+    this.enemies.push(enemy);
+
+    // High airborne diamonds
+    for (let i = 0; i < 4; i++) {
+      this.diamonds.push({
+        x: startX + 120 + i * 70,
+        y: 280,
+        collected: false
+      });
+    }
+
+    this.generatedDistance = startX + 1080;
+  }
+
+  _buildPendulumAxeHazardChunk(startX) {
+    const width = 850;
+    const groundY = 560;
+
+    this.solids.push({
+      x: startX,
+      y: groundY,
+      width: width,
+      height: 380,
+      tag: 'ground_pendulum',
+      active: true
+    });
+
+    // Swinging Pendulum Axe on tall wooden mast (Archive image 14 & 17)
+    this.pendulumAxes.push({
+      pivotX: startX + width * 0.48,
+      pivotY: 160,
+      length: 290,
+      angle: 0,
+      maxAngle: 1.15,
+      speed: 1.4,
+      phase: Math.random() * Math.PI,
+      bladeX: startX + width * 0.48,
+      bladeY: 450
+    });
+
+    // Hokora stone shrine
+    this.hokoraShrines.push({ x: startX + 160, y: groundY });
+
+    // Scout Enemy
+    const enemy = new ShadowNinjaEnemy(startX + width * 0.75, groundY - 54, startX + width * 0.55, startX + width - 60, 'scout');
+    this.enemies.push(enemy);
+
+    this.generatedDistance = startX + width + 80;
+  }
+
+  _buildSpinningSkullSawChunk(startX) {
+    const width = 900;
+    const groundY = 560;
+
+    this.solids.push({
+      x: startX,
+      y: groundY,
+      width: width,
+      height: 380,
+      tag: 'ground_saw',
+      active: true
+    });
+
+    // Giant Demonic Skull Saw Gear (Archive images 1 & 10)
+    this.skullSawWheels.push({
+      x: startX + 380,
+      y: 440,
+      baseY: 440,
+      radius: 46,
+      rotation: 0,
+      rotSpeed: 3.2,
+      moves: true,
+      moveSpeed: 1.6,
+      moveRange: 60
+    });
+
+    // Demon claws reaching from ground
+    this.demonClaws.push({ x: startX + 680, y: groundY });
+
+    this.generatedDistance = startX + width + 90;
+  }
+
+  _buildTacticalCombatArenaChunk(startX) {
+    const width = 1000;
+    const groundY = 560;
+
+    this.solids.push({
+      x: startX,
+      y: groundY,
+      width: width,
+      height: 380,
+      tag: 'arena_floor',
+      active: true
+    });
+
+    // Elevated Pagoda Platform
+    this.solids.push({
+      x: startX + 320,
+      y: 400,
+      width: 280,
+      height: 24,
+      tag: 'pagoda_platform',
+      active: true
+    });
+
+    // Two tactical enemies
+    const scout = new ShadowNinjaEnemy(startX + 240, groundY - 54, startX + 80, startX + 360, 'scout');
+    const spearman = new ShadowNinjaEnemy(startX + 780, groundY - 54, startX + 640, startX + 940, 'spear');
+    this.enemies.push(scout);
+    this.enemies.push(spearman);
+
+    // Diamonds on upper platform
+    this.diamonds.push({ x: startX + 380, y: 340, collected: false });
+    this.diamonds.push({ x: startX + 440, y: 320, collected: false });
+    this.diamonds.push({ x: startX + 500, y: 340, collected: false });
+
+    this.generatedDistance = startX + width + 100;
+  }
+
+  checkHazardCollision(x, y, w, h) {
+    for (const haz of this.hazards) {
+      if (!haz.active) continue;
+      const hw = haz.width || 40;
+      const hh = haz.height || 40;
+      if (x + w > haz.x && x < haz.x + hw && y + h > haz.y && y < haz.y + hh) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  draw(ctx, camX, camY, time) {
+    // 1. Draw Lanterns with Atmospheric Glow
+    for (const l of this.lanterns) {
+      const lx = l.x - camX;
+      const ly = l.y - camY;
+
+      // Outer Warm Halo
+      const halo = ctx.createRadialGradient(lx, ly, 4, lx, ly, 38);
+      halo.addColorStop(0, 'rgba(251, 191, 36, 0.45)');
+      halo.addColorStop(1, 'rgba(251, 191, 36, 0)');
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(lx, ly, 38, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Japanese Lantern Housing
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(lx - 9, ly - 14, 18, 22);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(lx - 5, ly - 8, 10, 12);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(lx - 12, ly - 16, 24, 4);
+    }
+
+    // 2. Draw Campfires with Flickering Embers
+    for (const c of this.campfires) {
+      const cx = c.x - camX;
+      const cy = c.y - camY;
+
+      const fireHalo = ctx.createRadialGradient(cx, cy - 8, 2, cx, cy - 8, 48);
+      fireHalo.addColorStop(0, 'rgba(239, 68, 68, 0.55)');
+      fireHalo.addColorStop(0.5, 'rgba(245, 158, 11, 0.35)');
+      fireHalo.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = fireHalo;
+      ctx.beginPath();
+      ctx.arc(cx, cy - 8, 48, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Flame Tongue
+      const flicker = Math.sin(time * 12) * 4;
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(cx - 10, cy);
+      ctx.quadraticCurveTo(cx, cy - 24 + flicker, cx + 10, cy);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 3. Draw Collectible Glowing Diamonds
+    for (const d of this.diamonds) {
+      if (d.collected) continue;
+      const dx = d.x - camX;
+      const dy = d.y - camY + Math.sin(time * 4 + d.x) * 5;
+
+      // Glow Aura
+      const gemHalo = ctx.createRadialGradient(dx, dy, 2, dx, dy, 22);
+      gemHalo.addColorStop(0, 'rgba(56, 189, 248, 0.6)');
+      gemHalo.addColorStop(1, 'rgba(56, 189, 248, 0)');
+      ctx.fillStyle = gemHalo;
+      ctx.beginPath();
+      ctx.arc(dx, dy, 22, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Faceted Diamond
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.moveTo(dx, dy - 12);
+      ctx.lineTo(dx + 9, dy);
+      ctx.lineTo(dx, dy + 12);
+      ctx.lineTo(dx - 9, dy);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(dx, dy - 12);
+      ctx.lineTo(dx + 4, dy);
+      ctx.lineTo(dx, dy + 6);
+      ctx.lineTo(dx - 4, dy);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 4. Draw Terrain Solids with Biome Snow/Grass Top Caps
+    for (const s of this.solids) {
+      if (!s.active) continue;
+      const sx = s.x - camX;
+      const sy = s.y - camY;
+
+      ctx.save();
+      if (s.rot) {
+        ctx.translate(sx + s.width / 2, sy + s.height / 2);
+        ctx.rotate(s.rot);
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(-s.width / 2, -s.height / 2, s.width, s.height);
+        ctx.restore();
+        continue;
+      }
+
+      // Main Dark Silhouette Ledge
+      ctx.fillStyle = '#080c14';
+      ctx.fillRect(sx, sy, s.width, s.height);
+
+      // Biome Cap Styling (Snow in winter, Moss in bamboo, Red stone in crypts)
+      if (this.biome === 'snow') {
+        // Snow Frost Top Cap (Archive image 3 & 5)
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(sx, sy, s.width, 6);
+        // Hanging Icicles
+        for (let ix = sx + 8; ix < sx + s.width - 8; ix += 20) {
+          ctx.beginPath();
+          ctx.moveTo(ix, sy + 6);
+          ctx.lineTo(ix + 4, sy + 14);
+          ctx.lineTo(ix + 8, sy + 6);
+          ctx.closePath();
+          ctx.fill();
+        }
+      } else if (this.biome === 'bamboo') {
+        // Emerald Moss Rim
+        ctx.fillStyle = '#059669';
+        ctx.fillRect(sx, sy, s.width, 4);
+      } else if (this.biome === 'thorns') {
+        // Crimson Demonic Rim
+        ctx.fillStyle = '#be123c';
+        ctx.fillRect(sx, sy, s.width, 4);
+      } else {
+        // Golden Grass Fringe
+        ctx.fillStyle = '#d97706';
+        ctx.fillRect(sx, sy, s.width, 3);
+      }
+
+      ctx.restore();
+    }
+
+    // 5. Draw Hazards (Spike Pits)
+    for (const h of this.hazards) {
+      if (!h.active) continue;
+      const hx = h.x - camX;
+      const hy = h.y - camY;
+      const hw = h.width || 60;
+      const count = Math.max(3, Math.floor(hw / 14));
+
+      ctx.fillStyle = '#0f172a';
+      for (let i = 0; i < count; i++) {
+        const px = hx + i * 14;
+        ctx.beginPath();
+        if (h.tag === 'ceiling_spikes') {
+          ctx.moveTo(px, hy);
+          ctx.lineTo(px + 7, hy + 24);
+          ctx.lineTo(px + 14, hy);
+        } else {
+          ctx.moveTo(px, hy + 24);
+          ctx.lineTo(px + 7, hy);
+          ctx.lineTo(px + 14, hy + 24);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    // 6. Draw Swinging Pendulum Battleaxes (Archive image 14 & 17)
+    for (const axe of this.pendulumAxes) {
+      const px = axe.pivotX - camX;
+      const py = axe.pivotY - camY;
+      const bx = axe.bladeX - camX;
+      const by = axe.bladeY - camY;
+
+      // Tall wooden pillar mast
+      ctx.fillStyle = '#261a14';
+      ctx.fillRect(px - 6, py - 40, 12, 480);
+      ctx.fillStyle = '#be123c';
+      ctx.beginPath();
+      ctx.arc(px, py - 40, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Steel suspension cord
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(bx, by);
+      ctx.stroke();
+
+      // Crescent Battleaxe Head
+      ctx.save();
+      ctx.translate(bx, by);
+      ctx.rotate(axe.angle);
+
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(0, 0, 36, Math.PI * 0.15, Math.PI * 0.85, false);
+      ctx.quadraticCurveTo(0, 12, 36 * Math.cos(Math.PI * 0.15), 36 * Math.sin(Math.PI * 0.15));
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(0, 0, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 7. Draw Giant Spinning Skull-Saw Gears (Archive image 1 & 10)
+    for (const saw of this.skullSawWheels) {
+      const sx = saw.x - camX;
+      const sy = saw.y - camY;
+
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(saw.rotation);
+
+      // Outer Crimson Saw Teeth Rim
+      ctx.fillStyle = '#ef4444';
+      const teeth = 8;
+      for (let i = 0; i < teeth; i++) {
+        const ang = (i / teeth) * Math.PI * 2;
+        ctx.save();
+        ctx.rotate(ang);
+        ctx.fillRect(-6, -saw.radius - 12, 12, 22);
+        ctx.restore();
+      }
+
+      // Outer Spiked Wheel
+      ctx.fillStyle = '#991b1b';
+      ctx.beginPath();
+      ctx.arc(0, 0, saw.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Inner Dark Skull Hub
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(0, 0, saw.radius * 0.65, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Demonic Glowing Eye Sockets
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(-8, -4, 4, 0, Math.PI * 2);
+      ctx.arc(8, -4, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+  }
+}

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Devil's Door — Ninja Action-Platformer</title>
-  <meta name="description" content="A dark fantasy silhouette ninja action-platformer. Reach the door. Trust nothing." />
+  <title>Devil's Door v2.0 — Endless Ninja Action-Platformer</title>
+  <meta name="description" content="An endless dark fantasy ninja action-platformer. Procedural chunks, 3-minute dynamic biome cycles, and infinite shadow combat. Reach the door. Trust nothing." />
   <meta name="theme-color" content="#07090e" />
   <link rel="stylesheet" href="/src/css/game.css" />
 </head>
@@ -15,30 +15,33 @@
 
     <!-- Loading Overlay -->
     <div id="loading-overlay">
-      <h1 class="loading-title">DEVIL'S DOOR</h1>
+      <h1 class="loading-title">DEVIL'S DOOR v2.0</h1>
       <div class="loading-spinner"></div>
-      <p class="loading-subtitle">ENTERING THE SHADOWS...</p>
+      <p class="loading-subtitle">ENTERING THE ENDLESS SHADOWS...</p>
     </div>
 
-    <!-- Top HUD Overlay -->
+    <!-- Top HUD Overlay (Devil's Door v2.0 Endless Edition) -->
     <header id="game-hud" class="hud-overlay">
       <div class="hud-left">
         <div class="hud-avatar-box">🥷</div>
         <div class="hud-meta">
-          <span class="hud-brand">DEVIL'S DOOR</span>
-          <span id="level-display" class="hud-badge">LEVEL 01/10</span>
+          <span class="hud-brand">DEVIL'S DOOR v2.0</span>
+          <span id="biome-display" class="hud-badge">🌅 SUNSET FORTRESS</span>
         </div>
       </div>
       <div class="hud-center">
-        <span id="level-title" class="hud-title">The First Assumption</span>
+        <div class="hud-metrics">
+          <span class="hud-metric-item">📏 <strong id="distance-display">0m</strong></span>
+          <span class="hud-metric-item">💎 <strong id="diamonds-display">0</strong></span>
+        </div>
         <span id="health-display" class="hud-health" title="Ninja Health">❤️❤️❤️</span>
       </div>
       <div class="hud-right">
-        <div class="hud-deaths">
-          <span class="death-icon">💀</span>
-          <span id="death-count">0</span>
+        <div class="hud-highscore">
+          <span class="trophy-icon">🏆</span>
+          <span id="highscore-display">BEST: 0</span>
         </div>
-        <button id="btn-restart" class="hud-btn" title="Restart Level (R)" aria-label="Restart Level">↻</button>
+        <button id="btn-restart" class="hud-btn" title="Restart Run (R)" aria-label="Restart Run">↻</button>
         <button id="btn-audio" class="hud-btn" title="Toggle Audio" aria-label="Toggle Audio">🔊</button>
         <button id="btn-menu" class="hud-btn" title="Pause Menu (Esc)" aria-label="Pause Menu">⏸</button>
       </div>
@@ -122,14 +125,14 @@
       </div>
     </div>
 
-    <!-- Pause & Victory Modal Overlay -->
+    <!-- Pause & Game Over Modal Overlay -->
     <div id="modal-overlay" class="modal-backdrop hidden">
       <div class="modal-card">
         <h2 id="modal-title" class="modal-heading">PAUSED</h2>
-        <p id="modal-description" class="modal-body">Press Resume to continue your ascent through the Devil's Domain.</p>
+        <div id="modal-description" class="modal-body">Press Resume to continue your endless ascent through the Devil's Domain.</div>
         <div class="modal-actions">
           <button id="btn-modal-primary" class="btn-primary">RESUME</button>
-          <button id="btn-modal-restart" class="btn-secondary">RESTART LEVEL</button>
+          <button id="btn-modal-restart" class="btn-secondary">RESTART RUN</button>
           <button id="btn-modal-home" class="btn-secondary">EXIT TO MENU</button>
         </div>
       </div>
@@ -145,7 +148,7 @@
           <div id="ad-progress-fill"></div>
         </div>
         <span id="ad-timer">Reward in 5s</span>
-        <button id="btn-ad-close" class="btn-primary hidden">CLAIM SKIP REWARD ➔</button>
+        <button id="btn-ad-close" class="btn-primary hidden">CLAIM REWARD ➔</button>
       </div>
     </div>
   </div>
