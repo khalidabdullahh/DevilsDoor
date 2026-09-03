@@ -1,8 +1,8 @@
 /**
- * ShadowNinjaEnemy — High-Aggression Ninja Arashi Combat Enemy AI for Devil's Door v2.0.
- * Types:
- * - 'scout': Fast agile dual-blade shadow ninja that sprints and slashes.
- * - 'spear': Armored naginata guard with long-range lunging thrusts.
+ * ShadowNinjaEnemy — High-Aggression Ninja Arashi Combat Enemy AI.
+ * Articulated Shadow Silhouettes:
+ * - 'scout': Dual-blade sprinting shadow ninja with glowing red eyes.
+ * - 'spear': Armored naginata spear guard with long-range thrusts.
  * - 'archer': Ranged sentry with crossbow firing poisoned bolts.
  */
 export class ShadowNinjaEnemy {
@@ -32,7 +32,7 @@ export class ShadowNinjaEnemy {
     this.stateTimer = 0;
     this.hasHitPlayerThisAttack = false;
 
-    this.animTime = 0;
+    this.animTime = Math.random() * 10;
     this.deathParticles = [];
     this.arrows = [];
   }
@@ -86,6 +86,8 @@ export class ShadowNinjaEnemy {
       return;
     }
 
+    this.animTime += dt * 10;
+
     // Update fired arrows
     for (let i = this.arrows.length - 1; i >= 0; i--) {
       const arr = this.arrows[i];
@@ -104,7 +106,6 @@ export class ShadowNinjaEnemy {
       if (arr.life <= 0) this.arrows.splice(i, 1);
     }
 
-    this.animTime += dt;
     const px = player ? player.x : 0;
     const py = player ? player.y : 0;
     const distToPlayer = Math.hypot(this.x - px, this.y - py);
@@ -166,7 +167,6 @@ export class ShadowNinjaEnemy {
           this.hasHitPlayerThisAttack = false;
 
           if (this.type === 'archer') {
-            // Fire poisonous bolt
             this.arrows.push({
               x: this.x + this.facing * 18,
               y: this.y + 18,
@@ -249,55 +249,103 @@ export class ShadowNinjaEnemy {
 
     ctx.save();
     ctx.translate(sx + this.width / 2, sy + this.height / 2);
+    ctx.scale(this.facing, 1);
 
-    // Main Shadow Silhouette Body
+    const isMoving = this.state === 'patrol' || this.state === 'chase';
+    const stride = isMoving ? Math.sin(this.animTime) : 0;
+
     ctx.fillStyle = '#080c14';
-    ctx.fillRect(-12, -18, 24, 40);
 
-    // Head Silhouette
+    // Back Leg
     ctx.beginPath();
-    ctx.arc(0, -22, 9, 0, Math.PI * 2);
+    ctx.moveTo(-2, 10);
+    ctx.lineTo(-2 - stride * 10, 20);
+    ctx.lineTo(-2 - stride * 14, 27);
+    ctx.lineTo(2 - stride * 14, 27);
+    ctx.closePath();
     ctx.fill();
 
-    // Red Demonic Eyes
+    // Shadow Samurai Torso & Armor
+    ctx.beginPath();
+    ctx.moveTo(-9, -10);
+    ctx.lineTo(9, -10);
+    ctx.lineTo(7, 14);
+    ctx.lineTo(-7, 14);
+    ctx.closePath();
+    ctx.fill();
+
+    // Red Armor Pauldrons / Sash
+    ctx.fillStyle = '#991b1b';
+    ctx.fillRect(-9, -8, 4, 10);
+    ctx.fillRect(5, -8, 4, 10);
+
+    // Front Leg
+    ctx.fillStyle = '#080c14';
+    ctx.beginPath();
+    ctx.moveTo(4, 10);
+    ctx.lineTo(4 + stride * 10, 20);
+    ctx.lineTo(4 + stride * 14, 27);
+    ctx.lineTo(8 + stride * 14, 27);
+    ctx.closePath();
+    ctx.fill();
+
+    // Masked Head Silhouette
+    ctx.beginPath();
+    ctx.arc(2, -15, 7.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Horned Demon Kabuto Helmet Crest
+    ctx.beginPath();
+    ctx.moveTo(-4, -22);
+    ctx.lineTo(2, -28);
+    ctx.lineTo(8, -22);
+    ctx.closePath();
+    ctx.fill();
+
+    // Glowing Red Demonic Eyes
     ctx.fillStyle = '#ef4444';
     ctx.shadowColor = '#ef4444';
-    ctx.shadowBlur = 10;
-    ctx.fillRect(this.facing > 0 ? 2 : -8, -24, 6, 3);
+    ctx.shadowBlur = 12;
+    ctx.fillRect(4, -16, 6, 2.5);
     ctx.shadowBlur = 0;
 
-    // Weapon Rendering
+    // Weapon Rendering per Type (Archive images 3, 16)
     if (this.type === 'spear') {
-      // Naginata Long Spear (Archive image 16)
+      // Long Naginata Polearm
       ctx.strokeStyle = '#64748b';
       ctx.lineWidth = 3.5;
       ctx.beginPath();
-      ctx.moveTo(0, 8);
-      ctx.lineTo(this.facing * 44, -18);
+      ctx.moveTo(-10, 12);
+      ctx.lineTo(38, -16);
       ctx.stroke();
 
-      // Red Spear Blade Tip
+      // Curved Crimson Spear Blade
       ctx.fillStyle = '#ef4444';
       ctx.beginPath();
-      ctx.moveTo(this.facing * 44, -18);
-      ctx.lineTo(this.facing * 58, -24);
-      ctx.lineTo(this.facing * 48, -12);
+      ctx.moveTo(38, -16);
+      ctx.lineTo(54, -22);
+      ctx.lineTo(44, -10);
       ctx.closePath();
       ctx.fill();
     } else if (this.type === 'archer') {
       // Crossbow
       ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 3.5;
       ctx.beginPath();
-      ctx.arc(this.facing * 16, -6, 12, -Math.PI * 0.4, Math.PI * 0.4, false);
+      ctx.arc(16, -6, 14, -Math.PI * 0.45, Math.PI * 0.45, false);
       ctx.stroke();
     } else {
-      // Dual Katana Blades
+      // Dual Katana Reverse Blades (Archive image 3)
       ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 2.8;
       ctx.beginPath();
-      ctx.moveTo(-4, 0);
-      ctx.lineTo(this.facing * 28, 6);
+      ctx.moveTo(-4, -2);
+      ctx.lineTo(24, 6);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(-6, 4);
+      ctx.lineTo(20, 14);
       ctx.stroke();
     }
 
