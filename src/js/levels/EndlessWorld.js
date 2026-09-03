@@ -4,25 +4,25 @@ import { OniBossEnemy } from '../entities/OniBossEnemy.js';
 /**
  * EndlessWorld — Infinite Procedural Chunk Generator & Biome Controller for Devil's Door v2.0.
  * Generates continuous dark fantasy terrain chunks, hazards, enemies, and collectibles
- * based on the 18 reference screenshots in Archive and user uploaded image:
- * - Oni Stone Pillars with carved stone arms holding up platforms
- * - Dead winter trees with branching bare twigs
- * - Embedded red spears & katanas stuck in stone
- * - 3-Minute dynamic biome rotation across 5 signature realms
+ * based on the official character roster (#01 to #06):
+ * - #01 Shadow Ninja (Player)
+ * - #02 Shadow Ronin, #03 Oni Guard, #04 Cursed Monk, #05 Crimson Assassin
+ * - #06 Shadow Entity (Boss Encounter)
+ * - Oni Stone Pillars holding platforms, dead trees, embedded weapons
  */
 export class EndlessWorld {
   constructor() {
     this.title = "Devil's Endless Descent";
     this.id = 'endless_v2';
-    this.biome = 'sunset'; // Initial biome
+    this.biome = 'sunset';
 
-    // Biome Cycle Sequence (Every 180 seconds = 3 minutes)
+    // Biome Sequence (Every 180s = 3 minutes)
     this.BIOME_CYCLE = ['sunset', 'snow', 'bamboo', 'thorns', 'waterfall'];
     this.biomeIndex = 0;
     this.biomeTimer = 0;
-    this.BIOME_DURATION = 180; // 3 minutes per biome in seconds
+    this.BIOME_DURATION = 180;
 
-    // World Entity Collections
+    // Collections
     this.solids = [];
     this.hazards = [];
     this.enemies = [];
@@ -35,26 +35,25 @@ export class EndlessWorld {
     this.pendulumAxes = [];
     this.skullSawWheels = [];
     this.campfires = [];
-    this.oniPillars = []; // Carved demon stone pillars holding platforms
-    this.deadTrees = []; // Bare branching winter trees
-    this.embeddedWeapons = []; // Red spears and katanas in ground
-    this.diamonds = []; // Collectible glowing gems
+    this.oniPillars = [];
+    this.deadTrees = [];
+    this.embeddedWeapons = [];
+    this.diamonds = [];
 
-    // Procedural Generation State
+    // State
     this.generatedDistance = 0;
     this.chunkIndex = 0;
     this.lastGroundY = 560;
     this.playerStartX = 120;
     this.playerStartY = 480;
 
-    // Difficulty and Boss State
+    // Boss Encounter Interval
     this.nextBossDistance = 1000;
 
     this._initStartingZone();
   }
 
   _initStartingZone() {
-    // Initial safe runway
     this.solids.push({
       x: 0,
       y: 560,
@@ -69,25 +68,21 @@ export class EndlessWorld {
     this.lanterns.push({ x: 800, y: 520 });
     this.campfires.push({ x: 320, y: 554 });
 
-    // Embedded weapons in ground (Archive image 5 & user image 1)
     this.embeddedWeapons.push({ x: 420, y: 560, type: 'spear' });
     this.embeddedWeapons.push({ x: 435, y: 560, type: 'katana' });
 
-    // Initial warm-up diamonds
     this.diamonds.push({ x: 300, y: 510, collected: false });
     this.diamonds.push({ x: 350, y: 480, collected: false });
     this.diamonds.push({ x: 400, y: 510, collected: false });
 
     this.generatedDistance = 900;
 
-    // Pre-generate ahead
     while (this.generatedDistance < 3200) {
       this._generateNextChunk();
     }
   }
 
   update(dt, player, audio, camera) {
-    // 1. Update 3-Minute Biome Cycle
     this.biomeTimer += dt;
     if (this.biomeTimer >= this.BIOME_DURATION) {
       this.biomeTimer = 0;
@@ -99,12 +94,11 @@ export class EndlessWorld {
     const px = player ? player.x : 0;
     const py = player ? player.y : 0;
 
-    // 2. Continuous Ahead Generation (Keep generating 2800px ahead of player)
     while (this.generatedDistance < px + 2800) {
       this._generateNextChunk();
     }
 
-    // 3. Demonic Oni Boss Encounter Spawning
+    // Boss Spawning
     const currentMeters = Math.floor(px / 10);
     if (currentMeters >= this.nextBossDistance) {
       this.nextBossDistance += 1000;
@@ -114,7 +108,7 @@ export class EndlessWorld {
       if (camera) camera.addShake(0.8);
     }
 
-    // 4. Update Swinging Pendulum Axes
+    // Pendulum Axes
     for (const axe of this.pendulumAxes) {
       axe.angle = Math.sin(performance.now() * 0.0018 * axe.speed + axe.phase) * axe.maxAngle;
       axe.bladeX = axe.pivotX + Math.sin(axe.angle) * axe.length;
@@ -128,7 +122,7 @@ export class EndlessWorld {
       }
     }
 
-    // 5. Update Spinning Skull-Saw Wheels (Archive image 1 & 10)
+    // Skull Saw Wheels
     for (const saw of this.skullSawWheels) {
       saw.rotation += dt * saw.rotSpeed;
       if (saw.moves) {
@@ -142,7 +136,7 @@ export class EndlessWorld {
       }
     }
 
-    // 6. Update Collapsing Bridge Planks
+    // Bridge Planks
     for (const plank of this.bridgePlanks) {
       if (plank.isFalling) {
         plank.vy = (plank.vy || 0) + 750 * dt;
@@ -163,7 +157,7 @@ export class EndlessWorld {
       }
     }
 
-    // 7. Update Collectible Diamonds
+    // Diamonds
     for (const d of this.diamonds) {
       if (!d.collected && player) {
         const dist = Math.hypot(player.x - d.x, (player.y + 20) - d.y);
@@ -176,7 +170,7 @@ export class EndlessWorld {
       }
     }
 
-    // 8. Update Enemies
+    // Enemies
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const e = this.enemies[i];
       e.update(dt, player, audio, camera, this);
@@ -185,7 +179,7 @@ export class EndlessWorld {
       }
     }
 
-    // 9. Memory Cleanup: Despawn far behind entities
+    // Despawn
     const despawnThreshold = px - 1400;
     this.solids = this.solids.filter(s => (s.x + s.width) > despawnThreshold);
     this.hazards = this.hazards.filter(h => (h.x + (h.width || 60)) > despawnThreshold);
@@ -228,6 +222,14 @@ export class EndlessWorld {
     }
   }
 
+  _getRandomEnemyType() {
+    const r = Math.random();
+    if (r < 0.3) return 'ronin'; // #02 Shadow Ronin
+    if (r < 0.55) return 'oni'; // #03 Oni Guard
+    if (r < 0.8) return 'assassin'; // #05 Crimson Assassin
+    return 'monk'; // #04 Cursed Monk
+  }
+
   _buildStandardGroundChunk(startX) {
     const width = 800 + Math.floor(Math.random() * 400);
     const groundY = 560 + (Math.random() > 0.5 ? -40 : 20);
@@ -241,22 +243,18 @@ export class EndlessWorld {
       active: true
     });
 
-    // Dead Tree on edge (Image 1)
     if (Math.random() > 0.3) {
       this.deadTrees.push({ x: startX + width * 0.75, y: groundY });
     }
 
-    // Embedded weapons
     if (Math.random() > 0.4) {
       this.embeddedWeapons.push({ x: startX + width * 0.82, y: groundY, type: 'spear' });
       this.embeddedWeapons.push({ x: startX + width * 0.85, y: groundY, type: 'katana' });
     }
 
-    // Lanterns & Props
     this.lanterns.push({ x: startX + 180, y: groundY - 40 });
     this.lanterns.push({ x: startX + width - 180, y: groundY - 40 });
 
-    // Spikes hazard
     if (Math.random() > 0.4) {
       this.hazards.push({
         x: startX + width * 0.45,
@@ -268,12 +266,10 @@ export class EndlessWorld {
       });
     }
 
-    // Shadow Enemy
-    const enemyType = Math.random() > 0.45 ? 'scout' : 'spear';
-    const enemy = new ShadowNinjaEnemy(startX + width * 0.6, groundY - 54, startX + 200, startX + width - 80, enemyType);
+    const enemyType = this._getRandomEnemyType();
+    const enemy = new ShadowNinjaEnemy(startX + width * 0.6, groundY - 56, startX + 200, startX + width - 80, enemyType);
     this.enemies.push(enemy);
 
-    // Arc of Diamonds
     for (let i = 0; i < 4; i++) {
       this.diamonds.push({
         x: startX + 260 + i * 50,
@@ -312,7 +308,6 @@ export class EndlessWorld {
       }
     }
 
-    // Bottom Chasm Spikes
     this.hazards.push({
       x: bridgeStartX,
       y: 780,
@@ -328,7 +323,6 @@ export class EndlessWorld {
   _buildHighLedgeWallJumpChunk(startX) {
     const groundY = 560;
 
-    // High upper ledge held up by Oni Stone Demon Pillar (Exact match to User Image 1)
     this.solids.push({
       x: startX,
       y: 340,
@@ -345,7 +339,6 @@ export class EndlessWorld {
       height: 240
     });
 
-    // Hanging spikes on ceiling
     this.hazards.push({
       x: startX + 60,
       y: 180,
@@ -355,7 +348,6 @@ export class EndlessWorld {
       active: true
     });
 
-    // Lower landing step
     this.solids.push({
       x: startX + 560,
       y: groundY,
@@ -365,7 +357,8 @@ export class EndlessWorld {
       active: true
     });
 
-    const enemy = new ShadowNinjaEnemy(startX + 680, groundY - 54, startX + 580, startX + 1000, 'spear');
+    const enemyType = this._getRandomEnemyType();
+    const enemy = new ShadowNinjaEnemy(startX + 680, groundY - 56, startX + 580, startX + 1000, enemyType);
     this.enemies.push(enemy);
 
     for (let i = 0; i < 4; i++) {
@@ -406,7 +399,8 @@ export class EndlessWorld {
 
     this.hokoraShrines.push({ x: startX + 160, y: groundY });
 
-    const enemy = new ShadowNinjaEnemy(startX + width * 0.75, groundY - 54, startX + width * 0.55, startX + width - 60, 'scout');
+    const enemyType = this._getRandomEnemyType();
+    const enemy = new ShadowNinjaEnemy(startX + width * 0.75, groundY - 56, startX + width * 0.55, startX + width - 60, enemyType);
     this.enemies.push(enemy);
 
     this.generatedDistance = startX + width + 80;
@@ -464,10 +458,10 @@ export class EndlessWorld {
       active: true
     });
 
-    const scout = new ShadowNinjaEnemy(startX + 240, groundY - 54, startX + 80, startX + 360, 'scout');
-    const spearman = new ShadowNinjaEnemy(startX + 780, groundY - 54, startX + 640, startX + 940, 'spear');
-    this.enemies.push(scout);
-    this.enemies.push(spearman);
+    const enemy1 = new ShadowNinjaEnemy(startX + 240, groundY - 56, startX + 80, startX + 360, 'assassin');
+    const enemy2 = new ShadowNinjaEnemy(startX + 780, groundY - 56, startX + 640, startX + 940, 'oni');
+    this.enemies.push(enemy1);
+    this.enemies.push(enemy2);
 
     this.diamonds.push({ x: startX + 380, y: 340, collected: false });
     this.diamonds.push({ x: startX + 440, y: 320, collected: false });
@@ -489,29 +483,25 @@ export class EndlessWorld {
   }
 
   draw(ctx, camX, camY, time) {
-    // 1. Draw Oni Demon Stone Pillars (Exact match to User Image 1)
+    // Oni Stone Demon Pillars
     for (const p of this.oniPillars) {
       const px = p.x - camX;
       const py = p.y - camY;
 
       ctx.save();
-      // Stone Pillar Base
       ctx.fillStyle = '#64748b';
       ctx.fillRect(px - 24, py + 20, 48, p.height);
 
-      // Carved Oni Demon Mask in Stone Center
       ctx.fillStyle = '#1e293b';
       ctx.beginPath();
       ctx.arc(px, py + 80, 18, 0, Math.PI * 2);
       ctx.fill();
-      // Glowing Demon Eyes
+
       ctx.fillStyle = '#38bdf8';
       ctx.fillRect(px - 8, py + 76, 5, 3);
       ctx.fillRect(px + 3, py + 76, 5, 3);
 
-      // Two Stone Muscular Arms holding up the platform from below (Image 1)
       ctx.fillStyle = '#475569';
-      // Left Arm & Hand
       ctx.beginPath();
       ctx.moveTo(px - 20, py + 70);
       ctx.lineTo(px - 44, py + 30);
@@ -521,7 +511,6 @@ export class EndlessWorld {
       ctx.closePath();
       ctx.fill();
 
-      // Right Arm & Hand
       ctx.beginPath();
       ctx.moveTo(px + 20, py + 70);
       ctx.lineTo(px + 44, py + 30);
@@ -533,16 +522,14 @@ export class EndlessWorld {
       ctx.restore();
     }
 
-    // 2. Draw Dead Winter Trees with Intricate Branching (User Image 1)
+    // Dead Winter Trees
     for (const t of this.deadTrees) {
       const tx = t.x - camX;
       const ty = t.y - camY;
 
       ctx.save();
       ctx.fillStyle = '#05070d';
-      // Main Twisted Trunk
       ctx.fillRect(tx - 6, ty - 140, 12, 140);
-      // Intricate Bare Twigs & Forks
       ctx.beginPath();
       ctx.moveTo(tx, ty - 80);
       ctx.lineTo(tx - 36, ty - 120);
@@ -561,14 +548,13 @@ export class EndlessWorld {
       ctx.restore();
     }
 
-    // 3. Draw Embedded Red Weapons in Ground (User Image 1)
+    // Embedded Weapons
     for (const w of this.embeddedWeapons) {
       const wx = w.x - camX;
       const wy = w.y - camY;
 
       ctx.save();
       if (w.type === 'spear') {
-        // Red Naginata Spear stuck in stone
         ctx.strokeStyle = '#05070d';
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -576,7 +562,6 @@ export class EndlessWorld {
         ctx.lineTo(wx + 6, wy - 55);
         ctx.stroke();
 
-        // Red Spear Head
         ctx.fillStyle = '#ef4444';
         ctx.beginPath();
         ctx.moveTo(wx + 6, wy - 55);
@@ -585,7 +570,6 @@ export class EndlessWorld {
         ctx.closePath();
         ctx.fill();
       } else {
-        // Red Katana Blade stuck in ground
         ctx.fillStyle = '#ef4444';
         ctx.beginPath();
         ctx.moveTo(wx, wy);
@@ -598,7 +582,7 @@ export class EndlessWorld {
       ctx.restore();
     }
 
-    // 4. Draw Lanterns with Atmospheric Glow
+    // Lanterns
     for (const l of this.lanterns) {
       const lx = l.x - camX;
       const ly = l.y - camY;
@@ -619,7 +603,7 @@ export class EndlessWorld {
       ctx.fillRect(lx - 12, ly - 16, 24, 4);
     }
 
-    // 5. Draw Campfires with Flickering Embers
+    // Campfires
     for (const c of this.campfires) {
       const cx = c.x - camX;
       const cy = c.y - camY;
@@ -642,7 +626,7 @@ export class EndlessWorld {
       ctx.fill();
     }
 
-    // 6. Draw Collectible Glowing Diamonds
+    // Diamonds
     for (const d of this.diamonds) {
       if (d.collected) continue;
       const dx = d.x - camX;
@@ -675,7 +659,7 @@ export class EndlessWorld {
       ctx.fill();
     }
 
-    // 7. Draw Terrain Solids with Thick Pure White Snow Caps & Icicles (User Image 1)
+    // Terrain solids
     for (const s of this.solids) {
       if (!s.active) continue;
       const sx = s.x - camX;
@@ -691,17 +675,13 @@ export class EndlessWorld {
         continue;
       }
 
-      // Main Deep Black Silhouette Ledge
       ctx.fillStyle = '#05070d';
       ctx.fillRect(sx, sy, s.width, s.height);
 
-      // Biome Cap Styling
       if (this.biome === 'snow') {
-        // Thick Pure White Snow Blanket on top (User Image 1)
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(sx - 4, sy - 4, s.width + 8, 14);
 
-        // Hanging Icicles & Snow Dripping Tufts (User Image 1)
         for (let ix = sx + 4; ix < sx + s.width - 4; ix += 18) {
           ctx.beginPath();
           ctx.moveTo(ix, sy + 10);
@@ -724,7 +704,7 @@ export class EndlessWorld {
       ctx.restore();
     }
 
-    // 8. Draw Hazards (Spike Pits)
+    // Hazards
     for (const h of this.hazards) {
       if (!h.active) continue;
       const hx = h.x - camX;
@@ -750,7 +730,7 @@ export class EndlessWorld {
       }
     }
 
-    // 9. Draw Swinging Pendulum Battleaxes (Archive image 14 & 17)
+    // Pendulum Axes
     for (const axe of this.pendulumAxes) {
       const px = axe.pivotX - camX;
       const py = axe.pivotY - camY;
@@ -789,7 +769,7 @@ export class EndlessWorld {
       ctx.restore();
     }
 
-    // 10. Draw Giant Spinning Skull-Saw Gears (Archive image 1 & 10)
+    // Skull Saw Wheels
     for (const saw of this.skullSawWheels) {
       const sx = saw.x - camX;
       const sy = saw.y - camY;

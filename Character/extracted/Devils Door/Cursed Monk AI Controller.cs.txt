@@ -1,0 +1,140 @@
+using System.Collections;
+using UnityEngine;
+
+// ============================================================================
+// DEVIL'S DOOR — Supernatural / Ranged Enemy AI
+// Character: #04 Cursed Monk (APPROVED DESIGN: Floating Skeletal Hood + Beads)
+// Role: Levitating Zone Controller & Ranged Artillery
+// ============================================================================
+public class CursedMonkAI : MonoBehaviour, IDamageable
+{
+    [Header("Stats & Floating Logic (Bhasoman Kankal)")]
+    public int maxHealth = 650;
+    private int currentHealth;
+    public float hoverBaseHeight = 1.4f;
+    public float hoverBobFrequency = 2.2f;
+    public float hoverBobAmplitude = 0.25f;
+
+    [Header("Orbiting Dark Prayer Beads (Ghuronto Mala)")]
+    public Transform[] floatingBeads;
+    public float beadOrbitSpeed = 75f;
+    public float beadOrbitRadius = 1.1f;
+
+    [Header("Ranged Artillery (Chaya Guli)")]
+    public GameObject shadowOrbPrefab;
+    public Transform castOrigin;
+    public float projectileSpeed = 12f;
+    public float castInterval = 3.5f;
+
+    [Header("Retreat Blink (Pochate Teleport)")]
+    public float retreatDistanceTrigger = 3.5f;
+    public float teleportDistance = 7.0f;
+    public float teleportCooldown = 6.0f;
+    private float lastTeleportTime = -999f;
+
+    private Transform player;
+    private float baseGroundY;
+
+    void Start()
+    {
+        currentHealth = maxHealth;
+        baseGroundY = transform.position.y;
+
+        GameObject pObj = GameObject.FindGameObjectWithTag("Player");
+        if (pObj != null) player = pObj.transform;
+
+        StartCoroutine(RangedCombatCycle());
+    }
+
+    void Update()
+    {
+        // 1. Procedural hover calculation (Mejhe theke upore vasha)
+        float newY = baseGroundY + hoverBaseHeight + Mathf.Sin(Time.time * hoverBobFrequency) * hoverBobAmplitude;
+        transform.position = new Vector3(transform.position.x, newY, 0f);
+
+        // 2. Floating beads halo orbit logic
+        UpdateFloatingBeadsOrbit();
+
+        // 3. Spacing check: Player kache ashle shadow teleport hobe
+        if (player != null && Time.time >= lastTeleportTime + teleportCooldown)
+        {
+            float dist = Mathf.Abs(transform.position.x - player.position.x);
+            if (dist < retreatDistanceTrigger)
+            {
+                PerformShadowTeleportBlink();
+            }
+        }
+    }
+
+    // 8-ti bead math-based orbital ring e ghurbe
+    private void UpdateFloatingBeadsOrbit()
+    {
+        if (floatingBeads == null || floatingBeads.Length == 0) return;
+
+        float angleOffset = 360f / floatingBeads.Length;
+        for (int i = 0; i < floatingBeads.Length; i++)
+        {
+            if (floatingBeads[i] == null) continue;
+
+            float currentAngle = (Time.time * beadOrbitSpeed) + (i * angleOffset);
+            float rad = currentAngle * Mathf.Deg2Rad;
+
+            Vector3 offset = new Vector3(Mathf.Cos(rad) * beadOrbitRadius, Mathf.Sin(rad) * beadOrbitRadius, 0);
+            floatingBeads[i].position = transform.position + offset + Vector3.up * 0.4f;
+        }
+    }
+
+    private IEnumerator RangedCombatCycle()
+    {
+        while (currentHealth > 0)
+        {
+            yield return new WaitForSeconds(castInterval);
+
+            if (player != null)
+            {
+                // Dark Orb volley attack
+                for (int i = 0; i < 3; i++)
+                {
+                    SpawnHomingShadowOrb();
+                    yield return new WaitForSeconds(0.2f);
+                }
+            }
+        }
+    }
+
+    private void SpawnHomingShadowOrb()
+    {
+        Vector3 spawnPos = castOrigin != null ? castOrigin.position : transform.position;
+        Debug.Log("Cursed Monk: Dark Shadow Orb blast chhara holo!");
+        // Orb movement logic (mock trace)
+    }
+
+    private void PerformShadowTeleportBlink()
+    {
+        lastTeleportTime = Time.time;
+        // Player je dike tar ulto dike teleport
+        float escapeDirection = (transform.position.x > player.position.x) ? 1.0f : -1.0f;
+        Vector3 newPos = transform.position + new Vector3(escapeDirection * teleportDistance, 0, 0);
+
+        Debug.Log("Cursed Monk: Chayar moddhe adrishyo hoye dure shorlo!");
+        transform.position = newPos;
+    }
+
+    public void TakeDamage(int damage, Vector3 attackerPosition)
+    {
+        currentHealth -= damage;
+        Debug.Log($"Cursed Monk damage kheyeche! Baki health: {currentHealth}");
+
+        // Damage khele druto teleport escape trigger
+        if (Time.time >= lastTeleportTime + 2.0f)
+        {
+            PerformShadowTeleportBlink();
+        }
+
+        if (currentHealth <= 0)
+        {
+            Debug.Log("Cursed Monk er kankal chhaya dhulay milaye gelo!");
+            Destroy(gameObject, 0.3f);
+        }
+    }
+}

@@ -1,0 +1,175 @@
+using System.Collections;
+using UnityEngine;
+
+// ============================================================================
+// DEVIL'S DOOR — Elite Melee Enemy AI
+// Character: #02 Shadow Ronin
+// Role: Disciplined Counter-Attacker & Poise Breaker
+// ============================================================================
+public class ShadowRoninAI : MonoBehaviour, IDamageable
+{
+    public enum RoninState { GuardStance, Circling, IaijutsuWindup, Slashing, Staggered }
+
+    [Header("Stats & Poise (Shokti o Dhonche)")]
+    public int maxHealth = 850;
+    private int currentHealth;
+    public float maxPoise = 110f;
+    private float currentPoise;
+    public float poiseRegenRate = 18f;
+
+    [Header("AI Spacing & Detection (Durutto o Node)")]
+    public float idealCombatDistance = 4.5f;
+    public float attackTriggerDistance = 3.2f;
+    public float parryWindowDuration = 0.65f;
+    public LayerMask playerLayer;
+
+    [Header("Combat Timers (Hamla Timing)")]
+    public float slashDamage = 85;
+    public float dashSpeed = 18f;
+    private Transform playerTransform;
+    private RoninState currentState = RoninState.GuardStance;
+    private bool isInvulnerableParry = false;
+
+    void Start()
+    {
+        currentHealth = maxHealth;
+        currentPoise = maxPoise;
+
+        // Player khuje ber kora
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null) playerTransform = player.transform;
+
+        StartCoroutine(AILogicLoop());
+    }
+
+    void Update()
+    {
+        // Poise recovery system
+        if (currentPoise < maxPoise && currentState != RoninState.Staggered)
+        {
+            currentPoise += poiseRegenRate * Time.deltaTime;
+        }
+
+        // Z-axis clamp kora (2.5D gameplay)
+        Vector3 pos = transform.position;
+        pos.z = 0f;
+        transform.position = pos;
+    }
+
+    private IEnumerator AILogicLoop()
+    {
+        while (currentHealth > 0)
+        {
+            if (playerTransform == null) yield return new WaitForSeconds(0.5f);
+
+            float distance = Mathf.Abs(transform.position.x - playerTransform.position.x);
+
+            // Facing player er dike set kora
+            if (playerTransform.position.x > transform.position.x)
+                transform.rotation = Quaternion.Euler(0, 90, 0);
+            else
+                transform.rotation = Quaternion.Euler(0, -90, 0);
+
+            switch (currentState)
+            {
+                case RoninState.GuardStance:
+                    // 60% shomoy guard stance e thakbe
+                    isInvulnerableParry = true;
+                    yield return new WaitForSeconds(parryWindowDuration);
+                    isInvulnerableParry = false;
+
+                    if (distance <= attackTriggerDistance)
+                        currentState = RoninState.IaijutsuWindup;
+                    else
+                        currentState = RoninState.Circling;
+                    break;
+
+                case RoninState.Circling:
+                    // Player er kache jaoar cheshta
+                    float step = 3.5f * Time.deltaTime;
+                    transform.position = Vector3.MoveTowards(
+                        transform.position, 
+                        new Vector3(playerTransform.position.x, transform.position.y, 0), 
+                        step
+                    );
+
+                    if (distance <= attackTriggerDistance)
+                        currentState = RoninState.IaijutsuWindup;
+
+                    yield return null;
+                    break;
+
+                case RoninState.IaijutsuWindup:
+                    // Shinghara chaya katana ber korar preparation
+                    yield return new WaitForSeconds(0.4f);
+                    yield return StartCoroutine(PerformIaijutsuDash());
+                    currentState = RoninState.GuardStance;
+                    break;
+
+                case RoninState.Staggered:
+                    yield return new WaitForSeconds(1.2f);
+                    currentPoise = maxPoise;
+                    currentState = RoninState.GuardStance;
+                    break;
+            }
+
+            yield return null;
+        }
+    }
+
+    // Ghono druto Iaijutsu dash attack
+    private IEnumerator PerformIaijutsuDash()
+    {
+        currentState = RoninState.Slashing;
+        float dashTime = 0.18f;
+        float elapsed = 0f;
+        Vector3 dashDir = (playerTransform.position.x > transform.position.x) ? Vector3.right : Vector3.left;
+
+        while (elapsed < dashTime)
+        {
+            transform.position += dashDir * dashSpeed * Time.deltaTime;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // Damage check kora
+        Collider[] hits = Physics.OverlapSphere(transform.position, 1.8f, playerLayer);
+        foreach (var hit in hits)
+        {
+            var pDamage = hit.GetComponent<IDamageable>();
+            if (pDamage != null)
+            {
+                pDamage.TakeDamage((int)slashDamage, transform.position);
+                Debug.Log("Ronin er Iaijutsu hit laglo!");
+            }
+        }
+    }
+
+    // Damage grahon kora ebong counter parry trigger kora
+    public void TakeDamage(int damage, Vector3 attackerPosition)
+    {
+        if (isInvulnerableParry)
+        {
+            Debug.Log("Ronin parry koreche! Player stagger hobe!");
+            // Parry response: instant counter attack
+            StopAllCoroutines();
+            StartCoroutine(PerformIaijutsuDash());
+            return;
+        }
+
+        currentPoise -= damage * 0.8f;
+        currentHealth -= damage;
+
+        if (currentPoise <= 0)
+        {
+            currentState = RoninState.Staggered;
+            Debug.Log("Ronin er poise venge geche (Staggered)");
+        }
+
+        if (currentHealth <= 0)
+        {
+            Debug.Log("Shadow Ronin porajito!");
+            Destroy(gameObject, 0.2f);
+        }
+    }
+}
