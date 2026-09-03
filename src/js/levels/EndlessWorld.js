@@ -143,7 +143,7 @@ export class EndlessWorld {
         if (plank.y > 1400) plank.active = false;
       } else if (player && plank.active) {
         const onPlank = (player.x >= plank.x - 24 && player.x <= plank.x + plank.width + 24 &&
-                         Math.abs(player.y + 50 - plank.y) < 16 && player.onGround);
+                         Math.abs(player.y + 50 - plank.y) < 16 && player.isGrounded);
         if (onPlank) {
           plank.touchTimer = (plank.touchTimer || 0) + dt;
           if (plank.touchTimer > 0.18) {

@@ -23,6 +23,8 @@ export class InputManager {
   }
 
   _initKeyboard() {
+    if (typeof window === 'undefined') return;
+
     window.addEventListener('keydown', (e) => {
       const code = e.code;
       if (!this.keys.get(code)) {
@@ -59,8 +61,10 @@ export class InputManager {
   }
 
   _initMouse() {
+    if (typeof window === 'undefined') return;
+
     window.addEventListener('mousedown', (e) => {
-      if (e.button === 0 && e.target.tagName === 'CANVAS') {
+      if (e.button === 0 && e.target && e.target.tagName === 'CANVAS') {
         this.justPressedKeys.add('MouseLeft');
         this.keys.set('MouseLeft', true);
       }
@@ -74,12 +78,17 @@ export class InputManager {
   }
 
   _initGamepad() {
+    if (typeof window === 'undefined') return;
+
     window.addEventListener('gamepadconnected', (e) => {
       console.log(`[InputManager] Gamepad connected: ${e.gamepad.id}`);
     });
   }
 
   pollGamepad() {
+    if (typeof navigator === 'undefined' || !navigator.getGamepads) {
+      return { left: false, right: false, jump: false, attack: false, shuriken: false };
+    }
     const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
     const gp = gamepads[0];
     if (!gp) return { left: false, right: false, jump: false, attack: false, shuriken: false };
@@ -112,6 +121,9 @@ export class InputManager {
   isJumpPressed() {
     return this.isJumpJustPressed() || this.isJump();
   }
+  isJumping() {
+    return this.isJumpPressed();
+  }
 
   isJumpJustPressed() {
     const pressed = this.justPressedKeys.has('Space') ||
@@ -127,6 +139,7 @@ export class InputManager {
   }
   isAttackPressed() { return this.isAttackJustPressed() || this.isAttack(); }
   isDashPressed() { return this.isAttackPressed(); }
+  isAttacking() { return this.isAttackPressed(); }
 
   isAttackJustPressed() {
     const pressed = this.justPressedKeys.has('KeyJ') ||

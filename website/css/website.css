@@ -51,19 +51,38 @@ body {
 .brand-link {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   text-decoration: none;
-  color: var(--text-primary);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.brand-link:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
 }
 
 .brand-icon {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
+  filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.4));
 }
 
 .brand-text {
+  font-size: 1.2rem;
   font-weight: 900;
-  font-size: 1.15rem;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.14em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.brand-devil {
+  color: #ef4444;
+  font-weight: 900;
+}
+
+.brand-door {
+  color: #fbbf24;
+  font-weight: 900;
 }
 
 .nav-links {

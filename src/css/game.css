@@ -1,5 +1,5 @@
 /* ==========================================================================
-   DEVIL'S DOOR v2.0 — MASTER GAME STYLESHEET (ENDLESS ACTION-PLATFORMER)
+   DEVIL'S DOOR — MASTER GAME STYLESHEET (ENDLESS ACTION-PLATFORMER)
    ========================================================================== */
 
 :root {
@@ -50,7 +50,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Top HUD Overlay (Devil's Door v2.0 Endless Edition)
+   Top Minimalist HUD Overlay
    ========================================================================== */
 .hud-overlay {
   position: absolute;
@@ -60,7 +60,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: env(safe-area-inset-top, 16px) calc(env(safe-area-inset-right, 24px) + 12px) 12px calc(env(safe-area-inset-left, 24px) + 12px);
+  padding: env(safe-area-inset-top, 14px) calc(env(safe-area-inset-right, 20px) + 12px) 10px calc(env(safe-area-inset-left, 20px) + 12px);
   pointer-events: none;
   z-index: 20;
 }
@@ -68,114 +68,97 @@ html, body {
 .hud-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   pointer-events: auto;
 }
 
 .hud-avatar-box {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   background: rgba(15, 23, 42, 0.85);
   border: 2px solid var(--accent-cyan);
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
 }
 
-.hud-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.hud-brand {
-  font-weight: 900;
-  font-size: 0.95rem;
-  letter-spacing: 0.12em;
-  color: var(--accent-gold);
-}
-
-.hud-badge {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--accent-cyan);
-  letter-spacing: 0.05em;
+.hud-health-bar {
+  font-size: 1.05rem;
+  letter-spacing: 2px;
 }
 
 .hud-center {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 4px;
+  pointer-events: auto;
 }
 
-.hud-metrics {
+.hud-capsule {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: var(--bg-hud);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 4px 14px;
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
+  gap: 10px;
+  background: rgba(10, 15, 26, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 6px 16px;
+  border-radius: 24px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
-.hud-metric-item {
+.capsule-metric {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 800;
   font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  color: #f8fafc;
 }
 
-.hud-metric-item strong {
-  font-size: 1.05rem;
-  color: #38bdf8;
+.capsule-val {
+  font-weight: 900;
+  color: var(--accent-cyan);
 }
 
-.hud-health {
-  font-size: 1.15rem;
-  letter-spacing: 0.15em;
+.capsule-val.gold {
+  color: var(--accent-gold);
+}
+
+.capsule-val.amber {
+  color: #f59e0b;
+}
+
+.capsule-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .hud-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   pointer-events: auto;
-}
-
-.hud-highscore {
-  background: var(--bg-hud);
-  border: 1px solid rgba(251, 191, 36, 0.4);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-weight: 800;
-  font-size: 0.85rem;
-  color: var(--accent-gold);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  backdrop-filter: blur(8px);
 }
 
 .hud-btn {
   background: var(--bg-hud);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--text-primary);
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: transform 0.1s ease, border-color 0.2s ease;
 }
 
@@ -185,7 +168,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Mobile Touch Controls Overlay (Responsive Ninja Arashi Artwork Buttons)
+   Mobile Touch Controls Overlay (Responsive Action Buttons)
    ========================================================================== */
 .touch-overlay {
   position: absolute;
@@ -195,19 +178,19 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 0 calc(env(safe-area-inset-right, 24px) + 16px) calc(env(safe-area-inset-bottom, 24px) + 16px) calc(env(safe-area-inset-left, 24px) + 16px);
+  padding: 0 calc(env(safe-area-inset-right, 20px) + 14px) calc(env(safe-area-inset-bottom, 20px) + 14px) calc(env(safe-area-inset-left, 20px) + 14px);
 }
 
 .touch-dpad {
   display: flex;
-  gap: clamp(12px, 2.5vw, 24px);
+  gap: clamp(10px, 2.5vw, 20px);
   pointer-events: auto;
 }
 
 .touch-btn {
   pointer-events: auto;
   touch-action: none;
-  background: rgba(14, 19, 29, 0.8);
+  background: rgba(14, 19, 29, 0.85);
   border: 2px solid rgba(255, 255, 255, 0.25);
   color: var(--text-primary);
   display: flex;
@@ -222,23 +205,23 @@ html, body {
 }
 
 .btn-icon {
-  width: 70%;
-  height: 70%;
+  width: 72%;
+  height: 72%;
   pointer-events: none;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
   transition: transform 0.08s ease;
 }
 
 .dpad-btn {
-  width: clamp(64px, 12vw, 80px);
-  height: clamp(64px, 12vw, 80px);
+  width: clamp(62px, 13vw, 78px);
+  height: clamp(62px, 13vw, 78px);
   border-radius: 20px;
 }
 
 .touch-actions {
   display: flex;
   align-items: flex-end;
-  gap: clamp(12px, 2vw, 18px);
+  gap: clamp(10px, 2vw, 16px);
   pointer-events: auto;
 }
 
@@ -252,24 +235,24 @@ html, body {
 }
 
 .jump-btn {
-  width: clamp(74px, 14vw, 90px);
-  height: clamp(74px, 14vw, 90px);
+  width: clamp(72px, 15vw, 88px);
+  height: clamp(72px, 15vw, 88px);
   background: rgba(56, 189, 248, 0.25);
   border-color: rgba(56, 189, 248, 0.7);
   box-shadow: 0 0 18px rgba(56, 189, 248, 0.4);
 }
 
 .attack-btn {
-  width: clamp(66px, 12vw, 80px);
-  height: clamp(66px, 12vw, 80px);
+  width: clamp(64px, 13vw, 78px);
+  height: clamp(64px, 13vw, 78px);
   background: rgba(251, 191, 36, 0.25);
   border-color: rgba(251, 191, 36, 0.7);
   box-shadow: 0 0 16px rgba(251, 191, 36, 0.4);
 }
 
 .shuriken-btn {
-  width: clamp(58px, 10vw, 70px);
-  height: clamp(58px, 10vw, 70px);
+  width: clamp(56px, 11vw, 68px);
+  height: clamp(56px, 11vw, 68px);
   background: rgba(168, 85, 247, 0.25);
   border-color: rgba(168, 85, 247, 0.7);
   box-shadow: 0 0 14px rgba(168, 85, 247, 0.35);
@@ -286,7 +269,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Modals (Game Over, Victory, Pause, Rewarded Ad)
+   Modals (Game Over, Pause)
    ========================================================================== */
 .modal-backdrop {
   position: absolute;
@@ -419,82 +402,6 @@ html, body {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-/* ==========================================================================
-   Rewarded Ad Overlay (Provider-Agnostic Monetization)
-   ========================================================================== */
-#ad-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(3, 7, 18, 0.95);
-  backdrop-filter: blur(16px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 250;
-}
-
-#ad-overlay.hidden {
-  display: none;
-}
-
-.ad-card {
-  background: #0f172a;
-  border: 2px solid var(--accent-gold);
-  box-shadow: 0 0 32px rgba(251, 191, 36, 0.3);
-  border-radius: 16px;
-  padding: 32px;
-  max-width: 480px;
-  width: 90%;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.ad-badge {
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: var(--accent-gold);
-  background: rgba(251, 191, 36, 0.15);
-  padding: 4px 12px;
-  border-radius: 12px;
-  align-self: center;
-}
-
-.ad-title {
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: #f8fafc;
-}
-
-.ad-desc {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-}
-
-.ad-progress-track {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 10px 0;
-}
-
-#ad-progress-fill {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
-  transition: width 0.1s linear;
-}
-
-#ad-timer {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--accent-gold);
 }
 
 .hidden {

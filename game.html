@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Devil's Door v2.0 — Endless Ninja Action-Platformer</title>
+  <title>Devil's Door — Endless Ninja Action-Platformer</title>
   <meta name="description" content="An endless dark fantasy ninja action-platformer. Procedural chunks, 3-minute dynamic biome cycles, and infinite shadow combat. Reach the door. Trust nothing." />
   <meta name="theme-color" content="#07090e" />
   <link rel="stylesheet" href="/src/css/game.css" />
@@ -15,44 +15,53 @@
 
     <!-- Loading Overlay -->
     <div id="loading-overlay">
-      <h1 class="loading-title">DEVIL'S DOOR v2.0</h1>
+      <h1 class="loading-title">DEVIL'S DOOR</h1>
       <div class="loading-spinner"></div>
       <p class="loading-subtitle">ENTERING THE ENDLESS SHADOWS...</p>
     </div>
 
-    <!-- Top HUD Overlay (Devil's Door v2.0 Endless Edition) -->
+    <!-- Minimal, Well-Furnished AAA Action HUD Overlay -->
     <header id="game-hud" class="hud-overlay">
+      <!-- Left: Sleek Ninja Avatar & Hearts -->
       <div class="hud-left">
         <div class="hud-avatar-box">🥷</div>
-        <div class="hud-meta">
-          <span class="hud-brand">DEVIL'S DOOR v2.0</span>
-          <span id="biome-display" class="hud-badge">🌅 SUNSET FORTRESS</span>
-        </div>
+        <div id="health-display" class="hud-health-bar">❤️❤️❤️</div>
       </div>
+
+      <!-- Center: Clean Floating Glass Capsule Metrics -->
       <div class="hud-center">
-        <div class="hud-metrics">
-          <span class="hud-metric-item">📏 <strong id="distance-display">0m</strong></span>
-          <span class="hud-metric-item">💎 <strong id="diamonds-display">0</strong></span>
+        <div class="hud-capsule">
+          <div class="capsule-metric">
+            <span class="capsule-icon">📏</span>
+            <span id="distance-display" class="capsule-val">0m</span>
+          </div>
+          <span class="capsule-divider"></span>
+          <div class="capsule-metric">
+            <span class="capsule-icon">💎</span>
+            <span id="diamonds-display" class="capsule-val gold">0</span>
+          </div>
+          <span class="capsule-divider"></span>
+          <div class="capsule-metric">
+            <span class="capsule-icon">🏆</span>
+            <span id="highscore-display" class="capsule-val amber">0</span>
+          </div>
         </div>
-        <span id="health-display" class="hud-health" title="Ninja Health">❤️❤️❤️</span>
       </div>
+
+      <!-- Right: Compact Control Buttons -->
       <div class="hud-right">
-        <div class="hud-highscore">
-          <span class="trophy-icon">🏆</span>
-          <span id="highscore-display">BEST: 0</span>
-        </div>
-        <button id="btn-restart" class="hud-btn" title="Restart Run (R)" aria-label="Restart Run">↻</button>
         <button id="btn-audio" class="hud-btn" title="Toggle Audio" aria-label="Toggle Audio">🔊</button>
+        <button id="btn-restart" class="hud-btn" title="Restart Run (R)" aria-label="Restart Run">↻</button>
         <button id="btn-menu" class="hud-btn" title="Pause Menu (Esc)" aria-label="Pause Menu">⏸</button>
       </div>
     </header>
 
-    <!-- Mobile Touch Controls Overlay with Authentic Ninja Arashi 2 Artwork Logos -->
+    <!-- Mobile Touch Controls Overlay with Realistic Action Buttons -->
     <div id="touch-controls" class="touch-overlay">
       <div class="touch-dpad">
-        <!-- Move Left: Ornate Engraved Steel Kunai Arrow -->
+        <!-- Move Left: Engraved Silver Kunai Arrow -->
         <button id="touch-left" class="touch-btn dpad-btn" aria-label="Move Left" title="Move Left">
-          <svg viewBox="0 0 64 64" width="46" height="46" class="btn-icon">
+          <svg viewBox="0 0 64 64" width="44" height="44" class="btn-icon">
             <defs>
               <linearGradient id="silverGradL" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#ffffff"/>
@@ -70,16 +79,16 @@
           </svg>
         </button>
 
-        <!-- Move Right: Ornate Engraved Steel Kunai Arrow -->
+        <!-- Move Right: Engraved Silver Kunai Arrow -->
         <button id="touch-right" class="touch-btn dpad-btn" aria-label="Move Right" title="Move Right">
-          <svg viewBox="0 0 64 64" width="46" height="46" class="btn-icon">
+          <svg viewBox="0 0 64 64" width="44" height="44" class="btn-icon">
             <defs>
               <linearGradient id="silverGradR" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#ffffff"/>
                 <stop offset="50%" stop-color="#94a3b8"/>
                 <stop offset="100%" stop-color="#475569"/>
               </linearGradient>
-              <linearGradient id="arrowGlowR" x1="0%" y1="0%" x2="100%" y2="0%">
+              <linearGradient id="arrowGlowR" x1="100%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#38bdf8"/>
                 <stop offset="100%" stop-color="#0284c7"/>
               </linearGradient>
@@ -94,7 +103,7 @@
       <div class="touch-actions">
         <!-- Shuriken Star Button -->
         <button id="touch-shuriken" class="touch-btn action-btn shuriken-btn" aria-label="Throw Shuriken" title="Throw Shuriken">
-          <svg viewBox="0 0 64 64" width="44" height="44" class="btn-icon">
+          <svg viewBox="0 0 64 64" width="42" height="42" class="btn-icon">
             <defs>
               <linearGradient id="shurikenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#e9d5ff"/>
@@ -109,7 +118,7 @@
               <path d="M0 22 L-5 7 L0 0 L5 7 Z" fill="#ffffff" opacity="0.6"/>
               <path d="M-22 0 L-7 -5 L0 0 L-7 5 Z" fill="#ffffff" opacity="0.6"/>
               <circle cx="0" cy="0" r="5" fill="#0f172a"/>
-              <circle cx="0" cy="0" r="5" stroke="#c084fc" stroke-width="1.8" fill="none"/>
+              <circle cx="0" cy="0" r="4.5" stroke="#c084fc" stroke-width="1.8" fill="none"/>
             </g>
             <text x="32" y="58" font-size="8" font-weight="900" text-anchor="middle" fill="#c084fc" letter-spacing="0.5">STAR</text>
           </svg>
@@ -117,7 +126,7 @@
 
         <!-- Dash Slash Katana Button -->
         <button id="touch-attack" class="touch-btn action-btn attack-btn" aria-label="Dash Slash" title="Dash Slash">
-          <svg viewBox="0 0 64 64" width="48" height="48" class="btn-icon">
+          <svg viewBox="0 0 64 64" width="46" height="46" class="btn-icon">
             <defs>
               <linearGradient id="slashGlow" x1="0%" y1="100%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#d97706"/>
@@ -135,7 +144,7 @@
 
         <!-- Acrobat Jump Button -->
         <button id="touch-jump" class="touch-btn action-btn jump-btn" aria-label="Jump" title="Jump / Double Jump">
-          <svg viewBox="0 0 64 64" width="50" height="50" class="btn-icon">
+          <svg viewBox="0 0 64 64" width="48" height="48" class="btn-icon">
             <defs>
               <linearGradient id="jumpGlow" x1="0%" y1="100%" x2="0%" y2="0%">
                 <stop offset="0%" stop-color="#0284c7"/>
@@ -160,26 +169,12 @@
     <div id="modal-overlay" class="modal-backdrop hidden">
       <div class="modal-card">
         <h2 id="modal-title" class="modal-heading">PAUSED</h2>
-        <div id="modal-description" class="modal-body">Press Resume to continue your endless ascent through the Devil's Domain.</div>
+        <div id="modal-description" class="modal-body">Take breath, shinobi. The endless descent awaits your blade.</div>
         <div class="modal-actions">
           <button id="btn-modal-primary" class="btn-primary">RESUME</button>
           <button id="btn-modal-restart" class="btn-secondary">RESTART RUN</button>
           <button id="btn-modal-home" class="btn-secondary">EXIT TO MENU</button>
         </div>
-      </div>
-    </div>
-
-    <!-- Rewarded Ad Overlay -->
-    <div id="ad-overlay" class="hidden">
-      <div class="ad-card">
-        <span class="ad-badge">SPONSORED REWARD</span>
-        <h3 class="ad-title">DEVIL'S SANCTUM</h3>
-        <p class="ad-desc">Prepare for the next trial. Unlock your ascension by watching this message.</p>
-        <div class="ad-progress-track">
-          <div id="ad-progress-fill"></div>
-        </div>
-        <span id="ad-timer">Reward in 5s</span>
-        <button id="btn-ad-close" class="btn-primary hidden">CLAIM REWARD ➔</button>
       </div>
     </div>
   </div>
