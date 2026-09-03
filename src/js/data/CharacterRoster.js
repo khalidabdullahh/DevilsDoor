@@ -1,6 +1,6 @@
 /**
  * CharacterRoster — Official 6-Hero Playable Roster for Devil's Door.
- * All characters defined in character.zip are fully playable heroes:
+ * Each character has their own standalone solo full-body artwork:
  * 1. #01 Shadow Ninja (Protagonist)
  * 2. #02 Shadow Ronin (Swordsman)
  * 3. #03 Oni Warrior (Heavy Armored Brute)
@@ -15,7 +15,7 @@ export const CHARACTER_ROSTER = [
     name: 'SHADOW NINJA',
     role: 'PROTAGONIST',
     tagline: '"The silent wanderer of the Domain."',
-    description: 'An agile shinobi master equipped with a flowing crimson scarf, agile somersaults, and lethal katana dash-slashes.',
+    description: 'An agile shinobi master equipped with a pointed cowl hood, voluminous flowing crimson scarf, and lethal katana dash-slashes.',
     trait: {
       name: 'AGILITY & CHAYA DASH',
       type: 'Mobility / Slashing',
@@ -29,7 +29,7 @@ export const CHARACTER_ROSTER = [
     },
     status: 'unlocked',
     cost: 0,
-    image: '/src/assets/characters/hero_shadow_ninja.png',
+    image: '/src/assets/characters/solo/hero_01_shadow_ninja.png',
     accentColor: '#ef4444',
     glowColor: 'rgba(239, 68, 68, 0.45)'
   },
@@ -53,7 +53,7 @@ export const CHARACTER_ROSTER = [
     },
     status: 'unlocked',
     cost: 0,
-    image: '/src/assets/characters/enemy_shadow_ronin.png',
+    image: '/src/assets/characters/solo/hero_02_shadow_ronin.png',
     accentColor: '#38bdf8',
     glowColor: 'rgba(56, 189, 248, 0.45)'
   },
@@ -77,7 +77,7 @@ export const CHARACTER_ROSTER = [
     },
     status: 'unlocked',
     cost: 0,
-    image: '/src/assets/characters/enemy_oni_guard.png',
+    image: '/src/assets/characters/solo/hero_03_oni_warrior.png',
     accentColor: '#f59e0b',
     glowColor: 'rgba(245, 158, 11, 0.45)'
   },
@@ -101,7 +101,7 @@ export const CHARACTER_ROSTER = [
     },
     status: 'unlocked',
     cost: 0,
-    image: '/src/assets/characters/character_roster_hd.png',
+    image: '/src/assets/characters/solo/hero_04_cursed_monk.png',
     accentColor: '#a855f7',
     glowColor: 'rgba(168, 85, 247, 0.45)'
   },
@@ -125,7 +125,7 @@ export const CHARACTER_ROSTER = [
     },
     status: 'unlocked',
     cost: 0,
-    image: '/src/assets/characters/character_roster.png',
+    image: '/src/assets/characters/solo/hero_05_crimson_assassin.png',
     accentColor: '#e11d48',
     glowColor: 'rgba(225, 29, 72, 0.45)'
   },
@@ -149,7 +149,7 @@ export const CHARACTER_ROSTER = [
     },
     status: 'unlocked',
     cost: 0,
-    image: '/src/assets/characters/character_roster_hd.png',
+    image: '/src/assets/characters/solo/hero_06_shadow_entity.png',
     accentColor: '#9333ea',
     glowColor: 'rgba(147, 51, 234, 0.5)'
   }
