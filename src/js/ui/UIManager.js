@@ -2,18 +2,19 @@ import { AnalyticsManager } from '../core/AnalyticsManager.js';
 
 /**
  * UIManager — Manages HUD elements, meters, score, diamonds, high score,
- * and game over modal for Devil's Door v2.0 Endless Platformer.
+ * avatar portraits, and game modals for Devil's Door v2.0 Endless Platformer.
  */
 export class UIManager {
   constructor(game) {
     this.game = game;
 
+    this.hudElement = document.getElementById('game-hud');
+    this.touchControls = document.getElementById('touch-controls');
     this.distanceDisplay = document.getElementById('distance-display');
     this.diamondsDisplay = document.getElementById('diamonds-display');
-    this.scoreDisplay = document.getElementById('score-display');
     this.highScoreDisplay = document.getElementById('highscore-display');
-    this.biomeDisplay = document.getElementById('biome-display');
     this.healthDisplay = document.getElementById('health-display');
+    this.avatarImg = document.getElementById('hud-avatar-img');
 
     this.btnRestart = document.getElementById('btn-restart');
     this.btnAudio = document.getElementById('btn-audio');
@@ -24,6 +25,7 @@ export class UIManager {
     this.modalDescription = document.getElementById('modal-description');
     this.btnModalPrimary = document.getElementById('btn-modal-primary');
     this.btnModalRestart = document.getElementById('btn-modal-restart');
+    this.btnModalCharSelect = document.getElementById('btn-modal-charselect');
     this.btnModalHome = document.getElementById('btn-modal-home');
 
     this.loadingOverlay = document.getElementById('loading-overlay');
@@ -68,6 +70,15 @@ export class UIManager {
       });
     }
 
+    if (this.btnModalCharSelect) {
+      this.btnModalCharSelect.addEventListener('click', () => {
+        const charAction = this.charSelectAction;
+        this.hideModal();
+        if (charAction) charAction();
+        else if (this.game) this.game.openCharacterSelect();
+      });
+    }
+
     if (this.btnModalHome) {
       this.btnModalHome.addEventListener('click', () => {
         window.location.href = '/';
@@ -84,6 +95,23 @@ export class UIManager {
     }
   }
 
+  showHUD() {
+    if (this.hudElement) this.hudElement.classList.remove('hidden');
+    if (this.touchControls) this.touchControls.classList.remove('hidden');
+  }
+
+  hideHUD() {
+    if (this.hudElement) this.hudElement.classList.add('hidden');
+    if (this.touchControls) this.touchControls.classList.add('hidden');
+  }
+
+  updateAvatar(imgSrc, altText = 'Hero') {
+    if (this.avatarImg) {
+      this.avatarImg.src = imgSrc;
+      this.avatarImg.alt = altText;
+    }
+  }
+
   updateEndlessHUD(distance, score, diamonds, highScore, health = 3, maxHealth = 3, biome = 'sunset') {
     if (this.distanceDisplay) {
       this.distanceDisplay.textContent = `${distance.toLocaleString()}m`;
@@ -91,21 +119,8 @@ export class UIManager {
     if (this.diamondsDisplay) {
       this.diamondsDisplay.textContent = `${diamonds}`;
     }
-    if (this.scoreDisplay) {
-      this.scoreDisplay.textContent = score.toLocaleString();
-    }
     if (this.highScoreDisplay) {
       this.highScoreDisplay.textContent = `BEST: ${highScore.toLocaleString()}`;
-    }
-    if (this.biomeDisplay) {
-      const biomeLabels = {
-        sunset: '🌅 SUNSET FORTRESS',
-        snow: '❄️ FROZEN ABYSS',
-        bamboo: '🎋 BAMBOO GROVE',
-        thorns: '🩸 DEMONIC CRYPT',
-        waterfall: '🌫️ SKY WATERFALL'
-      };
-      this.biomeDisplay.textContent = biomeLabels[biome] || 'DEVIL\'S DESCENT';
     }
     if (this.healthDisplay) {
       let hearts = '';
@@ -116,40 +131,60 @@ export class UIManager {
     }
   }
 
-  showPauseModal() {
+  showPauseModal(onResume, onRestart, onChangeChar) {
     if (this.game) this.game.setPaused(true);
-    this.modalTitle.textContent = 'PAUSED';
-    this.modalDescription.textContent = 'Take breath, shinobi. The endless descent awaits your blade.';
-    this.btnModalPrimary.textContent = 'RESUME';
-    this.btnModalRestart.textContent = 'RESTART RUN';
-    this.btnModalRestart.classList.remove('hidden');
-    this.restartAction = () => {
-      if (this.game) this.game.restartGame();
-    };
+    if (this.modalTitle) this.modalTitle.textContent = 'PAUSED';
+    if (this.modalDescription) this.modalDescription.textContent = 'Take breath, shinobi. The endless descent awaits your blade.';
+    if (this.btnModalPrimary) this.btnModalPrimary.textContent = 'RESUME';
+    if (this.btnModalRestart) this.btnModalRestart.textContent = 'RESTART RUN';
+    if (this.btnModalCharSelect) this.btnModalCharSelect.classList.remove('hidden');
+
     this.primaryAction = () => {
       if (this.game) this.game.setPaused(false);
+      if (onResume) onResume();
     };
-    this.modalOverlay.classList.remove('hidden');
+    this.restartAction = () => {
+      if (this.game) this.game.restartGame();
+      if (onRestart) onRestart();
+    };
+    this.charSelectAction = () => {
+      if (this.game) this.game.openCharacterSelect();
+      if (onChangeChar) onChangeChar();
+    };
+
+    if (this.modalOverlay) this.modalOverlay.classList.remove('hidden');
   }
 
-  showGameOverModal(distance, score, diamonds, highScore, onRestart) {
+  showGameOverModal(distance, score, diamonds, highScore, onRestart, onChangeChar) {
     if (this.game) this.game.setPaused(true);
 
     const isNewHigh = score >= highScore && score > 0;
-    this.modalTitle.textContent = isNewHigh ? '🏆 NEW RECORD!' : '💀 SHADOW FALLEN';
-    this.modalDescription.innerHTML = `
-      <div style="display: flex; justify-content: space-around; margin: 16px 0; font-size: 1.15rem; font-weight: 800;">
-        <div><span>📏 Distance:</span> <strong style="color: #38bdf8;">${distance.toLocaleString()}m</strong></div>
-        <div><span>💎 Gems:</span> <strong style="color: #fbbf24;">${diamonds}</strong></div>
-      </div>
-      <div style="font-size: 1.3rem; font-weight: 900; color: #f8fafc; margin-bottom: 8px;">Score: ${score.toLocaleString()}</div>
-      <div style="font-size: 0.95rem; color: #94a3b8;">All-Time Best: ${highScore.toLocaleString()}</div>
-    `;
+    if (this.modalTitle) this.modalTitle.textContent = isNewHigh ? '🏆 NEW RECORD!' : '💀 SHADOW FALLEN';
+    if (this.modalDescription) {
+      this.modalDescription.innerHTML = `
+        <div class="modal-stats-card">
+          <div class="modal-stat-line"><span>DISTANCE REACHED:</span> <strong>${distance.toLocaleString()}m</strong></div>
+          <div class="modal-stat-line"><span>TOTAL RUN SCORE:</span> <strong>${score.toLocaleString()}</strong></div>
+          <div class="modal-stat-line"><span>GEMS COLLECTED:</span> <strong>💎 ${diamonds.toLocaleString()}</strong></div>
+          <div class="modal-stat-line highlight"><span>ALL-TIME RECORD:</span> <strong>${highScore.toLocaleString()}</strong></div>
+        </div>
+      `;
+    }
 
-    this.btnModalPrimary.textContent = 'PLAY AGAIN ➔';
-    this.btnModalRestart.classList.add('hidden');
-    this.primaryAction = onRestart;
-    this.modalOverlay.classList.remove('hidden');
+    if (this.btnModalPrimary) {
+      this.btnModalPrimary.textContent = '⚔️ PLAY AGAIN';
+      this.primaryAction = onRestart;
+    }
+    if (this.btnModalRestart) {
+      this.btnModalRestart.textContent = 'RETRY RUN';
+      this.restartAction = onRestart;
+    }
+    if (this.btnModalCharSelect) {
+      this.btnModalCharSelect.classList.remove('hidden');
+      this.charSelectAction = onChangeChar;
+    }
+
+    if (this.modalOverlay) this.modalOverlay.classList.remove('hidden');
   }
 
   hideModal() {

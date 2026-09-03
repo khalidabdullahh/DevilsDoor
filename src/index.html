@@ -13,6 +13,16 @@
     <!-- Main Game Canvas -->
     <canvas id="game-canvas"></canvas>
 
+    <!-- Portrait Blocker Overlay (Landscape-Only Enforcement) -->
+    <div id="rotate-overlay" class="rotate-overlay hidden">
+      <!-- Injected by OrientationManager.js -->
+    </div>
+
+    <!-- Character Select Screen Overlay -->
+    <div id="character-select-screen" class="char-select-overlay">
+      <!-- Injected and managed by CharacterSelect.js -->
+    </div>
+
     <!-- Loading Overlay -->
     <div id="loading-overlay">
       <h1 class="loading-title">DEVIL'S DOOR</h1>
@@ -21,11 +31,11 @@
     </div>
 
     <!-- Minimal, Well-Furnished AAA Action HUD Overlay -->
-    <header id="game-hud" class="hud-overlay">
+    <header id="game-hud" class="hud-overlay hidden">
       <!-- Left: Sleek Ninja Avatar & Hearts -->
       <div class="hud-left">
         <div class="hud-avatar-box">
-          <img src="/src/assets/characters/hero_shadow_ninja.png" alt="Shadow Ninja" class="hud-avatar-img" />
+          <img id="hud-avatar-img" src="/src/assets/characters/hero_shadow_ninja.png" alt="Shadow Ninja" class="hud-avatar-img" />
         </div>
         <div id="health-display" class="hud-health-bar">❤️❤️❤️</div>
       </div>
@@ -59,7 +69,7 @@
     </header>
 
     <!-- Mobile Touch Controls Overlay with Realistic Action Buttons -->
-    <div id="touch-controls" class="touch-overlay">
+    <div id="touch-controls" class="touch-overlay hidden">
       <div class="touch-dpad">
         <!-- Move Left: Engraved Silver Kunai Arrow -->
         <button id="touch-left" class="touch-btn dpad-btn" aria-label="Move Left" title="Move Left">
@@ -90,7 +100,7 @@
                 <stop offset="50%" stop-color="#94a3b8"/>
                 <stop offset="100%" stop-color="#475569"/>
               </linearGradient>
-              <linearGradient id="arrowGlowR" x1="0%" y1="0%" x2="100%" y2="0%">
+              <linearGradient id="arrowGlowR" x1="100%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#38bdf8"/>
                 <stop offset="100%" stop-color="#0284c7"/>
               </linearGradient>
@@ -175,6 +185,7 @@
         <div class="modal-actions">
           <button id="btn-modal-primary" class="btn-primary">RESUME</button>
           <button id="btn-modal-restart" class="btn-secondary">RESTART RUN</button>
+          <button id="btn-modal-charselect" class="btn-secondary">🥷 CHANGE SHINOBI</button>
           <button id="btn-modal-home" class="btn-secondary">EXIT TO MENU</button>
         </div>
       </div>
