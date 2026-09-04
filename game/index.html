@@ -35,7 +35,7 @@
       <p class="loading-subtitle">ENTERING THE ENDLESS SHADOWS...</p>
     </div>
 
-    <!-- Clean, Unified AAA Action HUD Overlay -->
+    <!-- Clean, Unified AAA Action HUD Overlay (Mobile-First) -->
     <header id="game-hud" class="hud-overlay hidden">
       <!-- Left: Sleek Ninja Avatar & Integrated Health Gauge -->
       <div class="hud-left">
@@ -49,17 +49,12 @@
         </div>
       </div>
 
-      <!-- Center: Clean Floating Glass Capsule Metrics -->
+      <!-- Center: Clean Floating Glass Capsule Metrics (Pure Distance & Record) -->
       <div class="hud-center">
         <div class="hud-capsule">
           <div class="capsule-metric">
             <span class="capsule-icon">📏</span>
             <span id="distance-display" class="capsule-val">0m</span>
-          </div>
-          <span class="capsule-divider"></span>
-          <div class="capsule-metric">
-            <span class="capsule-icon">💎</span>
-            <span id="diamonds-display" class="capsule-val gold">0</span>
           </div>
           <span class="capsule-divider"></span>
           <div class="capsule-metric">
@@ -110,7 +105,7 @@
                 <stop offset="50%" stop-color="#94a3b8"/>
                 <stop offset="100%" stop-color="#475569"/>
               </linearGradient>
-              <linearGradient id="arrowGlowR" x1="100%" y1="0%" x2="100%" y2="0%">
+              <linearGradient id="arrowGlowR" x1="100%" y1="0%" x2="0%" y2="0%">
                 <stop offset="0%" stop-color="#38bdf8"/>
                 <stop offset="100%" stop-color="#0284c7"/>
               </linearGradient>
@@ -187,17 +182,18 @@
       </div>
     </div>
 
-    <!-- Pause & Game Over Modal Overlay -->
+    <!-- Pause & Game Over Modal Overlay (Compact Mobile-Landscape Optimized) -->
     <div id="modal-overlay" class="modal-backdrop hidden">
       <div class="modal-card">
         <h2 id="modal-title" class="modal-heading">PAUSED</h2>
         <div id="modal-description" class="modal-body">Take breath, shinobi. The endless descent awaits your blade.</div>
         <div class="modal-actions">
-          <button id="btn-modal-primary" class="btn-primary">RESUME</button>
-          <button id="btn-modal-restart" class="btn-secondary">RESTART RUN</button>
-          <button id="btn-modal-sceneselect" class="btn-secondary">⛩️ CHANGE REALM</button>
-          <button id="btn-modal-settings" class="btn-secondary">⚙️ SETTINGS</button>
-          <button id="btn-modal-home" class="btn-secondary">EXIT TO MENU</button>
+          <button id="btn-modal-primary" class="btn-primary">⚔️ PLAY AGAIN</button>
+          <div class="modal-btn-row">
+            <button id="btn-modal-sceneselect" class="btn-secondary">⛩️ REALMS</button>
+            <button id="btn-modal-settings" class="btn-secondary">⚙️ SETTINGS</button>
+            <button id="btn-modal-home" class="btn-secondary">🏠 EXIT</button>
+          </div>
         </div>
       </div>
     </div>

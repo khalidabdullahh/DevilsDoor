@@ -8,8 +8,7 @@ import { SCENE_ROSTER } from '../data/SceneRoster.js';
 
 /**
  * Game — Master Coordinator for Devil's Door v2.0: Endless Dark Fantasy Action-Platformer.
- * Coordinates Scene Selection, procedural endless chunks, dynamic biome transitions,
- * real-time distance & diamond tracking, landscape enforcement, and player settings.
+ * Pure Distance & Combat Score progression with zero diamond clutter.
  */
 export class Game {
   constructor(canvas, inputManager, audioManager, uiManager) {
@@ -31,7 +30,6 @@ export class Game {
 
     // Endless Metrics & Scoring
     this.distance = 0;
-    this.diamonds = 0;
     this.score = 0;
     this.highScore = parseInt(localStorage.getItem('devils_door_v2_highscore') || '0', 10);
     this.deaths = 0;
@@ -87,6 +85,7 @@ export class Game {
     this.camera.setBounds(0, 9999999, 0, 950);
 
     this.distance = 0;
+    this.score = 0;
     this.isGameOver = false;
     this.isPaused = false;
 
@@ -95,7 +94,6 @@ export class Game {
       this.ui.updateEndlessHUD(
         this.distance,
         this.score,
-        this.player.diamonds,
         this.highScore,
         this.player.health,
         this.player.maxHealth,
@@ -162,19 +160,12 @@ export class Game {
 
     // 3. Update Real-Time Metrics (Meters & Score)
     this.distance = Math.max(this.distance, Math.floor(this.player.x / 10));
-    this.diamonds = this.player.diamonds || 0;
-    this.score = this.distance * 10 + this.diamonds * 250 + (this.player.score || 0);
+    this.score = this.distance * 10 + (this.player.score || 0);
 
-    // 4. Update High Score & Diamonds in localStorage
+    // 4. Update High Score in localStorage
     if (this.score > this.highScore) {
       this.highScore = this.score;
       localStorage.setItem('devils_door_v2_highscore', String(this.highScore));
-    }
-
-    const savedDiamonds = parseInt(localStorage.getItem('devilsdoor_diamonds') || '0', 10);
-    if (this.diamonds > 0) {
-      localStorage.setItem('devilsdoor_diamonds', String(savedDiamonds + this.diamonds));
-      this.player.diamonds = 0;
     }
 
     // 5. Update HUD
@@ -182,7 +173,6 @@ export class Game {
       this.ui.updateEndlessHUD(
         this.distance,
         this.score,
-        savedDiamonds,
         this.highScore,
         this.player.health,
         this.player.maxHealth,
@@ -196,7 +186,6 @@ export class Game {
       AnalyticsManager.track('endless_game_over', {
         distance: this.distance,
         score: this.score,
-        diamonds: this.diamonds,
         biome: this.world.biome
       });
 
@@ -205,13 +194,12 @@ export class Game {
           this.ui.showGameOverModal(
             this.distance,
             this.score,
-            savedDiamonds,
             this.highScore,
             () => this.restartGame(),
             () => this.openSceneSelect()
           );
         }
-      }, 700);
+      }, 500);
     }
   }
 

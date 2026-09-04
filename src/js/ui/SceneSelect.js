@@ -26,15 +26,15 @@ export class SceneSelect {
     this.container.innerHTML = `
       <div class="scene-select-backdrop"></div>
       
-      <!-- Top Bar: Header Branding & Diamond Balance -->
+      <!-- Top Bar: Header Branding -->
       <header class="scene-select-header">
         <div class="scene-select-brand">
           <span class="brand-torii">⛩️</span>
           <span class="brand-title">SELECT YOUR REALM</span>
         </div>
-        <div class="scene-select-wallet">
-          <span class="wallet-icon">💎</span>
-          <span id="scene-wallet-diamonds" class="wallet-val">0</span>
+        <div class="scene-hero-pill">
+          <span class="pill-dot">●</span>
+          <span class="pill-name">SHADOW RONIN</span>
         </div>
       </header>
 
@@ -55,7 +55,6 @@ export class SceneSelect {
         <div class="scene-info-panel">
           <div class="scene-info-header">
             <span id="scene-number-tag" class="scene-number-tag">REALM I</span>
-            <span id="scene-hero-tag" class="scene-hero-tag">SHADOW RONIN</span>
           </div>
           
           <h2 id="scene-name-title" class="scene-name-title">SUNSET FORTRESS</h2>
@@ -65,20 +64,16 @@ export class SceneSelect {
           <div class="scene-hazard-box">
             <div class="hazard-header">
               <span class="hazard-icon">⚠️</span>
-              <span class="hazard-label">ATMOSPHERE & HAZARDS</span>
+              <span class="hazard-label">HAZARDS & TERRAIN</span>
             </div>
             <div id="scene-hazard-desc" class="hazard-desc">Spike pits, hanging lanterns, archer sentries</div>
           </div>
-
-          <p id="scene-lore-desc" class="scene-lore-desc">
-            Traverse multi-tier Japanese pagoda castles and sacred Torii gates under a radiant sunset sky.
-          </p>
 
           <!-- Primary CTA Button -->
           <div class="scene-action-group">
             <button id="btn-start-run" class="btn-start-run">
               <span class="btn-text">⚔️ ENTER REALM</span>
-              <span class="btn-subtext">START YOUR ENDLESS ASCENSION</span>
+              <span class="btn-subtext">START ENDLESS ASCENSION</span>
             </button>
           </div>
         </div>
@@ -192,26 +187,19 @@ export class SceneSelect {
     const nameTitle = this.container.querySelector('#scene-name-title');
     const subtitle = this.container.querySelector('#scene-subtitle');
     const hazardDesc = this.container.querySelector('#scene-hazard-desc');
-    const loreDesc = this.container.querySelector('#scene-lore-desc');
 
     if (numTag) numTag.textContent = scene.number;
     if (nameTitle) nameTitle.textContent = scene.name;
     if (subtitle) subtitle.textContent = scene.subtitle;
     if (hazardDesc) hazardDesc.textContent = scene.hazards;
-    if (loreDesc) loreDesc.textContent = scene.description;
 
-    // 3. Update Diamond Balance
-    const diamonds = parseInt(localStorage.getItem('devilsdoor_diamonds') || '0', 10);
-    const walletEl = this.container.querySelector('#scene-wallet-diamonds');
-    if (walletEl) walletEl.textContent = diamonds.toLocaleString();
-
-    // 4. Update Button Glow
+    // 3. Update Button Glow
     const btnStart = this.container.querySelector('#btn-start-run');
     if (btnStart) {
-      btnStart.style.boxShadow = `0 0 24px ${scene.glowColor}`;
+      btnStart.style.boxShadow = `0 0 20px ${scene.glowColor}`;
     }
 
-    // 5. Update Bottom Carousel
+    // 4. Update Bottom Carousel
     this._renderCarousel();
   }
 

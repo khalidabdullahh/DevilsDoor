@@ -1,7 +1,8 @@
 import { AnalyticsManager } from '../core/AnalyticsManager.js';
 
 /**
- * UIManager — High-Polish HUD, Modals, and Player Navigation for Devil's Door.
+ * UIManager — High-Polish Mobile-First HUD, Modals, and Player Navigation for Devil's Door.
+ * Fully responsive for mobile landscape with zero vertical overflow.
  */
 export class UIManager {
   constructor(game) {
@@ -10,7 +11,6 @@ export class UIManager {
     this.hudElement = document.getElementById('game-hud');
     this.touchControls = document.getElementById('touch-controls');
     this.distanceDisplay = document.getElementById('distance-display');
-    this.diamondsDisplay = document.getElementById('diamonds-display');
     this.highScoreDisplay = document.getElementById('highscore-display');
     this.healthDisplay = document.getElementById('health-display');
     this.avatarImg = document.getElementById('hud-avatar-img');
@@ -24,7 +24,6 @@ export class UIManager {
     this.modalTitle = document.getElementById('modal-title');
     this.modalDescription = document.getElementById('modal-description');
     this.btnModalPrimary = document.getElementById('btn-modal-primary');
-    this.btnModalRestart = document.getElementById('btn-modal-restart');
     this.btnModalSceneSelect = document.getElementById('btn-modal-sceneselect');
     this.btnModalSettings = document.getElementById('btn-modal-settings');
     this.btnModalHome = document.getElementById('btn-modal-home');
@@ -65,15 +64,6 @@ export class UIManager {
         const action = this.primaryAction;
         this.hideModal();
         if (action) action();
-      });
-    }
-
-    if (this.btnModalRestart) {
-      this.btnModalRestart.addEventListener('click', () => {
-        const restartAction = this.restartAction;
-        this.hideModal();
-        if (restartAction) restartAction();
-        else if (this.game) this.game.restartGame();
       });
     }
 
@@ -119,12 +109,9 @@ export class UIManager {
     if (this.touchControls) this.touchControls.classList.add('hidden');
   }
 
-  updateEndlessHUD(distance, score, diamonds, highScore, health = 3, maxHealth = 3, biome = 'sunset') {
+  updateEndlessHUD(distance, score, highScore, health = 3, maxHealth = 3, biome = 'sunset') {
     if (this.distanceDisplay) {
       this.distanceDisplay.textContent = `${distance.toLocaleString()}m`;
-    }
-    if (this.diamondsDisplay) {
-      this.diamondsDisplay.textContent = `${diamonds}`;
     }
     if (this.highScoreDisplay) {
       this.highScoreDisplay.textContent = `BEST: ${highScore.toLocaleString()}`;
@@ -142,17 +129,12 @@ export class UIManager {
     if (this.game) this.game.setPaused(true);
     if (this.modalTitle) this.modalTitle.textContent = 'PAUSED';
     if (this.modalDescription) this.modalDescription.textContent = 'Take breath, shinobi. The endless descent awaits your blade.';
-    if (this.btnModalPrimary) this.btnModalPrimary.textContent = 'RESUME';
-    if (this.btnModalRestart) this.btnModalRestart.textContent = 'RESTART RUN';
+    if (this.btnModalPrimary) this.btnModalPrimary.textContent = '▶ RESUME';
     if (this.btnModalSceneSelect) this.btnModalSceneSelect.classList.remove('hidden');
 
     this.primaryAction = () => {
       if (this.game) this.game.setPaused(false);
       if (onResume) onResume();
-    };
-    this.restartAction = () => {
-      if (this.game) this.game.restartGame();
-      if (onRestart) onRestart();
     };
     this.sceneSelectAction = () => {
       if (this.game) this.game.openSceneSelect();
@@ -162,7 +144,7 @@ export class UIManager {
     if (this.modalOverlay) this.modalOverlay.classList.remove('hidden');
   }
 
-  showGameOverModal(distance, score, diamonds, highScore, onRestart, onChangeScene) {
+  showGameOverModal(distance, score, highScore, onRestart, onChangeScene) {
     if (this.game) this.game.setPaused(true);
 
     const isNewHigh = score >= highScore && score > 0;
@@ -170,10 +152,9 @@ export class UIManager {
     if (this.modalDescription) {
       this.modalDescription.innerHTML = `
         <div class="modal-stats-card">
-          <div class="modal-stat-line"><span>DISTANCE REACHED:</span> <strong>${distance.toLocaleString()}m</strong></div>
-          <div class="modal-stat-line"><span>TOTAL RUN SCORE:</span> <strong>${score.toLocaleString()}</strong></div>
-          <div class="modal-stat-line"><span>GEMS COLLECTED:</span> <strong>💎 ${diamonds.toLocaleString()}</strong></div>
-          <div class="modal-stat-line highlight"><span>ALL-TIME RECORD:</span> <strong>${highScore.toLocaleString()}</strong></div>
+          <div class="modal-stat-line"><span>DISTANCE:</span> <strong>${distance.toLocaleString()}m</strong></div>
+          <div class="modal-stat-line"><span>SCORE:</span> <strong>${score.toLocaleString()}</strong></div>
+          <div class="modal-stat-line highlight"><span>RECORD:</span> <strong>${highScore.toLocaleString()}</strong></div>
         </div>
       `;
     }
@@ -181,10 +162,6 @@ export class UIManager {
     if (this.btnModalPrimary) {
       this.btnModalPrimary.textContent = '⚔️ PLAY AGAIN';
       this.primaryAction = onRestart;
-    }
-    if (this.btnModalRestart) {
-      this.btnModalRestart.textContent = 'RETRY RUN';
-      this.restartAction = onRestart;
     }
     if (this.btnModalSceneSelect) {
       this.btnModalSceneSelect.classList.remove('hidden');

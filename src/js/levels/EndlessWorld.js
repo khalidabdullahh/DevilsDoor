@@ -71,10 +71,6 @@ export class EndlessWorld {
     this.embeddedWeapons.push({ x: 420, y: 560, type: 'spear' });
     this.embeddedWeapons.push({ x: 435, y: 560, type: 'katana' });
 
-    this.diamonds.push({ x: 300, y: 510, collected: false });
-    this.diamonds.push({ x: 350, y: 480, collected: false });
-    this.diamonds.push({ x: 400, y: 510, collected: false });
-
     this.generatedDistance = 900;
 
     while (this.generatedDistance < 3200) {
@@ -270,14 +266,6 @@ export class EndlessWorld {
     const enemy = new ShadowNinjaEnemy(startX + width * 0.6, groundY - 56, startX + 200, startX + width - 80, enemyType);
     this.enemies.push(enemy);
 
-    for (let i = 0; i < 4; i++) {
-      this.diamonds.push({
-        x: startX + 260 + i * 50,
-        y: groundY - 60 - Math.sin(i / 3 * Math.PI) * 40,
-        collected: false
-      });
-    }
-
     this.lastGroundY = groundY;
     this.generatedDistance = startX + width + 90;
   }
@@ -302,10 +290,6 @@ export class EndlessWorld {
       };
       this.solids.push(plank);
       this.bridgePlanks.push(plank);
-
-      if (i % 2 === 0) {
-        this.diamonds.push({ x: px + 24, y: groundY - 45, collected: false });
-      }
     }
 
     this.hazards.push({
@@ -360,14 +344,6 @@ export class EndlessWorld {
     const enemyType = this._getRandomEnemyType();
     const enemy = new ShadowNinjaEnemy(startX + 680, groundY - 56, startX + 580, startX + 1000, enemyType);
     this.enemies.push(enemy);
-
-    for (let i = 0; i < 4; i++) {
-      this.diamonds.push({
-        x: startX + 120 + i * 70,
-        y: 280,
-        collected: false
-      });
-    }
 
     this.generatedDistance = startX + 1080;
   }
@@ -462,10 +438,6 @@ export class EndlessWorld {
     const enemy2 = new ShadowNinjaEnemy(startX + 780, groundY - 56, startX + 640, startX + 940, 'oni');
     this.enemies.push(enemy1);
     this.enemies.push(enemy2);
-
-    this.diamonds.push({ x: startX + 380, y: 340, collected: false });
-    this.diamonds.push({ x: startX + 440, y: 320, collected: false });
-    this.diamonds.push({ x: startX + 500, y: 340, collected: false });
 
     this.generatedDistance = startX + width + 100;
   }
@@ -626,38 +598,7 @@ export class EndlessWorld {
       ctx.fill();
     }
 
-    // Diamonds
-    for (const d of this.diamonds) {
-      if (d.collected) continue;
-      const dx = d.x - camX;
-      const dy = d.y - camY + Math.sin(time * 4 + d.x) * 5;
-
-      const gemHalo = ctx.createRadialGradient(dx, dy, 2, dx, dy, 22);
-      gemHalo.addColorStop(0, 'rgba(56, 189, 248, 0.6)');
-      gemHalo.addColorStop(1, 'rgba(56, 189, 248, 0)');
-      ctx.fillStyle = gemHalo;
-      ctx.beginPath();
-      ctx.arc(dx, dy, 22, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#38bdf8';
-      ctx.beginPath();
-      ctx.moveTo(dx, dy - 12);
-      ctx.lineTo(dx + 9, dy);
-      ctx.lineTo(dx, dy + 12);
-      ctx.lineTo(dx - 9, dy);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.moveTo(dx, dy - 12);
-      ctx.lineTo(dx + 4, dy);
-      ctx.lineTo(dx, dy + 6);
-      ctx.lineTo(dx - 4, dy);
-      ctx.closePath();
-      ctx.fill();
-    }
+    // End of world features
 
     // Terrain solids
     for (const s of this.solids) {
