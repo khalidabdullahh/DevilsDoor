@@ -27,7 +27,7 @@ export const CHARACTER_ROSTER = [
     },
     status: 'unlocked',
     cost: 0,
-    image: './src/assets/characters/solo/hero_01_kage_ryu.png',
+    image: '/src/assets/characters/solo/hero_01_kage_ryu.png',
     accentColor: '#a855f7',
     glowColor: 'rgba(168, 85, 247, 0.5)'
   },
@@ -51,7 +51,7 @@ export const CHARACTER_ROSTER = [
     },
     status: 'unlocked',
     cost: 0,
-    image: './src/assets/characters/solo/hero_02_ryujin.png',
+    image: '/src/assets/characters/solo/hero_02_ryujin.png',
     accentColor: '#f97316',
     glowColor: 'rgba(249, 115, 22, 0.5)'
   },
@@ -75,7 +75,7 @@ export const CHARACTER_ROSTER = [
     },
     status: 'unlocked',
     cost: 0,
-    image: './src/assets/characters/solo/hero_03_raijin.png',
+    image: '/src/assets/characters/solo/hero_03_raijin.png',
     accentColor: '#38bdf8',
     glowColor: 'rgba(56, 189, 248, 0.5)'
   },
@@ -99,7 +99,7 @@ export const CHARACTER_ROSTER = [
     },
     status: 'unlocked',
     cost: 0,
-    image: './src/assets/characters/solo/hero_04_tsukuyomi.png',
+    image: '/src/assets/characters/solo/hero_04_tsukuyomi.png',
     accentColor: '#f43f5e',
     glowColor: 'rgba(244, 63, 94, 0.5)'
   }

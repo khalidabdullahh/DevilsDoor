@@ -1,16 +1,3 @@
----
-title: "Prompt 06: 16 Archive Scenes & 3-Minute Dynamic Biomes"
-aliases: ["Prompt 06", "Archive Biomes"]
-tags:
-  - prompt-log
-  - visual-engine
-  - biomes
-  - parallax
-  - project/devils-door
-created: 2026-09-03
-status: completed
----
-
 # 📝 Prompt 06: 16 Archive Reference Scenes & Dynamic 3-Minute Morphing Biomes
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

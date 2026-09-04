@@ -1,15 +1,3 @@
----
-title: "Deception Engine State Machine & Event Dispatches"
-aliases: ["Deception State Machine", "Deception Pipeline"]
-tags:
-  - architecture
-  - deception-engine
-  - state-machine
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 👁️ Deception Engine State Machine & Event Pipeline
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

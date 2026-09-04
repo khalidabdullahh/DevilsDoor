@@ -1,15 +1,3 @@
----
-title: "Architecture Overview & ESM Pipeline"
-aliases: ["Architecture Overview", "ESM Pipeline"]
-tags:
-  - architecture
-  - esm
-  - javascript
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # ⚙️ Architecture Overview & Native ESM Pipeline
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

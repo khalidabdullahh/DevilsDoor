@@ -1,15 +1,3 @@
----
-title: "Prompt 12: Mobile Touch Controls, Virtual Joystick & Orientation Safety"
-aliases: ["Prompt 12", "Touch Controls"]
-tags:
-  - prompt-log
-  - mobile
-  - touch-controls
-  - project/devils-door
-created: 2026-09-03
-status: completed
----
-
 # 📝 Prompt 12: Mobile Touch Controls, Virtual Joystick & Orientation Safety
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

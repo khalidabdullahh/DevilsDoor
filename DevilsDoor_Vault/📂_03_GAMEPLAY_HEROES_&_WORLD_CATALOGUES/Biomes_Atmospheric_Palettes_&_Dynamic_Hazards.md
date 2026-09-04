@@ -1,16 +1,3 @@
----
-title: "Biomes Atmospheric Palettes & Dynamic Hazards"
-aliases: ["Biomes Catalogue", "Archive Scenes"]
-tags:
-  - gameplay
-  - biomes
-  - atmosphere
-  - hazards
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # ⛩️ Biomes Atmospheric Palettes & Dynamic Hazards
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

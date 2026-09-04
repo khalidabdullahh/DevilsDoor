@@ -1,28 +1,12 @@
----
-title: "Implementation Plan 08: Publisher Submission & Dual IP Licensing"
-aliases: ["Plan 08", "Publisher & IP Plan"]
-tags:
-  - implementation-plan
-  - publisher
-  - legal
-  - licensing
-  - project/devils-door
-created: 2026-09-04
-status: completed
-related_prompts:
-  - "[[Prompt_08_CrazyGames_SDK_Poki_Developer_Submission]]"
-  - "[[Prompt_09_Dual_Licensing_IP_Protection_&_Commercial_Rights]]"
-  - "[[Prompt_15_Standalone_Offline_Bundle_Packaging_&_ZIP_Archiving]]"
-  - "[[Prompt_16_Marketing_Artwork_Suite_Generation_16x9_2x3_1x1]]"
-  - "[[Prompt_17_Poki_Developer_Portal_Submission_&_Curation]]"
----
-
 # 📐 Implementation Plan 08 — Publisher Submission, Marketing Assets & Dual IP Licensing
 
-> **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  
-> **Related Prompts**: [[Prompt_08_CrazyGames_SDK_Poki_Developer_Submission]], [[Prompt_09_Dual_Licensing_IP_Protection_&_Commercial_Rights]]
+> [!INFO] ⛩️ **DEVIL'S DOOR ARCHIVAL VAULT** · `MILESTONE PLAN 08`
+> **Status**: `COMPLETED` 🟢 · **Target Version**: `v2.1.0` · **Maintainer**: `Khalid Abdullah`  
+> **Direct Navigation**: [[⛩️_00_MASTER_INDEX|⛩️ Master Hub]] · **Prompt Ledger**: [[Prompt_08_CrazyGames_SDK_Poki_Developer_Submission|📝 Prompt 08]] · [[Prompt_09_Dual_Licensing_IP_Protection_&_Commercial_Rights|📝 Prompt 09]]  
+> **Tags**: `#project/devils-door` `#publisher` `#legal` `#licensing` `#v2-1`
 
 ---
+
 
 ## 🎯 1. Goal & Architectural Scope
 

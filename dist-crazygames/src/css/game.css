@@ -77,25 +77,25 @@ body.portrait-mode #game-container {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  background-color: #080a12;
+  background-color: #060810;
   background-image: 
-    radial-gradient(rgba(255, 255, 255, 0.05) 1.2px, transparent 1.2px),
-    linear-gradient(180deg, #101422 0%, #080a12 50%, #040508 100%);
-  background-size: 16px 16px, 100% 100%;
+    radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px),
+    linear-gradient(180deg, #0d1222 0%, #070a14 50%, #030408 100%);
+  background-size: 20px 20px, 100% 100%;
   overflow: hidden;
 }
 
 #game-container.portrait-mode .game-screen-box,
 body.portrait-mode .game-screen-box {
   position: relative;
-  width: calc(100% - 16px);
+  width: calc(100% - 12px);
   max-width: 580px;
   aspect-ratio: 16 / 9;
-  max-height: 44vh;
-  margin-top: max(8px, env(safe-area-inset-top));
-  border-radius: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.95), 0 0 16px rgba(56, 189, 248, 0.15);
+  max-height: 42vh;
+  margin-top: max(6px, env(safe-area-inset-top));
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.24);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.95), 0 0 20px rgba(56, 189, 248, 0.2);
   background: #000000;
   overflow: hidden;
   flex-shrink: 0;
@@ -117,6 +117,11 @@ body.portrait-mode .hud-overlay {
   display: none !important;
 }
 
+#game-container.portrait-mode .corner-fullscreen-btn,
+body.portrait-mode .corner-fullscreen-btn {
+  display: none !important;
+}
+
 /* Middle Status / Deck Bar (Positioned in black area below game screen) */
 .gamepad-deck-bar {
   display: none;
@@ -127,14 +132,14 @@ body.portrait-mode .gamepad-deck-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: calc(100% - 16px);
+  width: calc(100% - 12px);
   max-width: 580px;
   margin: 6px auto 0 auto;
   padding: 6px 12px;
-  background: rgba(12, 17, 28, 0.95);
-  border: 1.5px solid rgba(255, 255, 255, 0.16);
-  border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+  background: rgba(12, 17, 30, 0.96);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.75);
   flex-shrink: 0;
   box-sizing: border-box;
   gap: 8px;
@@ -178,16 +183,16 @@ body.portrait-mode .gamepad-deck-bar {
 .deck-utility-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 6px;
+  border-radius: 7px;
   color: #f8fafc;
   font-size: 0.68rem;
   font-weight: 800;
-  padding: 4px 7px;
+  padding: 5px 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 4px;
-  transition: transform 0.1s, background 0.15s;
+  transition: transform 0.1s, background 0.15s, border-color 0.15s;
   white-space: nowrap;
 }
 
@@ -197,16 +202,18 @@ body.portrait-mode .gamepad-deck-bar {
   border-color: #ef4444;
 }
 
-/* Handheld Gamepad Deck */
+/* Handheld Gamepad Deck (Portrait Mode) */
 #game-container.portrait-mode #touch-controls,
 body.portrait-mode #touch-controls {
   position: relative;
   flex: 1;
   width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 12px max(18px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+  padding: 10px max(14px, env(safe-area-inset-right)) max(22px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
   background: transparent;
   pointer-events: auto;
   box-sizing: border-box;
@@ -215,48 +222,178 @@ body.portrait-mode #touch-controls {
 #game-container.portrait-mode .touch-dpad,
 body.portrait-mode .touch-dpad {
   display: flex;
-  gap: 14px;
+  gap: clamp(10px, 3vw, 16px);
   align-items: center;
+  padding-bottom: 4px;
 }
 
 #game-container.portrait-mode .touch-actions,
 body.portrait-mode .touch-actions {
   display: flex;
-  gap: 10px;
+  gap: clamp(8px, 2.5vw, 14px);
   align-items: flex-end;
+  padding-bottom: 4px;
 }
 
 #game-container.portrait-mode .dpad-btn,
 body.portrait-mode .dpad-btn {
-  width: clamp(70px, 18vw, 82px) !important;
-  height: clamp(70px, 18vw, 82px) !important;
+  width: clamp(74px, 19vw, 86px) !important;
+  height: clamp(74px, 19vw, 86px) !important;
   border-radius: 50% !important;
+  background: radial-gradient(circle at 35% 35%, #1e293b 0%, #0f172a 100%) !important;
+  border: 2.5px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8), inset 0 2px 3px rgba(255, 255, 255, 0.15) !important;
 }
 
+#game-container.portrait-mode .dpad-btn:active,
+#game-container.portrait-mode .dpad-btn.active,
+body.portrait-mode .dpad-btn:active,
+body.portrait-mode .dpad-btn.active {
+  transform: scale(0.92) !important;
+  background: radial-gradient(circle at 35% 35%, #0284c7 0%, #0369a1 100%) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.7) !important;
+}
+
+/* Prominent Emerald Green Jump Button */
 #game-container.portrait-mode .jump-btn,
 body.portrait-mode .jump-btn {
-  width: clamp(84px, 22vw, 98px) !important;
-  height: clamp(84px, 22vw, 98px) !important;
+  width: clamp(88px, 23vw, 108px) !important;
+  height: clamp(88px, 23vw, 108px) !important;
   border-radius: 50% !important;
+  background: radial-gradient(circle at 35% 35%, #10b981 0%, #047857 100%) !important;
+  border: 3px solid #34d399 !important;
+  box-shadow: 0 8px 26px rgba(16, 185, 129, 0.55), inset 0 2px 4px rgba(255, 255, 255, 0.35) !important;
   order: 3;
 }
 
-#game-container.portrait-mode .attack-btn,
-body.portrait-mode .attack-btn {
-  width: clamp(68px, 17vw, 78px) !important;
-  height: clamp(68px, 17vw, 78px) !important;
-  border-radius: 50% !important;
-  order: 2;
-  margin-bottom: 8px;
+#game-container.portrait-mode .jump-btn:active,
+#game-container.portrait-mode .jump-btn.active,
+body.portrait-mode .jump-btn:active,
+body.portrait-mode .jump-btn.active {
+  transform: scale(0.92) !important;
+  background: radial-gradient(circle at 35% 35%, #059669 0%, #064e3b 100%) !important;
+  border-color: #6ee7b7 !important;
+  box-shadow: 0 0 30px rgba(52, 211, 153, 0.85) !important;
 }
 
+/* Golden Amber Slash Button */
+#game-container.portrait-mode .attack-btn,
+body.portrait-mode .attack-btn {
+  width: clamp(70px, 18vw, 84px) !important;
+  height: clamp(70px, 18vw, 84px) !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle at 35% 35%, #f59e0b 0%, #b45309 100%) !important;
+  border: 2.5px solid #fbbf24 !important;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45), inset 0 2px 3px rgba(255, 255, 255, 0.25) !important;
+  order: 2;
+  margin-bottom: 6px;
+}
+
+#game-container.portrait-mode .attack-btn:active,
+#game-container.portrait-mode .attack-btn.active,
+body.portrait-mode .attack-btn:active,
+body.portrait-mode .attack-btn.active {
+  transform: scale(0.92) !important;
+  background: radial-gradient(circle at 35% 35%, #d97706 0%, #78350f 100%) !important;
+  border-color: #fde68a !important;
+  box-shadow: 0 0 24px rgba(251, 191, 36, 0.75) !important;
+}
+
+/* Purple Shuriken Star Button */
 #game-container.portrait-mode .shuriken-btn,
 body.portrait-mode .shuriken-btn {
-  width: clamp(60px, 15vw, 70px) !important;
-  height: clamp(60px, 15vw, 70px) !important;
+  width: clamp(62px, 15vw, 72px) !important;
+  height: clamp(62px, 15vw, 72px) !important;
   border-radius: 50% !important;
+  background: radial-gradient(circle at 35% 35%, #a855f7 0%, #6b21a8 100%) !important;
+  border: 2px solid #c084fc !important;
+  box-shadow: 0 5px 18px rgba(168, 85, 247, 0.4), inset 0 2px 3px rgba(255, 255, 255, 0.25) !important;
   order: 1;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+}
+
+#game-container.portrait-mode .shuriken-btn:active,
+#game-container.portrait-mode .shuriken-btn.active,
+body.portrait-mode .shuriken-btn:active,
+body.portrait-mode .shuriken-btn.active {
+  transform: scale(0.92) !important;
+  background: radial-gradient(circle at 35% 35%, #7e22ce 0%, #581c87 100%) !important;
+  border-color: #e9d5ff !important;
+  box-shadow: 0 0 22px rgba(192, 132, 252, 0.75) !important;
+}
+
+/* Floating Audio Button in Gamepad Deck */
+.touch-floating-audio-btn {
+  display: none;
+}
+
+#game-container.portrait-mode .touch-floating-audio-btn,
+body.portrait-mode .touch-floating-audio-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: clamp(102px, 26vw, 132px);
+  bottom: clamp(102px, 26vw, 132px);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: #f8fafc;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: none;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65);
+  transition: transform 0.1s, background 0.15s;
+  z-index: 40;
+}
+
+#game-container.portrait-mode .touch-floating-audio-btn:active,
+body.portrait-mode .touch-floating-audio-btn:active {
+  transform: scale(0.9);
+  background: rgba(56, 189, 248, 0.35);
+  border-color: #38bdf8;
+}
+
+/* Small Top-Right Corner Fullscreen Button (Landscape & Desktop) */
+.corner-fullscreen-btn {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  z-index: 60;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(12, 17, 28, 0.78);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  color: #f8fafc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+}
+
+.corner-fullscreen-btn:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(56, 189, 248, 0.6);
+}
+
+.corner-fullscreen-btn:active {
+  transform: scale(0.92);
+  background: rgba(56, 189, 248, 0.3);
+  border-color: #38bdf8;
+}
+
+.corner-fullscreen-btn svg {
+  fill: #f8fafc;
+  pointer-events: none;
 }
 
 /* ==========================================================================

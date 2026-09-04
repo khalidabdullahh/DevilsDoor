@@ -1,26 +1,12 @@
----
-title: "Implementation Plan 04: Playable 6-Hero Shinobi Roster & Verlet Cloth"
-aliases: ["Plan 04", "Hero Roster Plan"]
-tags:
-  - implementation-plan
-  - characters
-  - animation
-  - verlet-physics
-  - combat
-  - project/devils-door
-created: 2026-09-03
-status: completed
-related_prompts:
-  - "[[Prompt_05_Official_6_Hero_Roster_&_Verlet_Cloth_Scarf]]"
-  - "[[Prompt_11_Combat_Mechanics_Hitboxes_&_Poise]]"
----
-
 # 📐 Implementation Plan 04 — Playable 6-Hero Shinobi Roster & Verlet Cloth Dynamics
 
-> **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  
-> **Related Prompts**: [[Prompt_05_Official_6_Hero_Roster_&_Verlet_Cloth_Scarf]], [[Prompt_11_Combat_Mechanics_Hitboxes_&_Poise]]
+> [!INFO] ⛩️ **DEVIL'S DOOR ARCHIVAL VAULT** · `MILESTONE PLAN 04`
+> **Status**: `COMPLETED` 🟢 · **Target Version**: `v2.1.0` · **Maintainer**: `Khalid Abdullah`  
+> **Direct Navigation**: [[⛩️_00_MASTER_INDEX|⛩️ Master Hub]] · **Prompt Ledger**: [[Prompt_05_Official_6_Hero_Roster_&_Verlet_Cloth_Scarf|📝 Prompt 05]] · [[Prompt_11_Combat_Mechanics_Hitboxes_&_Poise|📝 Prompt 11]]  
+> **Tags**: `#project/devils-door` `#characters` `#verlet-physics` `#combat` `#v2-1`
 
 ---
+
 
 ## 🎯 1. Goal & Architectural Scope
 

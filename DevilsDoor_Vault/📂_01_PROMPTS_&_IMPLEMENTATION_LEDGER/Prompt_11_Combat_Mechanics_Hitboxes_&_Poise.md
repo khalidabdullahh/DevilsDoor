@@ -1,15 +1,3 @@
----
-title: "Prompt 11: Combat Mechanics, Directional Hitboxes & Poise"
-aliases: ["Prompt 11", "Combat Mechanics"]
-tags:
-  - prompt-log
-  - combat
-  - hitboxes
-  - project/devils-door
-created: 2026-09-03
-status: completed
----
-
 # 📝 Prompt 11: Combat Mechanics, Directional Hitboxes & Poise
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

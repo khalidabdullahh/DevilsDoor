@@ -1,16 +1,3 @@
----
-title: "Physics Engine Kinematics & Verlet Integration"
-aliases: ["Physics Blueprints", "Verlet Specs"]
-tags:
-  - architecture
-  - physics
-  - verlet
-  - kinematics
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 🏃 Physics Engine Kinematics & Verlet Rope Simulation
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

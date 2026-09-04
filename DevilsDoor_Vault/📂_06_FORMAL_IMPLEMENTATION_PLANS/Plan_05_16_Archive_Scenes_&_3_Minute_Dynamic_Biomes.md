@@ -1,24 +1,12 @@
----
-title: "Implementation Plan 05: 16 Archive Scenes & 3-Minute Dynamic Biomes"
-aliases: ["Plan 05", "Biomes Plan"]
-tags:
-  - implementation-plan
-  - visual-engine
-  - biomes
-  - parallax
-  - project/devils-door
-created: 2026-09-03
-status: completed
-related_prompts:
-  - "[[Prompt_06_16_Archive_Scenes_&_3_Minute_Dynamic_Biomes]]"
----
-
 # 📐 Implementation Plan 05 — 16 Archive Scenes & 3-Minute Dynamic Biomes
 
-> **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  
-> **Related Prompt**: [[Prompt_06_16_Archive_Scenes_&_3_Minute_Dynamic_Biomes]]
+> [!INFO] ⛩️ **DEVIL'S DOOR ARCHIVAL VAULT** · `MILESTONE PLAN 05`
+> **Status**: `COMPLETED` 🟢 · **Target Version**: `v2.1.0` · **Maintainer**: `Khalid Abdullah`  
+> **Direct Navigation**: [[⛩️_00_MASTER_INDEX|⛩️ Master Hub]] · **Prompt Ledger**: [[Prompt_06_16_Archive_Scenes_&_3_Minute_Dynamic_Biomes|📝 Prompt 06]]  
+> **Tags**: `#project/devils-door` `#visual-engine` `#biomes` `#parallax` `#v2-1`
 
 ---
+
 
 ## 🎯 1. Goal & Architectural Scope
 

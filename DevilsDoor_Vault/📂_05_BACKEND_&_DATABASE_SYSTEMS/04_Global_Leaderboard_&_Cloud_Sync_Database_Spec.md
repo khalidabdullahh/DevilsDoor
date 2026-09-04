@@ -1,17 +1,3 @@
----
-title: "Global Leaderboard & Cloud Sync Database Specification"
-aliases: ["Leaderboard Database", "Redis Leaderboard", "Cloud Sync DB"]
-tags:
-  - backend
-  - database
-  - redis
-  - leaderboard
-  - anti-cheat
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 🏆 Global Leaderboard & Cloud Sync Database Specification
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

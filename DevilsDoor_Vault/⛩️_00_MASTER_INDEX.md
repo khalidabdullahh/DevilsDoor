@@ -1,24 +1,3 @@
----
-title: "Devil's Door v2.1 — Master Project Ledger & Obsidian Vault Hub"
-aliases: ["Master Ledger", "Devil's Door Hub", "MOC"]
-tags:
-  - project/devils-door
-  - gamedev
-  - obsidian-vault
-  - backend
-  - database
-  - implementation-plans
-  - status/active
-  - version/v2-1
-created: 2026-09-04
-last_modified: 2026-09-04
-founder: Khalid Abdullah
-version: "2.1.0"
-live_game: "https://devils-door.vercel.app/game"
-live_landing: "https://devils-door.vercel.app/"
-github_repo: "https://github.com/khalidabdullahh/DevilsDoor"
----
-
 # ⛩️ DEVIL'S DOOR v2.1 — COMPLETE ARCHIVAL VAULT & PROJECT LEDGER
 
 > [!QUOTE] 

@@ -1,16 +1,3 @@
----
-title: "Prompt 16: Marketing Artwork Suite Generation (16:9, 2:3, 1:1)"
-aliases: ["Prompt 16", "Marketing Artwork"]
-tags:
-  - prompt-log
-  - marketing
-  - design
-  - graphics
-  - project/devils-door
-created: 2026-09-04
-status: completed
----
-
 # 📝 Prompt 16: Marketing Artwork Suite Generation (16:9, 2:3, 1:1)
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

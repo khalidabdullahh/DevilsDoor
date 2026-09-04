@@ -1,15 +1,3 @@
----
-title: "Prompt 07: Unified Landing Page to Character Selection Flow"
-aliases: ["Prompt 07", "UI Navigation Flow"]
-tags:
-  - prompt-log
-  - ui-ux
-  - character-select
-  - project/devils-door
-created: 2026-09-03
-status: completed
----
-
 # 📝 Prompt 07: Unified Landing Page → Character Selection → Endless Run Flow
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "📂_06_FORMAL_IMPLEMENTATION_PLANS/Plan_01_Project_Genesis_&_10_Design_Bibles.md",
+                "file": "📂_01_PROMPTS_&_IMPLEMENTATION_LEDGER/Prompt_08_CrazyGames_SDK_Poki_Developer_Submission.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Plan_01_Project_Genesis_&_10_Design_Bibles"
+              "title": "Prompt_08_CrazyGames_SDK_Poki_Developer_Submission"
             }
           }
         ]
@@ -190,6 +190,7 @@
   },
   "active": "e05895ae88a96347",
   "lastOpenFiles": [
+    "📂_06_FORMAL_IMPLEMENTATION_PLANS/Plan_01_Project_Genesis_&_10_Design_Bibles.md",
     "📂_01_PROMPTS_&_IMPLEMENTATION_LEDGER/Prompt_13_In_Game_Shinobi_Quick_Switcher_&_HUD_Overlay.md",
     "📂_06_FORMAL_IMPLEMENTATION_PLANS/Plan_10_Backend_Save_Engine_&_Anti_Cheat_Leaderboard.md",
     "📂_06_FORMAL_IMPLEMENTATION_PLANS/Plan_09_Vercel_Edge_Deployment_&_Automated_CI_Testing.md",
@@ -200,7 +201,6 @@
     "📂_06_FORMAL_IMPLEMENTATION_PLANS/Plan_04_Playable_6_Hero_Roster_&_Verlet_Cloth_Physics.md",
     "📂_06_FORMAL_IMPLEMENTATION_PLANS/Plan_03_Procedural_Audio_Synthesizer_&_Zero_Asset_Architecture.md",
     "📂_06_FORMAL_IMPLEMENTATION_PLANS/Plan_02_Physics_Engine_&_Deception_State_Machine.md",
-    "📂_06_FORMAL_IMPLEMENTATION_PLANS/Plan_01_Project_Genesis_&_10_Design_Bibles.md",
     "📂_06_FORMAL_IMPLEMENTATION_PLANS",
     "📂_02_TECHNICAL_ARCHITECTURE_BLUEPRINTS/2.5D_Silhouette_Rendering_&_Depth_Lighting.md",
     "📂_01_PROMPTS_&_IMPLEMENTATION_LEDGER/Prompt_09_Dual_Licensing_IP_Protection_&_Commercial_Rights.md",

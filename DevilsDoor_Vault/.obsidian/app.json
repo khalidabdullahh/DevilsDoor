@@ -3,5 +3,6 @@
   "livePreview": true,
   "alwaysUpdateLinks": true,
   "showLineNumber": true,
-  "readableLineLength": false
+  "readableLineLength": false,
+  "propertiesInDocument": "hidden"
 }

@@ -35,6 +35,40 @@ export class UIManager {
   }
 
   _bindEvents() {
+    // Fullscreen Toggle Handlers
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const btnCornerFullscreen = document.getElementById('btn-corner-fullscreen');
+    const btnDeckFullscreen = document.getElementById('btn-deck-fullscreen');
+
+    const handleFullscreenToggle = () => this.toggleFullscreen();
+
+    if (btnFullscreen) btnFullscreen.addEventListener('click', handleFullscreenToggle);
+    if (btnCornerFullscreen) btnCornerFullscreen.addEventListener('click', handleFullscreenToggle);
+    if (btnDeckFullscreen) btnDeckFullscreen.addEventListener('click', handleFullscreenToggle);
+
+    const handleFsChange = () => {
+      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+      this._updateFullscreenIcons(isFs);
+      if (this.game && this.game.renderer) {
+        this.game.renderer.resize();
+        if (typeof requestAnimationFrame !== 'undefined') {
+          requestAnimationFrame(() => this.game?.renderer?.resize());
+        }
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+    document.addEventListener('mozfullscreenchange', handleFsChange);
+    document.addEventListener('MSFullscreenChange', handleFsChange);
+
+    // Keyboard shortcut for Fullscreen (KeyF)
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyF' && !e.repeat && e.target.tagName !== 'INPUT') {
+        this.toggleFullscreen();
+      }
+    });
+
     if (this.btnSettings) {
       this.btnSettings.addEventListener('click', () => {
         if (this.game) this.game.openSettings();
@@ -47,23 +81,54 @@ export class UIManager {
       });
     }
 
+    // Audio Toggles (HUD, Deck, Floating Console Button)
     const btnDeckAudio = document.getElementById('btn-deck-audio');
-    if (btnDeckAudio) {
-      btnDeckAudio.addEventListener('click', () => {
-        if (this.game && this.game.audio) {
-          const isMuted = this.game.audio.toggleMute();
+    const btnFloatingAudio = document.getElementById('touch-floating-audio');
+
+    const toggleAudioAll = () => {
+      if (this.game && this.game.audio) {
+        const isMuted = this.game.audio.toggleMute();
+        if (btnDeckAudio) {
           btnDeckAudio.textContent = isMuted ? '🔇 MUTED' : '🔊 AUDIO';
-          if (this.audioIcon) {
-            this.audioIcon.classList.toggle('muted', isMuted);
-          }
         }
+        if (this.audioIcon) {
+          this.audioIcon.classList.toggle('muted', isMuted);
+        }
+        if (btnFloatingAudio) {
+          const muteSlash = btnFloatingAudio.querySelector('.mute-slash');
+          const wave1 = btnFloatingAudio.querySelector('.sound-wave-1');
+          const wave2 = btnFloatingAudio.querySelector('.sound-wave-2');
+          if (muteSlash) muteSlash.style.display = isMuted ? 'block' : 'none';
+          if (wave1) wave1.style.display = isMuted ? 'none' : 'block';
+          if (wave2) wave2.style.display = isMuted ? 'none' : 'block';
+        }
+      }
+    };
+
+    if (btnDeckAudio) btnDeckAudio.addEventListener('click', toggleAudioAll);
+    if (this.btnAudio) this.btnAudio.addEventListener('click', toggleAudioAll);
+    if (btnFloatingAudio) {
+      btnFloatingAudio.addEventListener('click', (e) => {
+        if (e.cancelable) e.preventDefault();
+        toggleAudioAll();
       });
+      btnFloatingAudio.addEventListener('touchstart', (e) => {
+        if (e.cancelable) e.preventDefault();
+        toggleAudioAll();
+      }, { passive: false });
     }
 
     const btnDeckRestart = document.getElementById('btn-deck-restart');
     if (btnDeckRestart) {
       btnDeckRestart.addEventListener('click', () => {
         if (this.game) this.game.restartGame();
+      });
+    }
+
+    const btnDeckSceneSelect = document.getElementById('btn-deck-sceneselect');
+    if (btnDeckSceneSelect) {
+      btnDeckSceneSelect.addEventListener('click', () => {
+        if (this.game) this.game.openSceneSelect();
       });
     }
 
@@ -77,20 +142,6 @@ export class UIManager {
     const btnDeckMenu = document.getElementById('btn-deck-menu');
     if (btnDeckMenu) {
       btnDeckMenu.addEventListener('click', () => this.showPauseModal());
-    }
-
-    if (this.btnAudio) {
-      this.btnAudio.addEventListener('click', () => {
-        if (this.game && this.game.audio) {
-          const isMuted = this.game.audio.toggleMute();
-          if (btnDeckAudio) {
-            btnDeckAudio.textContent = isMuted ? '🔇 MUTED' : '🔊 AUDIO';
-          }
-          if (this.audioIcon) {
-            this.audioIcon.classList.toggle('muted', isMuted);
-          }
-        }
-      });
     }
 
     if (this.btnMenu) {
@@ -125,6 +176,47 @@ export class UIManager {
       this.btnModalHome.addEventListener('click', () => {
         window.location.href = '/';
       });
+    }
+  }
+
+  toggleFullscreen() {
+    const doc = typeof document !== 'undefined' ? document : null;
+    if (!doc) return;
+    const docEl = doc.documentElement;
+    const isFs = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+
+    if (!isFs) {
+      if (docEl.requestFullscreen) {
+        docEl.requestFullscreen().catch(() => {});
+      } else if (docEl.webkitRequestFullscreen) {
+        docEl.webkitRequestFullscreen();
+      } else if (docEl.mozRequestFullScreen) {
+        docEl.mozRequestFullScreen();
+      } else if (docEl.msRequestFullscreen) {
+        docEl.msRequestFullscreen();
+      }
+    } else {
+      if (doc.exitFullscreen) {
+        doc.exitFullscreen().catch(() => {});
+      } else if (doc.webkitExitFullscreen) {
+        doc.webkitExitFullscreen();
+      } else if (doc.mozCancelFullScreen) {
+        doc.mozCancelFullScreen();
+      } else if (doc.msExitFullscreen) {
+        doc.msExitFullscreen();
+      }
+    }
+  }
+
+  _updateFullscreenIcons(isFullscreen) {
+    const enterPaths = document.querySelectorAll('.icon-fs-enter');
+    const exitPaths = document.querySelectorAll('.icon-fs-exit');
+    enterPaths.forEach((p) => { p.style.display = isFullscreen ? 'none' : 'block'; });
+    exitPaths.forEach((p) => { p.style.display = isFullscreen ? 'block' : 'none'; });
+
+    const btnDeckFs = document.getElementById('btn-deck-fullscreen');
+    if (btnDeckFs) {
+      btnDeckFs.textContent = isFullscreen ? '🗗 EXIT' : '⛶ FULL';
     }
   }
 

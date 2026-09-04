@@ -1,16 +1,3 @@
----
-title: "Prompt 08: CrazyGames SDK & Poki Developer Submission"
-aliases: ["Prompt 08", "Publisher Submission"]
-tags:
-  - prompt-log
-  - publisher
-  - crazygames
-  - poki
-  - project/devils-door
-created: 2026-09-04
-status: completed
----
-
 # 📝 Prompt 08: CrazyGames SDK Integration, Standalone Bundle & Poki Submission
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

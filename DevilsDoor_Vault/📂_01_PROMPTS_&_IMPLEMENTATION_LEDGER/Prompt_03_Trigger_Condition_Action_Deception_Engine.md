@@ -1,15 +1,3 @@
----
-title: "Prompt 03: Data-Driven Trigger-Condition-Action Deception Engine"
-aliases: ["Prompt 03", "Deception Engine"]
-tags:
-  - prompt-log
-  - deception-engine
-  - state-machine
-  - project/devils-door
-created: 2026-09-02
-status: completed
----
-
 # 📝 Prompt 03: Data-Driven Deception Engine & Modular Door Behaviors
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

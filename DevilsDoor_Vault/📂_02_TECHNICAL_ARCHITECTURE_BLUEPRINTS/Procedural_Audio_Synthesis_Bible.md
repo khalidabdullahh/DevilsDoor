@@ -1,16 +1,3 @@
----
-title: "Procedural Web Audio Synthesis Bible"
-aliases: ["Audio Bible", "WebAudio Formulas"]
-tags:
-  - architecture
-  - audio
-  - webaudio
-  - synthesis
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 🎵 Procedural Web Audio Synthesis Bible & Frequency Formulas
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

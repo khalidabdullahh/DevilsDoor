@@ -1,16 +1,3 @@
----
-title: "Playable Shinobi Roster Dossier"
-aliases: ["Hero Dossier", "Characters Catalogue"]
-tags:
-  - gameplay
-  - heroes
-  - combat
-  - stats
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 🥷 Playable Shinobi Roster Dossier (`character.zip`)
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

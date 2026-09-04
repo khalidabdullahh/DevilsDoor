@@ -1,14 +1,3 @@
----
-title: "Prompt 01: Genesis Concept, Specification Bibles & Governance Suite"
-aliases: ["Prompt 01", "Genesis Architecture"]
-tags:
-  - prompt-log
-  - architecture
-  - project/devils-door
-created: 2026-09-01
-status: completed
----
-
 # 📝 Prompt 01: Genesis Concept, Specification Bibles & Open-Source Governance Suite
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

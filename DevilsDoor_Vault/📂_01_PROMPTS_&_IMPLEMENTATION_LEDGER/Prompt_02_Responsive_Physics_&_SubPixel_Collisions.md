@@ -1,15 +1,3 @@
----
-title: "Prompt 02: Responsive Kinematics & Sub-Pixel Collisions"
-aliases: ["Prompt 02", "Physics Implementation"]
-tags:
-  - prompt-log
-  - physics
-  - kinematics
-  - project/devils-door
-created: 2026-09-02
-status: completed
----
-
 # 📝 Prompt 02: Responsive Kinematics, Coyote Time & Jump Buffering
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

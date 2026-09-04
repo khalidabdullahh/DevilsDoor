@@ -1,17 +1,3 @@
----
-title: "Vercel Edge Serverless & Routing Architecture"
-aliases: ["Edge Architecture", "Vercel Routing", "CDN Pipeline"]
-tags:
-  - backend
-  - vercel
-  - edge-functions
-  - cdn
-  - serverless
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 🌐 Vercel Edge Serverless & Routing Architecture
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

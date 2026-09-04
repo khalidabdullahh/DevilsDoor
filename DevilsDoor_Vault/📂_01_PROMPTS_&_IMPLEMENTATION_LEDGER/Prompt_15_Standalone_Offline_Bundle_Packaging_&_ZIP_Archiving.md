@@ -1,16 +1,3 @@
----
-title: "Prompt 15: Standalone Offline Bundle Packaging & ZIP Archiving"
-aliases: ["Prompt 15", "Offline ZIP Packaging"]
-tags:
-  - prompt-log
-  - build
-  - packaging
-  - zip
-  - project/devils-door
-created: 2026-09-04
-status: completed
----
-
 # 📝 Prompt 15: Standalone Offline Bundle Packaging & ZIP Archiving
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

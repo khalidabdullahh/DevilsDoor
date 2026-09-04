@@ -1,16 +1,3 @@
----
-title: "CrazyGames Cloud Save & User State Backend Integration"
-aliases: ["CrazyGames Backend", "Publisher Cloud Save"]
-tags:
-  - backend
-  - crazygames
-  - cloud-save
-  - sdk
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 🕹️ CrazyGames Cloud Save & User State Backend Integration
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

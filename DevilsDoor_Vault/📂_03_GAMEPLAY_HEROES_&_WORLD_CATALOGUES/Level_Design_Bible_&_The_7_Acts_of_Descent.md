@@ -1,15 +1,3 @@
----
-title: "Level Design Bible & The 7 Acts of Descent"
-aliases: ["Level Design Bible", "7 Acts"]
-tags:
-  - gameplay
-  - level-design
-  - progression
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 📐 Level Design Bible & The 7 Acts of Descent
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

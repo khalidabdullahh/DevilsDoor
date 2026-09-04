@@ -1,16 +1,3 @@
----
-title: "Prompt 05: Complete 6-Hero Playable Roster & Verlet Cloth Scarf"
-aliases: ["Prompt 05", "Hero Roster & Verlet Cloth"]
-tags:
-  - prompt-log
-  - characters
-  - animation
-  - verlet-physics
-  - project/devils-door
-created: 2026-09-03
-status: completed
----
-
 # 📝 Prompt 05: Official 6-Hero Playable Roster & 9-Node Verlet Cloth Scarf
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

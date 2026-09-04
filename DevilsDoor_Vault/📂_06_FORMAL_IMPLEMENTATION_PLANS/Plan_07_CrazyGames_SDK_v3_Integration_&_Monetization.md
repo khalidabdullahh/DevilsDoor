@@ -1,25 +1,12 @@
----
-title: "Implementation Plan 07: CrazyGames SDK v3 & Monetization"
-aliases: ["Plan 07", "CrazyGames SDK Plan"]
-tags:
-  - implementation-plan
-  - monetization
-  - crazygames
-  - sdk
-  - project/devils-door
-created: 2026-09-04
-status: completed
-related_prompts:
-  - "[[Prompt_08_CrazyGames_SDK_Poki_Developer_Submission]]"
-  - "[[Prompt_14_CrazyGames_SDK_Lifecycle_&_Midgame_Rewarded_Ads]]"
----
-
 # 📐 Implementation Plan 07 — CrazyGames SDK v3 Integration & Monetization
 
-> **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  
-> **Related Prompts**: [[Prompt_08_CrazyGames_SDK_Poki_Developer_Submission]], [[Prompt_14_CrazyGames_SDK_Lifecycle_&_Midgame_Rewarded_Ads]]
+> [!INFO] ⛩️ **DEVIL'S DOOR ARCHIVAL VAULT** · `MILESTONE PLAN 07`
+> **Status**: `COMPLETED` 🟢 · **Target Version**: `v2.1.0` · **Maintainer**: `Khalid Abdullah`  
+> **Direct Navigation**: [[⛩️_00_MASTER_INDEX|⛩️ Master Hub]] · **Prompt Ledger**: [[Prompt_08_CrazyGames_SDK_Poki_Developer_Submission|📝 Prompt 08]] · [[Prompt_14_CrazyGames_SDK_Lifecycle_&_Midgame_Rewarded_Ads|📝 Prompt 14]]  
+> **Tags**: `#project/devils-door` `#monetization` `#crazygames` `#sdk` `#v2-1`
 
 ---
+
 
 ## 🎯 1. Goal & Architectural Scope
 

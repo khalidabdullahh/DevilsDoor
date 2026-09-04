@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Devil's Door — Endless Ninja Action-Platformer</title>
@@ -26,6 +27,13 @@
 
         <!-- Right: Bespoke Engraved Metal Control Buttons -->
         <div class="hud-right">
+          <button id="btn-fullscreen" class="hud-btn" title="Toggle Fullscreen (F)" aria-label="Toggle Fullscreen">
+            <svg id="hud-fullscreen-icon" viewBox="0 0 24 24" width="18" height="18" class="hud-icon-svg">
+              <path class="icon-fs-enter" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" fill="#f8fafc"/>
+              <path class="icon-fs-exit" d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" fill="#38bdf8" style="display:none;"/>
+            </svg>
+          </button>
+
           <button id="btn-settings" class="hud-btn" title="Settings (O)" aria-label="Settings">
             <svg viewBox="0 0 24 24" width="18" height="18" class="hud-icon-svg">
               <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm7.4 1.3l-1.4-.8c-.1-.4-.2-.8-.4-1.2l.9-1.3c.4-.6.3-1.4-.2-1.9l-1.4-1.4c-.5-.5-1.3-.6-1.9-.2l-1.3.9c-.4-.2-.8-.3-1.2-.4l-.8-1.4C12.8 2.4 12 2 11.3 2h-2c-.7 0-1.5.4-1.8 1l-.8 1.4c-.4.1-.8.2-1.2.4l-1.3-.9c-.6-.4-1.4-.3-1.9.2L.9 5.5c-.5.5-.6 1.3-.2 1.9l.9 1.3c-.2.4-.3.8-.4 1.2l-1.4.8C-.2 11.2-.6 12-.6 12.7v2c0 .7.4 1.5 1 1.8l1.4.8c.1.4.2.8.4 1.2l-.9 1.3c-.4.6-.3 1.4.2 1.9l1.4 1.4c.5.5 1.3.6 1.9.2l1.3-.9c.4.2.8.3 1.2.4l.8 1.4c.3.6 1.1 1 1.8 1h2c.7 0 1.5-.4 1.8-1l.8-1.4c.4-.1.8-.2 1.2-.4l1.3.9c.6.4 1.4.3 1.9-.2l1.4-1.4c.5-.5.6-1.3.2-1.9l-.9-1.3c.2-.4.3-.8.4-1.2l1.4-.8c.6-.3 1-1.1 1-1.8v-2c0-.7-.4-1.5-1-1.8z" fill="#f8fafc"/>
@@ -55,6 +63,14 @@
           </button>
         </div>
       </header>
+
+      <!-- Small Top-Right Corner Fullscreen Button (Always available in Landscape & Desktop) -->
+      <button id="btn-corner-fullscreen" class="corner-fullscreen-btn" title="Fullscreen (F)" aria-label="Toggle Fullscreen">
+        <svg id="corner-fullscreen-svg" viewBox="0 0 24 24" width="16" height="16">
+          <path class="icon-fs-enter" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" fill="#f8fafc"/>
+          <path class="icon-fs-exit" d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" fill="#38bdf8" style="display:none;"/>
+        </svg>
+      </button>
     </div>
 
     <!-- Middle Gamepad Deck Info & Utility Bar (Portrait Mode - Inspired by Oops!) -->
@@ -65,14 +81,15 @@
         </div>
         <div class="deck-info-item">
           <span class="deck-icon">⛩️</span>
-          <span id="deck-realm-name">SUNSET FORTRESS</span>
+          <span id="deck-realm-name">SUNSET SANCTUARY</span>
         </div>
       </div>
       <div class="deck-actions-cluster">
-        <button id="btn-deck-audio" class="deck-utility-btn" title="Toggle Audio">🔊 AUDIO</button>
         <button id="btn-deck-restart" class="deck-utility-btn" title="Restart Run">↻ RESTART</button>
-        <button id="btn-deck-settings" class="deck-utility-btn" title="Settings">⚙️ SETTINGS</button>
-        <button id="btn-deck-menu" class="deck-utility-btn" title="Pause Menu">⏸ PAUSE</button>
+        <button id="btn-deck-sceneselect" class="deck-utility-btn" title="Change Realm">⛩️ REALMS</button>
+        <button id="btn-deck-audio" class="deck-utility-btn" title="Toggle Audio">🔊 AUDIO</button>
+        <button id="btn-deck-fullscreen" class="deck-utility-btn" title="Toggle Fullscreen">⛶ FULL</button>
+        <button id="btn-deck-settings" class="deck-utility-btn" title="Settings">⚙️</button>
       </div>
     </div>
 
@@ -140,6 +157,16 @@
         </button>
       </div>
 
+      <!-- Middle Floating Audio Quick Toggle (Portrait Console Deck) -->
+      <button id="touch-floating-audio" class="touch-floating-audio-btn" aria-label="Toggle Audio" title="Toggle Sound">
+        <svg viewBox="0 0 24 24" width="22" height="22" class="floating-audio-svg">
+          <path class="speaker-body" d="M3 9v6h4l5 5V4L7 9H3z" fill="#f8fafc"/>
+          <path class="sound-wave-1" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" fill="#38bdf8"/>
+          <path class="sound-wave-2" d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" fill="#38bdf8"/>
+          <line class="mute-slash" x1="2" y1="2" x2="22" y2="22" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" style="display:none;"/>
+        </svg>
+      </button>
+
       <div class="touch-actions">
         <!-- Shuriken Star Button -->
         <button id="touch-shuriken" class="touch-btn action-btn shuriken-btn" aria-label="Throw Shuriken" title="Throw Shuriken">
@@ -151,16 +178,12 @@
                 <stop offset="100%" stop-color="#7e22ce"/>
               </linearGradient>
             </defs>
-            <g transform="translate(32, 26)">
-              <path d="M0 -22 L5 -7 L20 -20 L7 -5 L22 0 L7 5 L20 20 L5 7 L0 22 L-5 7 L-20 20 L-7 5 L-22 0 L-7 -5 L-20 -20 L-5 -7 Z" fill="url(#shurikenGrad)"/>
-              <path d="M0 -22 L5 -7 L0 0 L-5 -7 Z" fill="#ffffff" opacity="0.6"/>
-              <path d="M22 0 L7 5 L0 0 L7 -5 Z" fill="#ffffff" opacity="0.6"/>
-              <path d="M0 22 L-5 7 L0 0 L5 7 Z" fill="#ffffff" opacity="0.6"/>
-              <path d="M-22 0 L-7 -5 L0 0 L-7 5 Z" fill="#ffffff" opacity="0.6"/>
-              <circle cx="0" cy="0" r="5" fill="#0f172a"/>
-              <circle cx="0" cy="0" r="4.5" stroke="#c084fc" stroke-width="1.8" fill="none"/>
+            <g transform="translate(32, 24)">
+              <path d="M0 -20 L5 -6 L18 -18 L6 -5 L20 0 L6 5 L18 18 L5 6 L0 20 L-5 6 L-18 18 L-6 5 L-20 0 L-6 -5 L-18 -18 L-5 -6 Z" fill="url(#shurikenGrad)"/>
+              <circle cx="0" cy="0" r="4.5" fill="#0f172a"/>
+              <circle cx="0" cy="0" r="4" stroke="#c084fc" stroke-width="1.8" fill="none"/>
             </g>
-            <text x="32" y="58" font-size="8" font-weight="900" text-anchor="middle" fill="#c084fc" letter-spacing="0.5">STAR</text>
+            <text x="32" y="56" font-size="8.5" font-weight="900" text-anchor="middle" fill="#c084fc" letter-spacing="0.5">STAR</text>
           </svg>
         </button>
 
@@ -174,32 +197,19 @@
                 <stop offset="100%" stop-color="#ffffff"/>
               </linearGradient>
             </defs>
-            <path d="M12 48 C 20 28, 36 14, 54 10 C 42 22, 26 38, 12 48 Z" fill="url(#slashGlow)"/>
-            <path d="M14 46 C 22 28, 38 16, 52 12" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <line x1="8" y1="54" x2="15" y2="45" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
-            <circle cx="53" cy="11" r="3" fill="#ffffff"/>
-            <text x="32" y="58" font-size="8.5" font-weight="900" text-anchor="middle" fill="#fbbf24" letter-spacing="1">SLASH</text>
+            <path d="M12 44 C 20 26, 36 14, 52 10 C 40 22, 26 36, 12 44 Z" fill="url(#slashGlow)"/>
+            <path d="M14 42 C 22 26, 38 16, 50 12" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <line x1="8" y1="50" x2="15" y2="42" stroke="#f8fafc" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="51" cy="11" r="2.5" fill="#ffffff"/>
+            <text x="32" y="56" font-size="9" font-weight="900" text-anchor="middle" fill="#fbbf24" letter-spacing="1">SLASH</text>
           </svg>
         </button>
 
-        <!-- Acrobat Jump Button -->
+        <!-- Acrobat Jump Button (Emerald Green - Inspired by Oops!) -->
         <button id="touch-jump" class="touch-btn action-btn jump-btn" aria-label="Jump" title="Jump / Double Jump">
-          <svg viewBox="0 0 64 64" width="48" height="48" class="btn-icon">
-            <defs>
-              <linearGradient id="jumpGlow" x1="0%" y1="100%" x2="0%" y2="0%">
-                <stop offset="0%" stop-color="#0284c7"/>
-                <stop offset="100%" stop-color="#38bdf8"/>
-              </linearGradient>
-            </defs>
-            <path d="M32 6 L22 16 L27 16 L27 20 L37 20 L37 16 L42 16 Z" fill="url(#jumpGlow)"/>
-            <ellipse cx="32" cy="24" rx="11" ry="4" fill="#f8fafc"/>
-            <circle cx="32" cy="25" r="4.5" fill="#f8fafc"/>
-            <rect x="31" y="24" width="4" height="2" fill="#38bdf8"/>
-            <path d="M26 29 L38 29 L41 38 L32 36 L23 38 Z" fill="#f8fafc"/>
-            <path d="M23 37 L16 45 L20 48 L27 41 Z" fill="#f8fafc"/>
-            <path d="M41 37 L48 45 L44 48 L37 41 Z" fill="#f8fafc"/>
-            <path d="M26 28 Q 16 32, 14 44 Q 19 36, 28 30 Z" fill="#ef4444"/>
-            <text x="32" y="58" font-size="9" font-weight="900" text-anchor="middle" fill="#38bdf8" letter-spacing="1">JUMP</text>
+          <svg viewBox="0 0 64 64" width="52" height="52" class="btn-icon">
+            <polygon points="32,8 16,28 26,28 26,38 38,38 38,28 48,28" fill="#ffffff"/>
+            <text x="32" y="54" font-size="9.5" font-weight="900" text-anchor="middle" fill="#ffffff" letter-spacing="1">JUMP</text>
           </svg>
         </button>
       </div>

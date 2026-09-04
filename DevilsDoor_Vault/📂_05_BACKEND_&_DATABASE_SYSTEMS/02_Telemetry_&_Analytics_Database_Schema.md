@@ -1,17 +1,3 @@
----
-title: "Telemetry & Analytics Database Architecture"
-aliases: ["Analytics Database", "Death Heatmap Schema", "Telemetry DB"]
-tags:
-  - backend
-  - database
-  - analytics
-  - telemetry
-  - sql
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 📊 Telemetry & Analytics Database Architecture
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

@@ -71,10 +71,10 @@ export class NinjaArashiRenderer {
 
   _loadBackgroundAssets() {
     const bgList = {
-      sunset_torii: './src/assets/backgrounds/scene_01_sunset_torii.jpg',
-      moonlight_ruins: './src/assets/backgrounds/scene_02_moonlight_ruins.jpg',
-      scythe_chasm: './src/assets/backgrounds/scene_03_scythe_chasm.jpg',
-      crystal_abyss: './src/assets/backgrounds/scene_04_crystal_abyss.jpg'
+      sunset_torii: '/src/assets/backgrounds/scene_01_sunset_torii.jpg',
+      moonlight_ruins: '/src/assets/backgrounds/scene_02_moonlight_ruins.jpg',
+      scythe_chasm: '/src/assets/backgrounds/scene_03_scythe_chasm.jpg',
+      crystal_abyss: '/src/assets/backgrounds/scene_04_crystal_abyss.jpg'
     };
 
     if (typeof Image !== 'undefined') {

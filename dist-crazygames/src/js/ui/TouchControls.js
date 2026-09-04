@@ -25,6 +25,9 @@ export class TouchControls {
       const handlePress = (e) => {
         if (e.cancelable) e.preventDefault();
         btn.classList.add('active');
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          try { navigator.vibrate(12); } catch (_) {}
+        }
         this.inputManager.setTouchButton(btnName, true, true);
       };
 

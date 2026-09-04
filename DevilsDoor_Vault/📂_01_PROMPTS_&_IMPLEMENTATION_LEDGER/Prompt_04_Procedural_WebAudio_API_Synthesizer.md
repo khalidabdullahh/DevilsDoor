@@ -1,15 +1,3 @@
----
-title: "Prompt 04: Zero-Asset Procedural Web Audio API Synthesizer"
-aliases: ["Prompt 04", "Audio Synthesizer"]
-tags:
-  - prompt-log
-  - audio
-  - webaudio
-  - project/devils-door
-created: 2026-09-02
-status: completed
----
-
 # 📝 Prompt 04: Zero-Asset Procedural Web Audio API Synthesizer (0 KB Assets)
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

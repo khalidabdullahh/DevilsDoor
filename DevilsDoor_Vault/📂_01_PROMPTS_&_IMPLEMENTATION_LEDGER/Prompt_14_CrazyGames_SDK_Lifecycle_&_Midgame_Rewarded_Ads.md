@@ -1,16 +1,3 @@
----
-title: "Prompt 14: CrazyGames SDK Lifecycle & Midgame/Rewarded Ads"
-aliases: ["Prompt 14", "Ad Monetization"]
-tags:
-  - prompt-log
-  - monetization
-  - crazygames
-  - ads
-  - project/devils-door
-created: 2026-09-04
-status: completed
----
-
 # 📝 Prompt 14: CrazyGames SDK Lifecycle & Midgame/Rewarded Ads
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

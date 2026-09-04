@@ -1,15 +1,3 @@
----
-title: "Architecture Decision Records (ADRs)"
-aliases: ["ADR Ledger", "ADR Specs"]
-tags:
-  - architecture
-  - adr
-  - decisions
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 📋 Architecture Decision Records (ADRs)
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]

@@ -1,26 +1,12 @@
----
-title: "Implementation Plan 06: Landing Page to Hero Selection UX Flow"
-aliases: ["Plan 06", "UX Flow Plan"]
-tags:
-  - implementation-plan
-  - ui-ux
-  - character-select
-  - mobile
-  - project/devils-door
-created: 2026-09-03
-status: completed
-related_prompts:
-  - "[[Prompt_07_Landing_Page_to_Character_Select_Navigation_Flow]]"
-  - "[[Prompt_12_Mobile_Touch_Controls_Virtual_Joystick_&_Orientation_Safety]]"
-  - "[[Prompt_13_In_Game_Shinobi_Quick_Switcher_&_HUD_Overlay]]"
----
-
 # 📐 Implementation Plan 06 — Landing Page → Character Selection → Endless Run UX Flow
 
-> **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  
-> **Related Prompts**: [[Prompt_07_Landing_Page_to_Character_Select_Navigation_Flow]], [[Prompt_12_Mobile_Touch_Controls_Virtual_Joystick_&_Orientation_Safety]], [[Prompt_13_In_Game_Shinobi_Quick_Switcher_&_HUD_Overlay]]
+> [!INFO] ⛩️ **DEVIL'S DOOR ARCHIVAL VAULT** · `MILESTONE PLAN 06`
+> **Status**: `COMPLETED` 🟢 · **Target Version**: `v2.1.0` · **Maintainer**: `Khalid Abdullah`  
+> **Direct Navigation**: [[⛩️_00_MASTER_INDEX|⛩️ Master Hub]] · **Prompt Ledger**: [[Prompt_07_Landing_Page_to_Character_Select_Navigation_Flow|📝 Prompt 07]] · [[Prompt_12_Mobile_Touch_Controls_Virtual_Joystick_&_Orientation_Safety|📝 Prompt 12]] · [[Prompt_13_In_Game_Shinobi_Quick_Switcher_&_HUD_Overlay|📝 Prompt 13]]  
+> **Tags**: `#project/devils-door` `#ui-ux` `#character-select` `#mobile` `#v2-1`
 
 ---
+
 
 ## 🎯 1. Goal & Architectural Scope
 

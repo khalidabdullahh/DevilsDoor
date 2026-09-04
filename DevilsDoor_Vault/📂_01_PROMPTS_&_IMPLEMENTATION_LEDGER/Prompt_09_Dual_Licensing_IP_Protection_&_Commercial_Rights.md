@@ -1,16 +1,3 @@
----
-title: "Prompt 09: Dual-Licensing Architecture & Commercial IP Protection"
-aliases: ["Prompt 09", "IP Protection"]
-tags:
-  - prompt-log
-  - legal
-  - licensing
-  - ip-protection
-  - project/devils-door
-created: 2026-09-04
-status: completed
----
-
 # 📝 Prompt 09: Dual-Licensing Architecture & Commercial IP Protection
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

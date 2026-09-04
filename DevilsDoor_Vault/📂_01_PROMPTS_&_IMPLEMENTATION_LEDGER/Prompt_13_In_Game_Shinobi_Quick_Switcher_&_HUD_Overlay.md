@@ -1,15 +1,3 @@
----
-title: "Prompt 13: In-Game Shinobi Quick-Switcher & HUD Overlay"
-aliases: ["Prompt 13", "Shinobi Switcher"]
-tags:
-  - prompt-log
-  - ui
-  - hud
-  - project/devils-door
-created: 2026-09-03
-status: completed
----
-
 # 📝 Prompt 13: In-Game Shinobi Quick-Switcher & Real-Time HUD Overlay
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

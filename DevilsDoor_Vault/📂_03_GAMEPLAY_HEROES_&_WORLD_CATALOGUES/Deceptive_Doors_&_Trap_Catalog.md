@@ -1,15 +1,3 @@
----
-title: "Deceptive Doors & Environmental Traps Catalog"
-aliases: ["Traps Catalog", "Door Variants"]
-tags:
-  - gameplay
-  - mechanics
-  - traps
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 🚪 Deceptive Doors & Environmental Traps Catalog
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  

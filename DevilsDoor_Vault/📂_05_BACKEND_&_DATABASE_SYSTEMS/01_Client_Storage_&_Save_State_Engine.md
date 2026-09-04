@@ -1,16 +1,3 @@
----
-title: "Client-Side Storage & Save State Engine"
-aliases: ["Save State Engine", "LocalStorage Schema", "IndexedDB"]
-tags:
-  - backend
-  - database
-  - storage
-  - localstorage
-  - project/devils-door
-created: 2026-09-04
-status: active
----
-
 # 💾 Client-Side Storage & Player Save State Engine
 
 > **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  
