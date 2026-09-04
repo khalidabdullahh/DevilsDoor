@@ -1,8 +1,8 @@
 {
   "name": "devils-door",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "module",
-  "description": "DEVIL'S DOOR v2.0 — Endless Dark Fantasy Ninja Action-Platformer. Procedural chunks, 3-minute dynamic biome cycles, and high-octane shadow combat. Created by Khalid Abdullah.",
+  "description": "DEVIL'S DOOR v2.1 — 4K Dark Fantasy Ninja Action-Platformer with 4 official 4K realms, 4 legendary playable shinobis, locked realm selection, and cross-device zero-blur rendering. Created by Khalid Abdullah.",
   "main": "src/index.html",
   "scripts": {
     "dev": "python3 -m http.server 8080",

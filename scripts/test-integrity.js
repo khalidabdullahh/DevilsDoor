@@ -107,11 +107,11 @@ console.log('\n🧪 4. Testing EndlessWorld Procedural Engine:');
 
 import { EndlessWorld } from '../src/js/levels/EndlessWorld.js';
 
-const endlessInstance = new EndlessWorld();
+const endlessInstance = new EndlessWorld('sunset_torii');
 assert(endlessInstance.id === 'endless_v2', 'EndlessWorld instantiates with correct v2 id');
 assert(endlessInstance.solids.length > 0, 'EndlessWorld contains initial platform chunks');
-assert(endlessInstance.BIOME_CYCLE.length >= 5, 'EndlessWorld cycles across signature biomes');
-assert(endlessInstance.BIOME_DURATION === 180, 'EndlessWorld 3-minute biome duration configured');
+assert(endlessInstance.BIOME_CYCLE.length === 4, 'EndlessWorld configured with 4 official 4K realms');
+assert(endlessInstance.BIOME_DURATION === Infinity, 'EndlessWorld locked to player-selected realm');
 
 // Check Initial Generation Distance
 assert(endlessInstance.generatedDistance > 2000, `EndlessWorld pre-generates ahead (${endlessInstance.generatedDistance}px)`);
@@ -119,3 +119,4 @@ assert(endlessInstance.generatedDistance > 2000, `EndlessWorld pre-generates ahe
 console.log(`\n============================================================`);
 console.log(`🎉 Integrity Checks Finished: ${passedChecks}/${totalChecks} PASSED.`);
 console.log(`============================================================\n`);
+

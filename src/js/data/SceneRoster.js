@@ -1,72 +1,51 @@
 /**
- * SceneRoster — Official Selectable Stages & Realms for Devil's Door.
- * Mapped directly from the authentic 16 Archive reference scenes.
+ * SceneRoster — Official Selectable Stages & 4K Realms for Devil's Door v2.1.
+ * High-definition cinematic realms with zero quality drop across all devices.
  */
 export const SCENE_ROSTER = [
   {
-    id: 'sunset',
+    id: 'sunset_torii',
     number: 'REALM I',
-    name: 'SUNSET FORTRESS',
-    subtitle: 'Pagodas, Torii Gates & Crimson Twilight',
-    description: 'Traverse multi-tier Japanese pagoda castles and sacred Torii gates under a radiant sunset sky.',
-    image: '/src/assets/backgrounds/sunset.jpg',
+    name: 'SUNSET SANCTUARY',
+    subtitle: 'Torii Shrine, Sacred Lake & Crimson Twilight',
+    description: 'Traverse sacred water Torii portals and ancient stone paths under a radiant sunset sky and Mount Fuji silhouette.',
+    image: '/src/assets/backgrounds/scene_01_sunset_torii.jpg',
     accentColor: '#ef4444',
-    glowColor: 'rgba(239, 68, 68, 0.45)',
+    glowColor: 'rgba(239, 68, 68, 0.5)',
     hazards: 'Spike pits, hanging lanterns, archer sentries'
   },
   {
-    id: 'snow',
+    id: 'moonlight_ruins',
     number: 'REALM II',
-    name: 'FROZEN ABYSS',
-    subtitle: 'Demon Pillars & Snow-Capped Ledges',
-    description: 'Leap across icy snow blankets, dripping icicles, bare winter trees, and carved stone Oni pillars.',
-    image: '/src/assets/backgrounds/snow_oni.jpg',
-    accentColor: '#38bdf8',
-    glowColor: 'rgba(56, 189, 248, 0.45)',
-    hazards: 'Slippery snow ledges, Oni guards, embedded spears'
+    name: 'MOONLIGHT CITADEL',
+    subtitle: 'Spectral Pagoda Ruins & Cyan Mist',
+    description: 'Leap across towering nocturnal pagoda castles and crumbling temple arches enveloped in spectral cyan fog.',
+    image: '/src/assets/backgrounds/scene_02_moonlight_ruins.jpg',
+    accentColor: '#06b6d4',
+    glowColor: 'rgba(6, 182, 212, 0.5)',
+    hazards: 'Tower chasms, spectral sentries, crumbling stone'
   },
   {
-    id: 'bamboo',
+    id: 'scythe_chasm',
     number: 'REALM III',
-    name: 'BAMBOO GROVE',
-    subtitle: 'Emerald Mist & Vertical Stalks',
-    description: 'Sprint through dense bamboo stalks and swing across high rope bridges in emerald green fog.',
-    image: '/src/assets/backgrounds/bamboo.jpg',
+    name: 'SHADOW SCYTHE GROVE',
+    subtitle: 'Swinging Pendulum Scythes & Emerald Forest',
+    description: 'Sprint through an ominous mist forest dodging giant swinging chain-scythe guillotine blades across mossy crags.',
+    image: '/src/assets/backgrounds/scene_03_scythe_chasm.jpg',
     accentColor: '#10b981',
-    glowColor: 'rgba(16, 185, 129, 0.45)',
-    hazards: 'Swinging crescent axes, spiky red demon tentacles'
+    glowColor: 'rgba(16, 185, 129, 0.5)',
+    hazards: 'Swinging chain-scythes, deep abyssal pits'
   },
   {
-    id: 'thorns',
+    id: 'crystal_abyss',
     number: 'REALM IV',
-    name: 'THORN CRYPTS',
-    subtitle: 'Castle Rooftops & Skull Saw Gears',
-    description: 'Navigate ancient Japanese castle rooftops while dodging giant spinning red skull-saw wheels.',
-    image: '/src/assets/backgrounds/thorns.jpg',
-    accentColor: '#c084fc',
-    glowColor: 'rgba(192, 132, 252, 0.45)',
-    hazards: 'Giant skull-saw gears, thorny demon tendrils'
-  },
-  {
-    id: 'waterfall',
-    number: 'REALM V',
-    name: 'SKY WATERFALL',
-    subtitle: 'Turquoise Mist & Cascading Falls',
-    description: 'Ascend misty vertical waterfall chasms and dodge spiked wooden barricades in turquoise skies.',
-    image: '/src/assets/backgrounds/waterfall.jpg',
-    accentColor: '#2dd4bf',
-    glowColor: 'rgba(45, 212, 191, 0.45)',
-    hazards: 'Misty chasms, falling water surges, spike traps'
-  },
-  {
-    id: 'ruins',
-    number: 'REALM VI',
-    name: 'ANCIENT RUINS',
-    subtitle: 'Obelisks, Glowing Shrines & Sunken Chests',
-    description: 'Explore crumbling stone temple ruins with glowing cyan obelisks, hanging lanterns, and rivers.',
-    image: '/src/assets/backgrounds/ruins.jpg',
-    accentColor: '#fbbf24',
-    glowColor: 'rgba(251, 191, 36, 0.45)',
-    hazards: 'Runic stone blocks, pendulum blades, deep rivers'
+    name: 'RUBY CRYSTAL ABYSS',
+    subtitle: 'Glowing Ruby Crystals & Obsidian Crags',
+    description: 'Navigate vertical dark obsidian cliffs studded with glowing blood-red ruby crystal clusters over a deep smoking chasm.',
+    image: '/src/assets/backgrounds/scene_04_crystal_abyss.jpg',
+    accentColor: '#f43f5e',
+    glowColor: 'rgba(244, 63, 94, 0.5)',
+    hazards: 'Razor crystal spikes, volcanic heat plumes'
   }
 ];
+
