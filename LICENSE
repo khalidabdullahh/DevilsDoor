@@ -1,6 +1,14 @@
-MIT License
+DEVIL'S DOOR — DUAL LICENSING & INTELLECTUAL PROPERTY POLICY
 
-Copyright (c) 2026 Khalid Abdullah (Aurex)
+Copyright (c) 2026 Khalid Abdullah. All Rights Reserved.
+
+DEVIL'S DOOR is distributed under a Dual-License model to foster open-source development, community contributions, and technical learning while strictly protecting the game's original intellectual property, brand trademarks, artistic assets, narrative lore, and character roster.
+
+================================================================================
+PART 1: SOURCE CODE & GAMEPLAY ENGINE (MIT LICENSE)
+================================================================================
+
+The underlying source code, gameplay engine, procedural chunk algorithms, rendering logic, physics integration, and technical framework (located in `/src/js/`, `/scripts/`, and accompanying programmatic files) are licensed under the MIT License:
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +27,40 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+================================================================================
+PART 2: PROPRIETARY GAME ASSETS, ARTWORK, CHARACTERS, LORE & TRADEMARKS
+(ALL RIGHTS RESERVED — COPYRIGHT © 2026 KHALID ABDULLAH)
+================================================================================
+
+All non-code creative assets, branding, narrative content, and artistic materials are the exclusive PROPRIETARY property of Khalid Abdullah. This includes, but is not limited to:
+
+1. TRADEMARKS & BRAND IDENTITY:
+   - The game title "DEVIL'S DOOR", the studio imprint "Aurex", official logos, slogans ("Reach the door. Trust nothing."), typography treatments, and UI badges.
+
+2. ARTWORK & SCENERY ASSETS:
+   - All 4K background artwork, environment illustrations, scenery textures, and matte paintings located in `/src/assets/backgrounds/`, `/website/assets/backgrounds/`, `/Archive/`, and associated directories.
+
+3. CHARACTER ROSTER & VISUAL DESIGNS:
+   - All character designs, sprites, silhouettes, names, backstories, and signatures for:
+     * #01 Shadow Ninja (Protagonist)
+     * #02 Shadow Ronin (Elite Swordsman)
+     * #03 Oni Warrior / Oni Guard (Heavy Brute)
+     * #04 Cursed Monk (Spectral Sorcerer)
+     * #05 Crimson Assassin (Shadow Stalker)
+     * #06 Shadow Entity (Void Boss Encounter)
+   - The contents of `character.zip` and all derivative character artwork.
+
+4. AUDIO & SOUND EFFECTS:
+   - All procedural synthesizer audio patches, sound effects, blade clashes, ambient drones, and acoustic designs.
+
+5. NARRATIVE, STAGE DESIGN & LORE:
+   - All worldbuilding, dialogue, realm descriptions, lore bibles, and game design documentation.
+
+RESERVATION OF RIGHTS:
+These proprietary assets may NOT be redistributed, resold, sublicensed, repurposed in commercial products, rebranded, or hosted on commercial game portals/stores for profit without express prior written permission from Khalid Abdullah.
+
+For commercial licensing, publishing inquiries, or distribution partnerships, please contact:
+Founder & Creator: Khalid Abdullah
+GitHub: https://github.com/khalidabdullahh
+Website: https://devils-door.vercel.app

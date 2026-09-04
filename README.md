@@ -163,8 +163,18 @@ npx serve .
 
 ---
 
+## 📜 Intellectual Property, Copyright & Dual Licensing
+
+**Devil's Door** is operated under a **Dual-License Model** designed to foster open development while protecting original intellectual property:
+
+1. **Open-Source Engine & Codebase**: The underlying source code, physics systems, procedural chunk generators, and renderer engine are open source under the **[MIT License](LICENSE)**.
+2. **Proprietary Game Assets & Intellectual Property**: The brand name **"DEVIL'S DOOR"**, the **"Aurex"** studio imprint, all **4K background scenery artworks**, character rosters (**#01 to #06**), lore, dialogue, and procedural audio designs are **Copyright © 2026 [Khalid Abdullah](https://github.com/khalidabdullahh). All Rights Reserved.**
+   - Commercial reproduction, unauthorized rebranding, or commercial re-distribution of the artwork and brand assets is strictly prohibited without prior written consent from the author.
+
+---
+
 ## 👥 Governance & Maintainers
 
-- **Founder & Lead Engineer**: [Khalid Abdullah](https://github.com/khalidabdullahh)
-- **Engine**: Devil's Door 2.5D Canvas Engine
-- **License**: [MIT](LICENSE)
+- **Founder, Creator & Lead Engineer**: [Khalid Abdullah](https://github.com/khalidabdullahh)
+- **Engine Architecture**: Devil's Door 2.5D Canvas Engine
+- **License**: [Dual-Licensed (MIT Engine + Proprietary IP & Assets)](LICENSE)
