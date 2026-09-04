@@ -354,20 +354,13 @@ export class NinjaArashiRenderer {
   _drawAtmosphericParticles(ctx, biome, w, h) {
     if (!this.particles || this.particles.length === 0) return;
 
-    ctx.save();
+    // Snowfall removed per user request
     if (biome === 'snow') {
-      ctx.fillStyle = 'rgba(248, 250, 252, 0.75)';
-      ctx.beginPath();
-      for (const p of this.particles) {
-        p.x += p.vx * 0.016;
-        p.y += p.vy * 0.016;
-        if (p.x < -60) p.x = w + 60;
-        if (p.y > h + 60) p.y = -60;
-        ctx.moveTo(p.x + p.size * 0.7, p.y);
-        ctx.arc(p.x, p.y, p.size * 0.7, 0, Math.PI * 2);
-      }
-      ctx.fill();
-    } else if (biome === 'bamboo') {
+      return;
+    }
+
+    ctx.save();
+    if (biome === 'bamboo') {
       ctx.fillStyle = 'rgba(52, 211, 153, 0.65)';
       ctx.beginPath();
       for (const p of this.particles) {
