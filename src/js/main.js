@@ -8,14 +8,14 @@ import { OrientationManager } from './ui/OrientationManager.js';
 import { Game } from './core/Game.js';
 
 /**
- * Main Bootstrap — Initializes Devil's Door v2.0: Endless Dark Fantasy Action-Platformer.
+ * Main Bootstrap — Initializes Devil's Door v2.1: 4K Dark Fantasy Action-Platformer.
  * Flow:
  * 1. Initialize Subsystems (Input, Audio, Touch, UI, Orientation).
  * 2. Initialize Scene/Realm Selection UI.
  * 3. Initialize Settings Modal.
  * 4. On [ ENTER REALM / START RUN ], launch Endless Domain gameplay loop.
  */
-window.addEventListener('DOMContentLoaded', () => {
+function bootGame() {
   const canvas = document.getElementById('game-canvas');
   if (!canvas) return;
 
@@ -47,8 +47,25 @@ window.addEventListener('DOMContentLoaded', () => {
 
   try {
     game.init(sceneSelect, settingsModal);
-    console.log('🚪 [DEVIL\'S DOOR v2.0] Endless Platformer & Scene Selection Online.');
+    console.log('🚪 [DEVIL\'S DOOR v2.1] Endless Platformer & 4K Scene Selection Online.');
   } catch (err) {
     console.error('❌ [DEVIL\'S DOOR] Failed to initialize Game:', err);
+    if (uiManager) uiManager.hideLoading();
   }
-});
+}
+
+// Safety timeout: Guarantee loader removal within 1.2s under any network condition
+setTimeout(() => {
+  const loader = document.getElementById('loading-overlay');
+  if (loader && !loader.classList.contains('hidden')) {
+    loader.classList.add('fade-out');
+    setTimeout(() => loader.classList.add('hidden'), 350);
+  }
+}, 1200);
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootGame);
+} else {
+  bootGame();
+}
+

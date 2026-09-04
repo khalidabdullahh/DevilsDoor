@@ -157,14 +157,12 @@ export class UIManager {
     const deckRealm = document.getElementById('deck-realm-name');
     if (deckRealm) {
       const names = {
-        sunset: 'SUNSET FORTRESS',
-        snow: 'FROZEN ABYSS',
-        bamboo: 'BAMBOO GROVE',
-        thorns: 'THORN CRYPTS',
-        waterfall: 'SKY WATERFALL',
-        ruins: 'ANCIENT RUINS'
+        sunset_torii: 'SUNSET SANCTUARY',
+        moonlight_ruins: 'MOONLIGHT CITADEL',
+        scythe_chasm: 'SHADOW SCYTHE GROVE',
+        crystal_abyss: 'RUBY CRYSTAL ABYSS'
       };
-      deckRealm.textContent = `SHADOW RONIN ⚡ ${names[biome] || 'ENDLESS RUN'}`;
+      deckRealm.textContent = `DEVIL'S DOOR ⚡ ${names[biome] || '4K REALM'}`;
     }
 
     let dotsHtml = '';

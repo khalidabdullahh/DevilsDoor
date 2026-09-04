@@ -71,18 +71,10 @@ export class NinjaArashiRenderer {
 
   _loadBackgroundAssets() {
     const bgList = {
-      sunset: './src/assets/backgrounds/sunset.jpg',
-      snow: './src/assets/backgrounds/snow.jpg',
-      snow_oni: './src/assets/backgrounds/snow_oni.jpg',
-      bamboo: './src/assets/backgrounds/bamboo.jpg',
-      bamboo_spikes: './src/assets/backgrounds/bamboo_spikes.jpg',
-      thorns: './src/assets/backgrounds/thorns.jpg',
-      rooftops: './src/assets/backgrounds/rooftops.jpg',
-      waterfall: './src/assets/backgrounds/waterfall.jpg',
-      waterfall_wide: './src/assets/backgrounds/waterfall_wide.jpg',
-      ruins: './src/assets/backgrounds/ruins.jpg',
-      river: './src/assets/backgrounds/river.jpg',
-      behemoth: './src/assets/backgrounds/behemoth.jpg'
+      sunset_torii: './src/assets/backgrounds/scene_01_sunset_torii.jpg',
+      moonlight_ruins: './src/assets/backgrounds/scene_02_moonlight_ruins.jpg',
+      scythe_chasm: './src/assets/backgrounds/scene_03_scythe_chasm.jpg',
+      crystal_abyss: './src/assets/backgrounds/scene_04_crystal_abyss.jpg'
     };
 
     if (typeof Image !== 'undefined') {
@@ -235,22 +227,18 @@ export class NinjaArashiRenderer {
   }
 
   _drawArchiveSceneBackdrop(ctx, biome, camX, camY, w, h) {
-    let imgKey = 'sunset';
+    let imgKey = 'sunset_torii';
     if (this.bgImages[biome]) {
       imgKey = biome;
-    } else if (biome === 'snow') {
-      imgKey = 'snow_oni';
-    } else if (biome === 'bamboo') {
-      imgKey = 'bamboo';
-    } else if (biome === 'thorns') {
-      imgKey = 'thorns';
-    } else if (biome === 'waterfall') {
-      imgKey = 'waterfall';
-    } else if (biome === 'ruins') {
-      imgKey = 'ruins';
+    } else if (biome.includes('moonlight') || biome.includes('ruins')) {
+      imgKey = 'moonlight_ruins';
+    } else if (biome.includes('scythe') || biome.includes('bamboo')) {
+      imgKey = 'scythe_chasm';
+    } else if (biome.includes('crystal') || biome.includes('thorns')) {
+      imgKey = 'crystal_abyss';
     }
 
-    const mips = this.bgImages[imgKey] || this.bgImages.sunset;
+    const mips = this.bgImages[imgKey] || this.bgImages.sunset_torii;
     if (!mips) return;
 
     // Select the optimal pre-filtered mip level based on physical render height
@@ -262,8 +250,8 @@ export class NinjaArashiRenderer {
       bgImg = mips['2k'];
     }
 
-    const naturalW = bgImg.naturalWidth || bgImg.width || 3840;
-    const naturalH = bgImg.naturalHeight || bgImg.height || 2160;
+    const naturalW = bgImg.naturalWidth || bgImg.width || 2752;
+    const naturalH = bgImg.naturalHeight || bgImg.height || 1536;
 
     if (bgImg && naturalW > 0) {
       const parallaxFactor = 0.12;
@@ -289,22 +277,22 @@ export class NinjaArashiRenderer {
     } else {
       // Fallback solid gradient
       const grad = ctx.createLinearGradient(0, 0, 0, h);
-      if (biome === 'snow') {
-        grad.addColorStop(0, '#0c1a2e');
-        grad.addColorStop(0.5, '#1e293b');
-        grad.addColorStop(1, '#07090e');
-      } else if (biome === 'bamboo') {
-        grad.addColorStop(0, '#052e16');
-        grad.addColorStop(0.5, '#064e3b');
-        grad.addColorStop(1, '#07090e');
-      } else if (biome === 'thorns') {
-        grad.addColorStop(0, '#3b0764');
-        grad.addColorStop(0.5, '#581c87');
-        grad.addColorStop(1, '#07090e');
+      if (biome === 'moonlight_ruins') {
+        grad.addColorStop(0, '#083344');
+        grad.addColorStop(0.5, '#0e7490');
+        grad.addColorStop(1, '#05070d');
+      } else if (biome === 'scythe_chasm') {
+        grad.addColorStop(0, '#064e3b');
+        grad.addColorStop(0.5, '#059669');
+        grad.addColorStop(1, '#05070d');
+      } else if (biome === 'crystal_abyss') {
+        grad.addColorStop(0, '#4c0519');
+        grad.addColorStop(0.5, '#be123c');
+        grad.addColorStop(1, '#05070d');
       } else {
         grad.addColorStop(0, '#450a0a');
         grad.addColorStop(0.45, '#7f1d1d');
-        grad.addColorStop(1, '#07090e');
+        grad.addColorStop(1, '#05070d');
       }
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
@@ -313,7 +301,7 @@ export class NinjaArashiRenderer {
 
   _drawParallaxSilhouettes(ctx, biome, scrollX, w, h) {
     ctx.save();
-    ctx.fillStyle = 'rgba(7, 9, 14, 0.75)';
+    ctx.fillStyle = 'rgba(5, 7, 13, 0.75)';
 
     const baseY = 580;
     const spacing = 420;
@@ -324,16 +312,24 @@ export class NinjaArashiRenderer {
       const px = i * spacing - scrollX;
       const type = Math.abs(i) % 3;
 
-      if (biome === 'snow') {
+      if (biome === 'moonlight_ruins') {
+        // Ancient stone pagoda pillars
+        ctx.fillRect(px - 14, baseY - 240, 28, 240);
+        ctx.fillRect(px - 22, baseY - 200, 44, 12);
+        ctx.fillRect(px - 18, baseY - 250, 36, 10);
+      } else if (biome === 'scythe_chasm') {
+        // Dense forest trees
+        ctx.fillRect(px, baseY - 260, 16, 260);
+        ctx.fillRect(px + 24, baseY - 220, 12, 220);
+      } else if (biome === 'crystal_abyss') {
+        // Jagged crystal crags
         ctx.beginPath();
-        ctx.moveTo(px, baseY);
-        ctx.lineTo(px + 12, baseY - 160);
-        ctx.lineTo(px + 24, baseY);
+        ctx.moveTo(px - 30, baseY);
+        ctx.lineTo(px, baseY - 140);
+        ctx.lineTo(px + 25, baseY);
         ctx.fill();
-      } else if (biome === 'bamboo') {
-        ctx.fillRect(px, baseY - 260, 14, 260);
-        ctx.fillRect(px + 24, baseY - 220, 10, 220);
       } else {
+        // Sunset Torii & Shrine rocks
         if (type === 0) {
           ctx.beginPath();
           ctx.moveTo(px - 40, baseY);
@@ -354,37 +350,28 @@ export class NinjaArashiRenderer {
   _drawAtmosphericParticles(ctx, biome, w, h) {
     if (!this.particles || this.particles.length === 0) return;
 
-    // Snowfall removed per user request
-    if (biome === 'snow') {
-      return;
+    ctx.save();
+    if (biome === 'moonlight_ruins') {
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.75)';
+    } else if (biome === 'scythe_chasm') {
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.75)';
+    } else if (biome === 'crystal_abyss') {
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.8)';
+    } else {
+      // sunset_torii
+      ctx.fillStyle = 'rgba(251, 146, 60, 0.8)';
     }
 
-    ctx.save();
-    if (biome === 'bamboo') {
-      ctx.fillStyle = 'rgba(52, 211, 153, 0.65)';
-      ctx.beginPath();
-      for (const p of this.particles) {
-        p.x += p.vx * 0.016;
-        p.y += p.vy * 0.016;
-        if (p.x < -60) p.x = w + 60;
-        if (p.y > h + 60) p.y = -60;
-        ctx.moveTo(p.x + p.size, p.y);
-        ctx.arc(p.x, p.y, p.size * 0.8, 0, Math.PI * 2);
-      }
-      ctx.fill();
-    } else {
-      ctx.fillStyle = 'rgba(251, 191, 36, 0.75)';
-      ctx.beginPath();
-      for (const p of this.particles) {
-        p.x += p.vx * 0.016;
-        p.y += p.vy * 0.016;
-        if (p.x < -60) p.x = w + 60;
-        if (p.y > h + 60) p.y = -60;
-        ctx.moveTo(p.x + p.size * 0.5, p.y);
-        ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
-      }
-      ctx.fill();
+    ctx.beginPath();
+    for (const p of this.particles) {
+      p.x += p.vx * 0.016;
+      p.y += p.vy * 0.016;
+      if (p.x < -60) p.x = w + 60;
+      if (p.y > h + 60) p.y = -60;
+      ctx.moveTo(p.x + p.size * 0.6, p.y);
+      ctx.arc(p.x, p.y, p.size * 0.6, 0, Math.PI * 2);
     }
+    ctx.fill();
     ctx.restore();
   }
 

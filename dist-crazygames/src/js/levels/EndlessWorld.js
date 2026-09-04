@@ -11,16 +11,16 @@ import { OniBossEnemy } from '../entities/OniBossEnemy.js';
  * - Oni Stone Pillars holding platforms, dead trees, embedded weapons
  */
 export class EndlessWorld {
-  constructor(initialBiome = 'sunset') {
+  constructor(initialBiome = 'sunset_torii') {
     this.title = "Devil's Endless Descent";
     this.id = 'endless_v2';
 
-    // Biome Sequence (Every 180s = 3 minutes across all 16 Archive scenes)
-    this.BIOME_CYCLE = ['sunset', 'snow', 'bamboo', 'thorns', 'waterfall', 'ruins'];
+    // Official 4K Realms - Locked to player's selection
+    this.BIOME_CYCLE = ['sunset_torii', 'moonlight_ruins', 'scythe_chasm', 'crystal_abyss'];
     this.biomeIndex = Math.max(0, this.BIOME_CYCLE.indexOf(initialBiome));
-    this.biome = this.BIOME_CYCLE[this.biomeIndex] || 'sunset';
+    this.biome = this.BIOME_CYCLE[this.biomeIndex] || 'sunset_torii';
     this.biomeTimer = 0;
-    this.BIOME_DURATION = 180;
+    this.BIOME_DURATION = Infinity; // Remains locked to selected realm throughout run
 
     // Collections
     this.solids = [];
@@ -79,14 +79,7 @@ export class EndlessWorld {
   }
 
   update(dt, player, audio, camera) {
-    this.biomeTimer += dt;
-    if (this.biomeTimer >= this.BIOME_DURATION) {
-      this.biomeTimer = 0;
-      this.biomeIndex = (this.biomeIndex + 1) % this.BIOME_CYCLE.length;
-      this.biome = this.BIOME_CYCLE[this.biomeIndex];
-      if (camera) camera.addShake(0.3);
-    }
-
+    // Biome stays locked to player selection
     const px = player ? player.x : 0;
     const py = player ? player.y : 0;
 
@@ -619,26 +612,18 @@ export class EndlessWorld {
       ctx.fillStyle = '#05070d';
       ctx.fillRect(sx, sy, s.width, s.height);
 
-      if (this.biome === 'snow') {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(sx - 4, sy - 4, s.width + 8, 14);
-
-        for (let ix = sx + 4; ix < sx + s.width - 4; ix += 18) {
-          ctx.beginPath();
-          ctx.moveTo(ix, sy + 10);
-          ctx.lineTo(ix + 5, sy + 22);
-          ctx.lineTo(ix + 10, sy + 10);
-          ctx.closePath();
-          ctx.fill();
-        }
-      } else if (this.biome === 'bamboo') {
-        ctx.fillStyle = '#059669';
-        ctx.fillRect(sx, sy, s.width, 5);
-      } else if (this.biome === 'thorns') {
-        ctx.fillStyle = '#be123c';
-        ctx.fillRect(sx, sy, s.width, 5);
+      if (this.biome === 'moonlight_ruins') {
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(sx, sy, s.width, 4);
+      } else if (this.biome === 'scythe_chasm') {
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(sx, sy, s.width, 4);
+      } else if (this.biome === 'crystal_abyss') {
+        ctx.fillStyle = '#f43f5e';
+        ctx.fillRect(sx, sy, s.width, 4);
       } else {
-        ctx.fillStyle = '#d97706';
+        // sunset_torii
+        ctx.fillStyle = '#ef4444';
         ctx.fillRect(sx, sy, s.width, 4);
       }
 
