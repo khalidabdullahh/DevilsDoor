@@ -2,7 +2,7 @@ import { AnalyticsManager } from '../core/AnalyticsManager.js';
 
 /**
  * UIManager — High-Polish Mobile-First HUD, Modals, and Player Navigation for Devil's Door.
- * Fully responsive for mobile landscape with zero vertical overflow.
+ * Fully bespoke SVG icons and responsive layout with zero generic emojis.
  */
 export class UIManager {
   constructor(game) {
@@ -18,6 +18,7 @@ export class UIManager {
     this.btnSettings = document.getElementById('btn-settings');
     this.btnRestart = document.getElementById('btn-restart');
     this.btnAudio = document.getElementById('btn-audio');
+    this.audioIcon = document.getElementById('hud-audio-icon');
     this.btnMenu = document.getElementById('btn-menu');
 
     this.modalOverlay = document.getElementById('modal-overlay');
@@ -50,7 +51,9 @@ export class UIManager {
       this.btnAudio.addEventListener('click', () => {
         if (this.game && this.game.audio) {
           const isMuted = this.game.audio.toggleMute();
-          this.btnAudio.textContent = isMuted ? '🔇' : '🔊';
+          if (this.audioIcon) {
+            this.audioIcon.classList.toggle('muted', isMuted);
+          }
         }
       });
     }
@@ -117,11 +120,27 @@ export class UIManager {
       this.highScoreDisplay.textContent = `BEST: ${highScore.toLocaleString()}`;
     }
     if (this.healthDisplay) {
-      let hearts = '';
+      let orbsHtml = '';
       for (let i = 0; i < maxHealth; i++) {
-        hearts += i < health ? '❤️ ' : '🖤 ';
+        const isActive = i < health;
+        orbsHtml += `
+          <div class="vitality-orb-slot ${isActive ? 'active' : 'depleted'}">
+            <svg viewBox="0 0 24 24" class="orb-svg" width="18" height="18">
+              <defs>
+                <radialGradient id="rubyGrad" cx="35%" cy="35%" r="65%">
+                  <stop offset="0%" stop-color="#fca5a5" />
+                  <stop offset="40%" stop-color="#ef4444" />
+                  <stop offset="85%" stop-color="#b91c1c" />
+                  <stop offset="100%" stop-color="#450a0a" />
+                </radialGradient>
+              </defs>
+              <polygon points="12,2 21,8 17,21 7,21 3,8" fill="${isActive ? 'url(#rubyGrad)' : 'rgba(30,41,59,0.7)'}" stroke="${isActive ? '#fecaca' : 'rgba(255,255,255,0.15)'}" stroke-width="1.2" />
+              ${isActive ? '<polygon points="12,4 18,9 15,13 12,9 9,13 6,9" fill="#ffffff" opacity="0.35" />' : ''}
+            </svg>
+          </div>
+        `;
       }
-      this.healthDisplay.textContent = hearts.trim();
+      this.healthDisplay.innerHTML = orbsHtml;
     }
   }
 
@@ -129,7 +148,7 @@ export class UIManager {
     if (this.game) this.game.setPaused(true);
     if (this.modalTitle) this.modalTitle.textContent = 'PAUSED';
     if (this.modalDescription) this.modalDescription.textContent = 'Take breath, shinobi. The endless descent awaits your blade.';
-    if (this.btnModalPrimary) this.btnModalPrimary.textContent = '▶ RESUME';
+    if (this.btnModalPrimary) this.btnModalPrimary.textContent = '▶ RESUME RUN';
     if (this.btnModalSceneSelect) this.btnModalSceneSelect.classList.remove('hidden');
 
     this.primaryAction = () => {

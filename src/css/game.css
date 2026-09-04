@@ -476,7 +476,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Clean, Unified Top HUD Overlay
+   Clean, Unified AAA Action HUD Overlay (Commercial Dark-Fantasy)
    ========================================================================== */
 .hud-overlay {
   position: absolute;
@@ -486,12 +486,13 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: env(safe-area-inset-top, 10px) calc(env(safe-area-inset-right, 18px) + 10px) 8px calc(env(safe-area-inset-left, 18px) + 10px);
+  padding: env(safe-area-inset-top, 10px) calc(env(safe-area-inset-right, 18px) + 10px) 12px calc(env(safe-area-inset-left, 18px) + 10px);
+  background: linear-gradient(180deg, rgba(7, 9, 14, 0.92) 0%, rgba(7, 9, 14, 0.45) 75%, transparent 100%);
   pointer-events: none;
   z-index: 20;
 }
 
-/* Left: Unified Hero Badge with Avatar & Health */
+/* Left: Unified Hero Badge with Avatar & Bespoke Vitality Orbs */
 .hud-left {
   display: flex;
   align-items: center;
@@ -502,25 +503,25 @@ html, body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(10, 15, 26, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(10, 15, 26, 0.9));
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 26px;
   padding: 3px 12px 3px 4px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .hud-avatar-box {
   width: 36px;
   height: 36px;
-  background: rgba(15, 23, 42, 0.95);
+  background: radial-gradient(circle at 40% 40%, #1e293b, #090d16);
   border: 2px solid var(--accent-cyan);
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.45);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
   overflow: hidden;
 }
 
@@ -533,11 +534,34 @@ html, body {
 }
 
 .hud-health-bar {
-  font-size: 0.95rem;
-  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-/* Center: Clean Floating Capsule */
+.vitality-orb-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.vitality-orb-slot.active .orb-svg {
+  filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.9));
+  animation: rubyPulse 3.5s ease-in-out infinite;
+}
+
+.vitality-orb-slot.depleted .orb-svg {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+@keyframes rubyPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* Center: Clean Floating Glass Capsule */
 .hud-center {
   display: flex;
   justify-content: center;
@@ -548,72 +572,94 @@ html, body {
 .hud-capsule {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: rgba(10, 15, 26, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  padding: 5px 16px;
-  border-radius: 24px;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(10, 15, 26, 0.9));
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  padding: 5px 18px;
+  border-radius: 26px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .capsule-metric {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-weight: 800;
   font-size: 0.88rem;
   color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+}
+
+.capsule-svg-icon {
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.5));
 }
 
 .capsule-val {
   font-weight: 900;
+  letter-spacing: 0.04em;
   color: var(--accent-cyan);
 }
 
-.capsule-val.gold {
-  color: var(--accent-gold);
-}
-
 .capsule-val.amber {
-  color: #f59e0b;
+  color: var(--accent-gold);
 }
 
 .capsule-divider {
   width: 1px;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.18);
+  height: 14px;
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Right: Control Buttons */
+/* Right: Bespoke Engraved Metal Control Buttons */
 .hud-right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   pointer-events: auto;
 }
 
 .hud-btn {
-  background: var(--bg-hud);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: radial-gradient(circle at 35% 35%, #1e293b 0%, #0f172a 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
   color: var(--text-primary);
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  font-size: 0.88rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  transition: transform 0.1s ease, border-color 0.2s ease;
+  transition: transform 0.1s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: 0;
 }
 
 .hud-btn:active {
   transform: scale(0.92);
   border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+}
+
+.hud-icon-svg {
+  width: 18px;
+  height: 18px;
+  fill: #f8fafc;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+  pointer-events: none;
+}
+
+#hud-audio-icon.muted .sound-wave-1,
+#hud-audio-icon.muted .sound-wave-2 {
+  display: none !important;
+}
+
+#hud-audio-icon.muted .mute-slash {
+  display: block !important;
 }
 
 /* ==========================================================================
