@@ -55,15 +55,21 @@ export class NinjaArashiRenderer {
 
   resize() {
     if (!this.canvas) return;
-    const dpr = Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 2);
+    const dpr = Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 3);
 
-    // Fixed 16:9 Widescreen Virtual Canvas Coordinates
-    this.width = 1280;
+    const rect = this.canvas.getBoundingClientRect();
+    const cssW = rect.width || (typeof window !== 'undefined' ? window.innerWidth : 1280);
+    const cssH = rect.height || (typeof window !== 'undefined' ? window.innerHeight : 720);
+
+    const aspect = Math.max(1.33, Math.min(2.4, cssW / (cssH || 1)));
+
+    // Standard virtual height 720, width adapted to exact viewport ratio
     this.height = 720;
+    this.width = Math.round(720 * aspect);
     this.dpr = dpr;
 
-    const bufferW = Math.round(1280 * dpr);
-    const bufferH = Math.round(720 * dpr);
+    const bufferW = Math.round(this.width * dpr);
+    const bufferH = Math.round(this.height * dpr);
 
     if (this.canvas.width !== bufferW || this.canvas.height !== bufferH) {
       this.canvas.width = bufferW;

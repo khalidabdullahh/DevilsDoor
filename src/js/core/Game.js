@@ -156,7 +156,7 @@ export class Game {
     this.world.update(dt, this.player, this.audio, this.camera);
 
     // 2. Camera tracking
-    this.camera.update(dt, this.player);
+    this.camera.update(dt, this.player, this.renderer.width, this.renderer.height);
 
     // 3. Update Real-Time Metrics (Meters & Score)
     this.distance = Math.max(this.distance, Math.floor(this.player.x / 10));

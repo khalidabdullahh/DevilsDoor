@@ -45,9 +45,9 @@ export class Camera2D {
     this.targetY = this.y;
   }
 
-  update(dt, player) {
-    this.viewportWidth = 1280;
-    this.viewportHeight = 720;
+  update(dt, player, viewportWidth = 1280, viewportHeight = 720) {
+    this.viewportWidth = viewportWidth || 1280;
+    this.viewportHeight = viewportHeight || 720;
 
     if (player) {
       const pvx = player.vx || 0;
