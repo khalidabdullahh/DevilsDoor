@@ -284,8 +284,8 @@ export class NinjaArashiPlayer {
     // 7. Shurikens
     for (let i = this.shurikens.length - 1; i >= 0; i--) {
       const star = this.shurikens[i];
-      star.update(dt, level, audio);
-      if (star.isDead) this.shurikens.splice(i, 1);
+      star.update(dt, level, audio, camera, this);
+      if (star.isDead || !star.active) this.shurikens.splice(i, 1);
     }
 
     // 8. Ghosts & Sparks
