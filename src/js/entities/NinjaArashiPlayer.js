@@ -28,12 +28,12 @@ export class NinjaArashiPlayer {
     this.diamonds = 0;
     this.score = 0;
 
-    // Movement Speeds
-    this.moveSpeed = 330;
-    this.jumpForce = 460;
-    this.doubleJumpForce = 420;
-    this.gravity = 1180;
-    this.dashSpeed = 750;
+    // Movement Speeds (Fast, athletic Shinobi action)
+    this.moveSpeed = 480;
+    this.jumpForce = 520;
+    this.doubleJumpForce = 480;
+    this.gravity = 1260;
+    this.dashSpeed = 960;
 
     // Movement States
     this.isGrounded = false;
@@ -199,7 +199,7 @@ export class NinjaArashiPlayer {
 
       if (this.dashTimer <= 0) {
         this.isDashing = false;
-        this.vx = this.facing * this.moveSpeed * 0.4;
+        this.vx = this.facing * this.moveSpeed * 0.75;
       }
     } else {
       // 2. Horizontal Movement
@@ -214,7 +214,7 @@ export class NinjaArashiPlayer {
           audio.playFootstep();
         }
       } else {
-        this.vx *= 0.7;
+        this.vx *= 0.65;
         if (Math.abs(this.vx) < 10) this.vx = 0;
       }
 
@@ -227,10 +227,12 @@ export class NinjaArashiPlayer {
         if (camera) camera.addShake(0.25);
       }
 
-      // 4. Shuriken Trigger
+      // 4. Shuriken Trigger (Spawns at hand/chest level, not above head)
       if (input.isShurikenJustPressed() && this.shurikenCooldown <= 0) {
         this.shurikenCooldown = 0.28;
-        const star = new Shuriken(this.x + this.facing * 24, this.y - 12, this.facing * 950, 0);
+        const starX = this.x + (this.facing > 0 ? this.width + 4 : -4);
+        const starY = this.y + 26;
+        const star = new Shuriken(starX, starY, this.facing * 1050, 0);
         this.shurikens.push(star);
         if (audio) audio.playShurikenThrow();
       }

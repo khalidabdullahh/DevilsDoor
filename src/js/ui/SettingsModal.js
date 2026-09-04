@@ -183,9 +183,9 @@ export class SettingsModal {
       this.touchControls.setScale(this.settings.scale);
     }
 
-    // 2. Player Speed
+    // 2. Player Speed (Agile Shinobi sprint)
     if (this.game && this.game.player) {
-      const baseSpeed = 330;
+      const baseSpeed = 480;
       this.game.player.moveSpeed = this.settings.speed === 'turbo' ? baseSpeed * 1.25 : baseSpeed;
     }
 

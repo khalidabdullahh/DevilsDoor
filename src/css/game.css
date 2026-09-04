@@ -541,7 +541,7 @@ html, body {
 }
 
 /* ==========================================================================
-   Clean, Unified AAA Action HUD Overlay (Commercial Dark-Fantasy)
+   Clean, Minimalist AAA Action HUD (Glowing Vitality Dots & Clean Controls)
    ========================================================================== */
 .hud-overlay {
   position: absolute;
@@ -551,131 +551,76 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: env(safe-area-inset-top, 10px) calc(env(safe-area-inset-right, 18px) + 10px) 12px calc(env(safe-area-inset-left, 18px) + 10px);
-  background: linear-gradient(180deg, rgba(7, 9, 14, 0.92) 0%, rgba(7, 9, 14, 0.45) 75%, transparent 100%);
+  padding: env(safe-area-inset-top, 10px) calc(env(safe-area-inset-right, 18px) + 12px) 12px calc(env(safe-area-inset-left, 18px) + 12px);
+  background: linear-gradient(180deg, rgba(7, 9, 14, 0.75) 0%, transparent 100%);
   pointer-events: none;
   z-index: 20;
 }
 
-/* Left: Unified Hero Badge with Avatar & Bespoke Vitality Orbs */
+/* Left: Minimal Glowing Vitality Dots Container */
 .hud-left {
   display: flex;
   align-items: center;
   pointer-events: auto;
 }
 
-.hud-hero-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(10, 15, 26, 0.9));
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-  border-radius: 26px;
-  padding: 3px 12px 3px 4px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-}
-
-.hud-avatar-box {
-  width: 36px;
-  height: 36px;
-  background: radial-gradient(circle at 40% 40%, #1e293b, #090d16);
-  border: 2px solid var(--accent-cyan);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
-  overflow: hidden;
-}
-
-.hud-avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-  transform: scale(1.6) translateY(2px);
-}
-
 .hud-health-bar {
   display: flex;
   align-items: center;
-  gap: 5px;
-}
-
-.vitality-orb-slot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.vitality-orb-slot.active .orb-svg {
-  filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.9));
-  animation: rubyPulse 3.5s ease-in-out infinite;
-}
-
-.vitality-orb-slot.depleted .orb-svg {
-  opacity: 0.35;
-  filter: grayscale(1);
-}
-
-@keyframes rubyPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-}
-
-/* Center: Clean Floating Glass Capsule */
-.hud-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  pointer-events: auto;
-}
-
-.hud-capsule {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(10, 15, 26, 0.9));
+  gap: 9px;
+  background: rgba(12, 17, 29, 0.88);
   border: 1.5px solid rgba(255, 255, 255, 0.2);
-  padding: 5px 18px;
-  border-radius: 26px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  border-radius: 22px;
+  padding: 6px 14px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.capsule-metric {
+.vitality-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  position: relative;
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 6px;
-  font-weight: 800;
-  font-size: 0.88rem;
-  color: #f8fafc;
-  font-variant-numeric: tabular-nums;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.capsule-svg-icon {
-  flex-shrink: 0;
-  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.5));
+.vitality-dot.active {
+  background: radial-gradient(circle at 35% 35%, #fca5a5 0%, #ef4444 45%, #b91c1c 85%, #7f1d1d 100%);
+  border: 1.5px solid #fecaca;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.85), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  animation: dotPulse 3s ease-in-out infinite;
 }
 
-.capsule-val {
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  color: var(--accent-cyan);
+.vitality-dot.depleted {
+  background: radial-gradient(circle at 40% 40%, #1e293b 0%, #090d16 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+  opacity: 0.35;
+  transform: scale(0.88);
 }
 
-.capsule-val.amber {
-  color: var(--accent-gold);
+.vitality-dot .dot-core {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  position: absolute;
+  top: 2px;
+  left: 3px;
 }
 
-.capsule-divider {
-  width: 1px;
-  height: 14px;
-  background: rgba(255, 255, 255, 0.2);
+.vitality-dot.depleted .dot-core {
+  display: none;
+}
+
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.85); }
+  50% { transform: scale(1.12); box-shadow: 0 0 16px rgba(239, 68, 68, 1); }
 }
 
 /* Right: Bespoke Engraved Metal Control Buttons */

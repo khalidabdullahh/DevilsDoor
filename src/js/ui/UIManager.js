@@ -120,27 +120,16 @@ export class UIManager {
       this.highScoreDisplay.textContent = `BEST: ${highScore.toLocaleString()}`;
     }
     if (this.healthDisplay) {
-      let orbsHtml = '';
+      let dotsHtml = '';
       for (let i = 0; i < maxHealth; i++) {
         const isActive = i < health;
-        orbsHtml += `
-          <div class="vitality-orb-slot ${isActive ? 'active' : 'depleted'}">
-            <svg viewBox="0 0 24 24" class="orb-svg" width="18" height="18">
-              <defs>
-                <radialGradient id="rubyGrad" cx="35%" cy="35%" r="65%">
-                  <stop offset="0%" stop-color="#fca5a5" />
-                  <stop offset="40%" stop-color="#ef4444" />
-                  <stop offset="85%" stop-color="#b91c1c" />
-                  <stop offset="100%" stop-color="#450a0a" />
-                </radialGradient>
-              </defs>
-              <polygon points="12,2 21,8 17,21 7,21 3,8" fill="${isActive ? 'url(#rubyGrad)' : 'rgba(30,41,59,0.7)'}" stroke="${isActive ? '#fecaca' : 'rgba(255,255,255,0.15)'}" stroke-width="1.2" />
-              ${isActive ? '<polygon points="12,4 18,9 15,13 12,9 9,13 6,9" fill="#ffffff" opacity="0.35" />' : ''}
-            </svg>
+        dotsHtml += `
+          <div class="vitality-dot ${isActive ? 'active' : 'depleted'}" title="Health: ${health}/${maxHealth}">
+            <span class="dot-core"></span>
           </div>
         `;
       }
-      this.healthDisplay.innerHTML = orbsHtml;
+      this.healthDisplay.innerHTML = dotsHtml;
     }
   }
 
