@@ -1,8 +1,7 @@
 import { AnalyticsManager } from '../core/AnalyticsManager.js';
 
 /**
- * UIManager — Manages HUD elements, meters, score, diamonds, high score,
- * avatar portraits, and game modals for Devil's Door v2.0 Endless Platformer.
+ * UIManager — High-Polish HUD, Modals, and Player Navigation for Devil's Door.
  */
 export class UIManager {
   constructor(game) {
@@ -16,6 +15,7 @@ export class UIManager {
     this.healthDisplay = document.getElementById('health-display');
     this.avatarImg = document.getElementById('hud-avatar-img');
 
+    this.btnSettings = document.getElementById('btn-settings');
     this.btnRestart = document.getElementById('btn-restart');
     this.btnAudio = document.getElementById('btn-audio');
     this.btnMenu = document.getElementById('btn-menu');
@@ -25,7 +25,8 @@ export class UIManager {
     this.modalDescription = document.getElementById('modal-description');
     this.btnModalPrimary = document.getElementById('btn-modal-primary');
     this.btnModalRestart = document.getElementById('btn-modal-restart');
-    this.btnModalCharSelect = document.getElementById('btn-modal-charselect');
+    this.btnModalSceneSelect = document.getElementById('btn-modal-sceneselect');
+    this.btnModalSettings = document.getElementById('btn-modal-settings');
     this.btnModalHome = document.getElementById('btn-modal-home');
 
     this.loadingOverlay = document.getElementById('loading-overlay');
@@ -34,6 +35,12 @@ export class UIManager {
   }
 
   _bindEvents() {
+    if (this.btnSettings) {
+      this.btnSettings.addEventListener('click', () => {
+        if (this.game) this.game.openSettings();
+      });
+    }
+
     if (this.btnRestart) {
       this.btnRestart.addEventListener('click', () => {
         if (this.game) this.game.restartGame();
@@ -70,12 +77,19 @@ export class UIManager {
       });
     }
 
-    if (this.btnModalCharSelect) {
-      this.btnModalCharSelect.addEventListener('click', () => {
-        const charAction = this.charSelectAction;
+    if (this.btnModalSceneSelect) {
+      this.btnModalSceneSelect.addEventListener('click', () => {
+        const sceneAction = this.sceneSelectAction;
         this.hideModal();
-        if (charAction) charAction();
-        else if (this.game) this.game.openCharacterSelect();
+        if (sceneAction) sceneAction();
+        else if (this.game) this.game.openSceneSelect();
+      });
+    }
+
+    if (this.btnModalSettings) {
+      this.btnModalSettings.addEventListener('click', () => {
+        this.hideModal();
+        if (this.game) this.game.openSettings();
       });
     }
 
@@ -105,13 +119,6 @@ export class UIManager {
     if (this.touchControls) this.touchControls.classList.add('hidden');
   }
 
-  updateAvatar(imgSrc, altText = 'Hero') {
-    if (this.avatarImg) {
-      this.avatarImg.src = imgSrc;
-      this.avatarImg.alt = altText;
-    }
-  }
-
   updateEndlessHUD(distance, score, diamonds, highScore, health = 3, maxHealth = 3, biome = 'sunset') {
     if (this.distanceDisplay) {
       this.distanceDisplay.textContent = `${distance.toLocaleString()}m`;
@@ -131,13 +138,13 @@ export class UIManager {
     }
   }
 
-  showPauseModal(onResume, onRestart, onChangeChar) {
+  showPauseModal(onResume, onRestart, onChangeScene) {
     if (this.game) this.game.setPaused(true);
     if (this.modalTitle) this.modalTitle.textContent = 'PAUSED';
     if (this.modalDescription) this.modalDescription.textContent = 'Take breath, shinobi. The endless descent awaits your blade.';
     if (this.btnModalPrimary) this.btnModalPrimary.textContent = 'RESUME';
     if (this.btnModalRestart) this.btnModalRestart.textContent = 'RESTART RUN';
-    if (this.btnModalCharSelect) this.btnModalCharSelect.classList.remove('hidden');
+    if (this.btnModalSceneSelect) this.btnModalSceneSelect.classList.remove('hidden');
 
     this.primaryAction = () => {
       if (this.game) this.game.setPaused(false);
@@ -147,15 +154,15 @@ export class UIManager {
       if (this.game) this.game.restartGame();
       if (onRestart) onRestart();
     };
-    this.charSelectAction = () => {
-      if (this.game) this.game.openCharacterSelect();
-      if (onChangeChar) onChangeChar();
+    this.sceneSelectAction = () => {
+      if (this.game) this.game.openSceneSelect();
+      if (onChangeScene) onChangeScene();
     };
 
     if (this.modalOverlay) this.modalOverlay.classList.remove('hidden');
   }
 
-  showGameOverModal(distance, score, diamonds, highScore, onRestart, onChangeChar) {
+  showGameOverModal(distance, score, diamonds, highScore, onRestart, onChangeScene) {
     if (this.game) this.game.setPaused(true);
 
     const isNewHigh = score >= highScore && score > 0;
@@ -179,9 +186,9 @@ export class UIManager {
       this.btnModalRestart.textContent = 'RETRY RUN';
       this.restartAction = onRestart;
     }
-    if (this.btnModalCharSelect) {
-      this.btnModalCharSelect.classList.remove('hidden');
-      this.charSelectAction = onChangeChar;
+    if (this.btnModalSceneSelect) {
+      this.btnModalSceneSelect.classList.remove('hidden');
+      this.sceneSelectAction = onChangeScene;
     }
 
     if (this.modalOverlay) this.modalOverlay.classList.remove('hidden');

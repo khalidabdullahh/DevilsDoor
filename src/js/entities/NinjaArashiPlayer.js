@@ -219,7 +219,7 @@ export class NinjaArashiPlayer {
       }
 
       // 3. Dash Trigger
-      if (input.isAttack() && this.dashCooldown <= 0) {
+      if (input.isAttackJustPressed() && this.dashCooldown <= 0) {
         this.isDashing = true;
         this.dashTimer = this.dashDuration;
         this.dashCooldown = 0.55;
@@ -228,15 +228,15 @@ export class NinjaArashiPlayer {
       }
 
       // 4. Shuriken Trigger
-      if (input.isShuriken && input.isShuriken() && this.shurikenCooldown <= 0) {
+      if (input.isShurikenJustPressed() && this.shurikenCooldown <= 0) {
         this.shurikenCooldown = 0.35;
         const star = new Shuriken(this.x + this.facing * 24, this.y + 16, this.facing);
         this.shurikens.push(star);
         if (audio) audio.playShurikenThrow();
       }
 
-      // 5. Jump / Double Jump / Wall Kick
-      if (input.isJumpPressed()) {
+      // 5. Jump / Double Jump / Wall Kick (Strict single-press trigger)
+      if (input.isJumpJustPressed()) {
         if (this.isGrounded) {
           this.vy = -this.jumpForce;
           this.isGrounded = false;

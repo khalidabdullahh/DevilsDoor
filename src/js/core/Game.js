@@ -4,12 +4,12 @@ import { NinjaArashiPlayer } from '../entities/NinjaArashiPlayer.js';
 import { EndlessWorld } from '../levels/EndlessWorld.js';
 import { AnalyticsManager } from './AnalyticsManager.js';
 import { AdManager } from './AdManager.js';
-import { CHARACTER_ROSTER } from '../data/CharacterRoster.js';
+import { SCENE_ROSTER } from '../data/SceneRoster.js';
 
 /**
  * Game — Master Coordinator for Devil's Door v2.0: Endless Dark Fantasy Action-Platformer.
- * Coordinates Character Selection, procedural endless chunks, 3-minute dynamic biome cycles,
- * real-time distance & diamond tracking, and landscape-only orientation management.
+ * Coordinates Scene Selection, procedural endless chunks, dynamic biome transitions,
+ * real-time distance & diamond tracking, landscape enforcement, and player settings.
  */
 export class Game {
   constructor(canvas, inputManager, audioManager, uiManager) {
@@ -23,10 +23,11 @@ export class Game {
     this.player = null;
     this.world = null;
     this.adManager = null;
-    this.characterSelect = null;
+    this.sceneSelect = null;
+    this.settingsModal = null;
 
-    // Character State
-    this.selectedCharacter = CHARACTER_ROSTER[0];
+    // Selected Scene
+    this.selectedScene = SCENE_ROSTER[0];
 
     // Endless Metrics & Scoring
     this.distance = 0;
@@ -38,13 +39,13 @@ export class Game {
     this.isPaused = false;
     this.isGameOver = false;
     this.isOrientationBlocked = false;
-    this.isInCharacterSelect = true;
+    this.isInSceneSelect = true;
     this.lastTime = 0;
 
-    // Bind callbacks
+    // Bind input callbacks
     this.input.onRestartCallback = () => this.restartGame();
     this.input.onPauseCallback = () => {
-      if (!this.isInCharacterSelect) {
+      if (!this.isInSceneSelect) {
         if (!this.isPaused) this.ui.showPauseModal();
         else {
           this.ui.hideModal();
@@ -54,14 +55,13 @@ export class Game {
     };
   }
 
-  init(characterSelectInstance = null) {
+  init(sceneSelectInstance = null, settingsModalInstance = null) {
     this.renderer = new NinjaArashiRenderer(this.canvas);
     this.camera = new Camera2D(window.innerWidth, window.innerHeight);
-    this.player = new NinjaArashiPlayer(120, 480);
+    this.player = new NinjaArashiPlayer(120, 480, 'shadow_ronin');
     this.adManager = new AdManager(this);
-    this.characterSelect = characterSelectInstance;
-
-    this.applyCharacterData(this.selectedCharacter);
+    this.sceneSelect = sceneSelectInstance;
+    this.settingsModal = settingsModalInstance;
 
     this.lastTime = performance.now();
     requestAnimationFrame((t) => this._loop(t));
@@ -75,32 +75,13 @@ export class Game {
     }
   }
 
-  applyCharacterData(charData) {
-    if (!charData) return;
-    this.selectedCharacter = charData;
-
-    // Update Player stats and sprite rendering based on selected character
-    if (this.player) {
-      this.player.setHeroType(charData.id);
-      if (charData.stats) {
-        this.player.moveSpeed = 260 + (charData.stats.speed / 100) * 110;
-        this.player.jumpForce = 390 + (charData.stats.jump / 100) * 90;
-      }
+  startEndlessRun(sceneData = null) {
+    if (sceneData) {
+      this.selectedScene = sceneData;
     }
 
-    // Update Top HUD Avatar image
-    if (this.ui) {
-      this.ui.updateAvatar(charData.image, charData.name);
-    }
-  }
-
-  startEndlessRun(charData = null) {
-    if (charData) {
-      this.applyCharacterData(charData);
-    }
-
-    this.isInCharacterSelect = false;
-    this.world = new EndlessWorld();
+    this.isInSceneSelect = false;
+    this.world = new EndlessWorld(this.selectedScene ? this.selectedScene.id : 'sunset');
     this.player.reset(this.world.playerStartX, this.world.playerStartY);
     this.camera.snapTo(this.player.x, this.player.y);
     this.camera.setBounds(0, 9999999, 0, 950);
@@ -123,22 +104,28 @@ export class Game {
     }
   }
 
-  openCharacterSelect() {
-    this.isInCharacterSelect = true;
+  openSceneSelect() {
+    this.isInSceneSelect = true;
     this.isPaused = false;
     this.isGameOver = false;
     if (this.ui) {
       this.ui.hideHUD();
       this.ui.hideModal();
     }
-    if (this.characterSelect) {
-      this.characterSelect.show();
+    if (this.sceneSelect) {
+      this.sceneSelect.show();
+    }
+  }
+
+  openSettings() {
+    if (this.settingsModal) {
+      this.settingsModal.show();
     }
   }
 
   restartGame() {
     this.deaths++;
-    this.startEndlessRun(this.selectedCharacter);
+    this.startEndlessRun(this.selectedScene);
   }
 
   setPaused(paused) {
@@ -152,9 +139,14 @@ export class Game {
     const dt = Math.min((timestamp - this.lastTime) / 1000, 0.05);
     this.lastTime = timestamp;
 
-    if (!this.isPaused && !this.isOrientationBlocked && !this.isInCharacterSelect && this.world) {
+    if (!this.isPaused && !this.isOrientationBlocked && !this.isInSceneSelect && this.world) {
       this._update(dt);
       this._render();
+    }
+
+    // Crucial: Clear single-frame pulses at the end of each frame
+    if (this.input) {
+      this.input.update();
     }
 
     requestAnimationFrame((t) => this._loop(t));
@@ -182,7 +174,7 @@ export class Game {
     const savedDiamonds = parseInt(localStorage.getItem('devilsdoor_diamonds') || '0', 10);
     if (this.diamonds > 0) {
       localStorage.setItem('devilsdoor_diamonds', String(savedDiamonds + this.diamonds));
-      this.player.diamonds = 0; // consumed into wallet
+      this.player.diamonds = 0;
     }
 
     // 5. Update HUD
@@ -205,8 +197,7 @@ export class Game {
         distance: this.distance,
         score: this.score,
         diamonds: this.diamonds,
-        biome: this.world.biome,
-        character: this.selectedCharacter.id
+        biome: this.world.biome
       });
 
       setTimeout(() => {
@@ -217,7 +208,7 @@ export class Game {
             savedDiamonds,
             this.highScore,
             () => this.restartGame(),
-            () => this.openCharacterSelect()
+            () => this.openSceneSelect()
           );
         }
       }, 700);

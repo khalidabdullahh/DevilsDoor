@@ -11,14 +11,14 @@ import { OniBossEnemy } from '../entities/OniBossEnemy.js';
  * - Oni Stone Pillars holding platforms, dead trees, embedded weapons
  */
 export class EndlessWorld {
-  constructor() {
+  constructor(initialBiome = 'sunset') {
     this.title = "Devil's Endless Descent";
     this.id = 'endless_v2';
-    this.biome = 'sunset';
 
     // Biome Sequence (Every 180s = 3 minutes across all 16 Archive scenes)
     this.BIOME_CYCLE = ['sunset', 'snow', 'bamboo', 'thorns', 'waterfall', 'ruins'];
-    this.biomeIndex = 0;
+    this.biomeIndex = Math.max(0, this.BIOME_CYCLE.indexOf(initialBiome));
+    this.biome = this.BIOME_CYCLE[this.biomeIndex] || 'sunset';
     this.biomeTimer = 0;
     this.BIOME_DURATION = 180;
 

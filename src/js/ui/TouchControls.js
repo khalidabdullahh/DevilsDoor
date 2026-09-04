@@ -1,6 +1,6 @@
 /**
- * TouchControls — High-Precision Multi-Touch Controller for Ninja Arashi 2 Layout.
- * Supports simultaneous multi-touch (e.g. running left/right while jumping & slashing).
+ * TouchControls — High-Precision Multi-Touch Controller for Devil's Door.
+ * Accurately dispatches press, hold, and release states to InputManager.
  */
 export class TouchControls {
   constructor(inputManager) {
@@ -12,108 +12,56 @@ export class TouchControls {
     this.btnAttack = document.getElementById('touch-attack');
     this.btnShuriken = document.getElementById('touch-shuriken');
 
-    this.activeTouches = new Map();
-    this.leftDown = false;
-    this.rightDown = false;
-    this.jumpDown = false;
-    this.attackDown = false;
+    this.touchContainer = document.getElementById('touch-controls');
 
     this._bindTouchEvents();
   }
 
   _bindTouchEvents() {
-    const attachButton = (btn, onDown, onUp) => {
+    const attachButton = (btn, btnName) => {
       if (!btn) return;
 
-      btn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        for (let i = 0; i < e.changedTouches.length; i++) {
-          const touch = e.changedTouches[i];
-          this.activeTouches.set(touch.identifier, btn);
-        }
+      const handlePress = (e) => {
+        if (e.cancelable) e.preventDefault();
         btn.classList.add('active');
-        onDown();
-      }, { passive: false });
+        this.inputManager.setTouchButton(btnName, true, true);
+      };
 
-      btn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        for (let i = 0; i < e.changedTouches.length; i++) {
-          const touch = e.changedTouches[i];
-          this.activeTouches.delete(touch.identifier);
-        }
+      const handleRelease = (e) => {
+        if (e.cancelable) e.preventDefault();
         btn.classList.remove('active');
-        onUp();
-      }, { passive: false });
+        this.inputManager.setTouchButton(btnName, false, false);
+      };
 
-      btn.addEventListener('touchcancel', (e) => {
-        e.preventDefault();
-        for (let i = 0; i < e.changedTouches.length; i++) {
-          const touch = e.changedTouches[i];
-          this.activeTouches.delete(touch.identifier);
-        }
-        btn.classList.remove('active');
-        onUp();
-      }, { passive: false });
+      btn.addEventListener('touchstart', handlePress, { passive: false });
+      btn.addEventListener('touchend', handleRelease, { passive: false });
+      btn.addEventListener('touchcancel', handleRelease, { passive: false });
 
-      // Mouse fallback for testing
-      btn.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        btn.classList.add('active');
-        onDown();
-      });
-
-      window.addEventListener('mouseup', () => {
-        btn.classList.remove('active');
-        onUp();
-      });
+      // Mouse testing fallback
+      btn.addEventListener('mousedown', handlePress);
+      btn.addEventListener('mouseup', handleRelease);
+      btn.addEventListener('mouseleave', handleRelease);
     };
 
-    attachButton(
-      this.btnLeft,
-      () => { this.leftDown = true; this._sync(); },
-      () => { this.leftDown = false; this._sync(); }
-    );
+    attachButton(this.btnLeft, 'left');
+    attachButton(this.btnRight, 'right');
+    attachButton(this.btnJump, 'jump');
+    attachButton(this.btnAttack, 'attack');
+    attachButton(this.btnShuriken, 'shuriken');
+  }
 
-    attachButton(
-      this.btnRight,
-      () => { this.rightDown = true; this._sync(); },
-      () => { this.rightDown = false; this._sync(); }
-    );
-
-    attachButton(
-      this.btnJump,
-      () => {
-        this.jumpDown = true;
-        this.inputManager.setTouchState(this.leftDown, this.rightDown, true, true, this.attackDown, false);
-      },
-      () => {
-        this.jumpDown = false;
-        this.inputManager.setTouchState(this.leftDown, this.rightDown, false, false, this.attackDown, false);
-      }
-    );
-
-    attachButton(
-      this.btnAttack,
-      () => {
-        this.attackDown = true;
-        this.inputManager.setTouchState(this.leftDown, this.rightDown, this.jumpDown, false, true, true);
-      },
-      () => {
-        this.attackDown = false;
-        this.inputManager.setTouchState(this.leftDown, this.rightDown, this.jumpDown, false, false, false);
-      }
-    );
-
-    if (this.btnShuriken) {
-      attachButton(
-        this.btnShuriken,
-        () => { this.inputManager.keys.set('KeyK', true); },
-        () => { this.inputManager.keys.set('KeyK', false); }
-      );
+  setLayout(isInverted = false) {
+    if (!this.touchContainer) return;
+    if (isInverted) {
+      this.touchContainer.classList.add('inverted-layout');
+    } else {
+      this.touchContainer.classList.remove('inverted-layout');
     }
   }
 
-  _sync() {
-    this.inputManager.setTouchState(this.leftDown, this.rightDown, this.jumpDown, false, this.attackDown, false);
+  setScale(scaleMode = 'normal') {
+    if (!this.touchContainer) return;
+    this.touchContainer.classList.remove('scale-compact', 'scale-normal', 'scale-large');
+    this.touchContainer.classList.add(`scale-${scaleMode}`);
   }
 }

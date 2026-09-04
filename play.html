@@ -18,9 +18,14 @@
       <!-- Injected by OrientationManager.js -->
     </div>
 
-    <!-- Character Select Screen Overlay -->
+    <!-- Scene / Stage Selection Screen Overlay -->
     <div id="character-select-screen" class="char-select-overlay">
-      <!-- Injected and managed by CharacterSelect.js -->
+      <!-- Injected and managed by SceneSelect.js -->
+    </div>
+
+    <!-- Player Settings Modal Overlay -->
+    <div id="settings-modal" class="modal-backdrop hidden">
+      <!-- Injected and managed by SettingsModal.js -->
     </div>
 
     <!-- Loading Overlay -->
@@ -30,14 +35,18 @@
       <p class="loading-subtitle">ENTERING THE ENDLESS SHADOWS...</p>
     </div>
 
-    <!-- Minimal, Well-Furnished AAA Action HUD Overlay -->
+    <!-- Clean, Unified AAA Action HUD Overlay -->
     <header id="game-hud" class="hud-overlay hidden">
-      <!-- Left: Sleek Ninja Avatar & Hearts -->
+      <!-- Left: Sleek Ninja Avatar & Integrated Health Gauge -->
       <div class="hud-left">
-        <div class="hud-avatar-box">
-          <img id="hud-avatar-img" src="/src/assets/characters/hero_shadow_ninja.png" alt="Shadow Ninja" class="hud-avatar-img" />
+        <div class="hud-hero-badge">
+          <div class="hud-avatar-box">
+            <img id="hud-avatar-img" src="/src/assets/characters/solo/hero_02_shadow_ronin.png" alt="Shadow Ronin" class="hud-avatar-img" />
+          </div>
+          <div class="hud-health-wrapper">
+            <div id="health-display" class="hud-health-bar">❤️❤️❤️</div>
+          </div>
         </div>
-        <div id="health-display" class="hud-health-bar">❤️❤️❤️</div>
       </div>
 
       <!-- Center: Clean Floating Glass Capsule Metrics -->
@@ -55,14 +64,15 @@
           <span class="capsule-divider"></span>
           <div class="capsule-metric">
             <span class="capsule-icon">🏆</span>
-            <span id="highscore-display" class="capsule-val amber">0</span>
+            <span id="highscore-display" class="capsule-val amber">BEST: 0</span>
           </div>
         </div>
       </div>
 
-      <!-- Right: Compact Control Buttons -->
+      <!-- Right: Compact Control Buttons (Settings, Audio, Restart, Pause) -->
       <div class="hud-right">
-        <button id="btn-audio" class="hud-btn" title="Toggle Audio" aria-label="Toggle Audio">🔊</button>
+        <button id="btn-settings" class="hud-btn" title="Settings (O)" aria-label="Settings">⚙️</button>
+        <button id="btn-audio" class="hud-btn" title="Toggle Audio (M)" aria-label="Toggle Audio">🔊</button>
         <button id="btn-restart" class="hud-btn" title="Restart Run (R)" aria-label="Restart Run">↻</button>
         <button id="btn-menu" class="hud-btn" title="Pause Menu (Esc)" aria-label="Pause Menu">⏸</button>
       </div>
@@ -185,7 +195,8 @@
         <div class="modal-actions">
           <button id="btn-modal-primary" class="btn-primary">RESUME</button>
           <button id="btn-modal-restart" class="btn-secondary">RESTART RUN</button>
-          <button id="btn-modal-charselect" class="btn-secondary">🥷 CHANGE SHINOBI</button>
+          <button id="btn-modal-sceneselect" class="btn-secondary">⛩️ CHANGE REALM</button>
+          <button id="btn-modal-settings" class="btn-secondary">⚙️ SETTINGS</button>
           <button id="btn-modal-home" class="btn-secondary">EXIT TO MENU</button>
         </div>
       </div>

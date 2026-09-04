@@ -2,7 +2,8 @@ import { InputManager } from './core/InputManager.js';
 import { AudioManager } from './core/AudioManager.js';
 import { UIManager } from './ui/UIManager.js';
 import { TouchControls } from './ui/TouchControls.js';
-import { CharacterSelect } from './ui/CharacterSelect.js';
+import { SceneSelect } from './ui/SceneSelect.js';
+import { SettingsModal } from './ui/SettingsModal.js';
 import { OrientationManager } from './ui/OrientationManager.js';
 import { Game } from './core/Game.js';
 
@@ -10,14 +11,15 @@ import { Game } from './core/Game.js';
  * Main Bootstrap — Initializes Devil's Door v2.0: Endless Dark Fantasy Action-Platformer.
  * Flow:
  * 1. Initialize Subsystems (Input, Audio, Touch, UI, Orientation).
- * 2. Initialize Character Selection UI.
- * 3. On Character Select [ START RUN ], launch Endless Domain gameplay loop.
+ * 2. Initialize Scene/Realm Selection UI.
+ * 3. Initialize Settings Modal.
+ * 4. On [ ENTER REALM / START RUN ], launch Endless Domain gameplay loop.
  */
 window.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('game-canvas');
   if (!canvas) return;
 
-  const charSelectContainer = document.getElementById('character-select-screen');
+  const sceneSelectContainer = document.getElementById('character-select-screen');
   const rotateOverlay = document.getElementById('rotate-overlay');
 
   // 1. Core Subsystems
@@ -33,15 +35,19 @@ window.addEventListener('DOMContentLoaded', () => {
   // 3. Orientation Enforcement (Landscape-only)
   const orientationManager = new OrientationManager(rotateOverlay, game);
 
-  // 4. Character Selection System
-  const characterSelect = new CharacterSelect(charSelectContainer, (selectedCharacter) => {
-    game.startEndlessRun(selectedCharacter);
+  // 4. Settings Subsystem
+  const settingsModal = new SettingsModal(game, touchControls, audioManager);
+  game.settingsModal = settingsModal;
+
+  // 5. Scene/Stage Selection System
+  const sceneSelect = new SceneSelect(sceneSelectContainer, (selectedScene) => {
+    game.startEndlessRun(selectedScene);
   });
-  game.characterSelect = characterSelect;
+  game.sceneSelect = sceneSelect;
 
   try {
-    game.init(characterSelect);
-    console.log('🚪 [DEVIL\'S DOOR v2.0] Endless Platformer & Character Selection Online.');
+    game.init(sceneSelect, settingsModal);
+    console.log('🚪 [DEVIL\'S DOOR v2.0] Endless Platformer & Scene Selection Online.');
   } catch (err) {
     console.error('❌ [DEVIL\'S DOOR] Failed to initialize Game:', err);
   }

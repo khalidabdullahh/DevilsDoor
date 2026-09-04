@@ -1,10 +1,13 @@
 /**
- * InputManager — Handles Keyboard, Mouse, Gamepad, and Touch D-Pad input cleanly.
+ * InputManager — High-Precision Input Subsystem.
+ * Handles Keyboard, Mouse, Gamepad, and Multi-Touch input with reliable
+ * single-frame "justPressed" triggers to prevent continuous jump looping.
  */
 export class InputManager {
   constructor() {
     this.keys = new Map();
     this.justPressedKeys = new Set();
+
     this.touchLeft = false;
     this.touchRight = false;
     this.touchJump = false;
@@ -12,6 +15,7 @@ export class InputManager {
     this.touchAttack = false;
     this.touchAttackJustPressed = false;
     this.touchShuriken = false;
+    this.touchShurikenJustPressed = false;
     this.touchRestartJustPressed = false;
 
     this.onRestartCallback = null;
@@ -55,8 +59,11 @@ export class InputManager {
       this.touchLeft = false;
       this.touchRight = false;
       this.touchJump = false;
+      this.touchJumpJustPressed = false;
       this.touchAttack = false;
+      this.touchAttackJustPressed = false;
       this.touchShuriken = false;
+      this.touchShurikenJustPressed = false;
     });
   }
 
@@ -106,25 +113,13 @@ export class InputManager {
     const gp = this.pollGamepad();
     return Boolean(this.keys.get('KeyA') || this.keys.get('ArrowLeft') || this.touchLeft || gp.left);
   }
-  isLeftPressed() { return this.isLeft(); }
 
   isRight() {
     const gp = this.pollGamepad();
     return Boolean(this.keys.get('KeyD') || this.keys.get('ArrowRight') || this.touchRight || gp.right);
   }
-  isRightPressed() { return this.isRight(); }
 
-  isJump() {
-    const gp = this.pollGamepad();
-    return Boolean(this.keys.get('Space') || this.keys.get('KeyW') || this.keys.get('ArrowUp') || this.touchJump || gp.jump);
-  }
-  isJumpPressed() {
-    return this.isJumpJustPressed() || this.isJump();
-  }
-  isJumping() {
-    return this.isJumpPressed();
-  }
-
+  // Jump is strictly single-press to prevent continuous auto-jumping
   isJumpJustPressed() {
     const pressed = this.justPressedKeys.has('Space') ||
                     this.justPressedKeys.has('KeyW') ||
@@ -133,13 +128,10 @@ export class InputManager {
     return Boolean(pressed);
   }
 
-  isAttack() {
+  isJump() {
     const gp = this.pollGamepad();
-    return Boolean(this.keys.get('KeyJ') || this.keys.get('KeyZ') || this.keys.get('KeyF') || this.keys.get('MouseLeft') || this.touchAttack || gp.attack);
+    return Boolean(this.keys.get('Space') || this.keys.get('KeyW') || this.keys.get('ArrowUp') || this.touchJump || gp.jump);
   }
-  isAttackPressed() { return this.isAttackJustPressed() || this.isAttack(); }
-  isDashPressed() { return this.isAttackPressed(); }
-  isAttacking() { return this.isAttackPressed(); }
 
   isAttackJustPressed() {
     const pressed = this.justPressedKeys.has('KeyJ') ||
@@ -150,27 +142,39 @@ export class InputManager {
     return Boolean(pressed);
   }
 
-  isShuriken() {
+  isAttack() {
     const gp = this.pollGamepad();
-    return Boolean(this.keys.get('KeyK') || this.keys.get('KeyX') || this.keys.get('KeyE') || this.touchShuriken || gp.shuriken);
-  }
-  isShurikenPressed() {
-    return Boolean(this.justPressedKeys.has('KeyK') || this.justPressedKeys.has('KeyX') || this.justPressedKeys.has('KeyE') || this.touchShuriken || this.isShuriken());
+    return Boolean(this.keys.get('KeyJ') || this.keys.get('KeyZ') || this.keys.get('KeyF') || this.keys.get('MouseLeft') || this.touchAttack || gp.attack);
   }
 
-  isRestartJustPressed() {
-    const pressed = this.justPressedKeys.has('KeyR') || this.touchRestartJustPressed;
+  isShurikenJustPressed() {
+    const pressed = this.justPressedKeys.has('KeyK') ||
+                    this.justPressedKeys.has('KeyX') ||
+                    this.justPressedKeys.has('KeyE') ||
+                    this.touchShurikenJustPressed;
     return Boolean(pressed);
   }
 
-  setTouchState(left, right, jump, jumpJustPressed = false, attack = false, attackJustPressed = false, shuriken = false) {
-    this.touchLeft = left;
-    this.touchRight = right;
-    this.touchJump = jump;
-    this.touchAttack = attack;
-    this.touchShuriken = shuriken;
-    if (jumpJustPressed) this.touchJumpJustPressed = true;
-    if (attackJustPressed) this.touchAttackJustPressed = true;
+  isShuriken() {
+    return this.isShurikenJustPressed();
+  }
+
+  // Set Touch States from TouchControls.js
+  setTouchButton(btnName, isDown, isJustPressed = false) {
+    if (btnName === 'left') this.touchLeft = isDown;
+    if (btnName === 'right') this.touchRight = isDown;
+    if (btnName === 'jump') {
+      this.touchJump = isDown;
+      if (isJustPressed) this.touchJumpJustPressed = true;
+    }
+    if (btnName === 'attack') {
+      this.touchAttack = isDown;
+      if (isJustPressed) this.touchAttackJustPressed = true;
+    }
+    if (btnName === 'shuriken') {
+      this.touchShuriken = isDown;
+      if (isJustPressed) this.touchShurikenJustPressed = true;
+    }
   }
 
   triggerTouchRestart() {
@@ -178,10 +182,12 @@ export class InputManager {
     if (this.onRestartCallback) this.onRestartCallback();
   }
 
+  // Called at the end of each game frame to clear single-frame pulses
   update() {
     this.justPressedKeys.clear();
     this.touchJumpJustPressed = false;
     this.touchAttackJustPressed = false;
+    this.touchShurikenJustPressed = false;
     this.touchRestartJustPressed = false;
   }
 }
