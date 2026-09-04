@@ -229,8 +229,8 @@ export class NinjaArashiPlayer {
 
       // 4. Shuriken Trigger
       if (input.isShurikenJustPressed() && this.shurikenCooldown <= 0) {
-        this.shurikenCooldown = 0.35;
-        const star = new Shuriken(this.x + this.facing * 24, this.y + 16, this.facing);
+        this.shurikenCooldown = 0.28;
+        const star = new Shuriken(this.x + this.facing * 24, this.y - 12, this.facing * 950, 0);
         this.shurikens.push(star);
         if (audio) audio.playShurikenThrow();
       }

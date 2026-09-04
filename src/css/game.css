@@ -41,6 +41,16 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background-color: var(--bg-primary);
+}
+
+.game-screen-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 #game-canvas {
@@ -50,6 +60,61 @@ html, body {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* ==========================================================================
+   Portrait Mode (Handheld Gamepad Console Layout)
+   ========================================================================== */
+#game-container.portrait-mode {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background: #07090e;
+}
+
+#game-container.portrait-mode .game-screen-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9.5;
+  max-height: 48vh;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.95);
+  background: #000000;
+  flex-shrink: 0;
+}
+
+#game-container.portrait-mode #touch-controls {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px calc(env(safe-area-inset-right, 20px) + 16px) calc(env(safe-area-inset-bottom, 20px) + 24px) calc(env(safe-area-inset-left, 20px) + 16px);
+  background: radial-gradient(circle at 50% 30%, #151c2e 0%, #0a0e17 75%, #05070c 100%);
+  box-shadow: inset 0 6px 20px rgba(0, 0, 0, 0.9);
+  pointer-events: auto;
+}
+
+#game-container.portrait-mode .dpad-btn {
+  width: 72px;
+  height: 72px;
+}
+
+#game-container.portrait-mode .jump-btn {
+  width: 84px;
+  height: 84px;
+}
+
+#game-container.portrait-mode .attack-btn {
+  width: 72px;
+  height: 72px;
+}
+
+#game-container.portrait-mode .shuriken-btn {
+  width: 62px;
+  height: 62px;
 }
 
 /* ==========================================================================

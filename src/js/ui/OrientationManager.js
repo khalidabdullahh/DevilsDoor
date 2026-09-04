@@ -1,32 +1,18 @@
 /**
- * OrientationManager — Landscape-Only Mobile Enforcement System.
- * Ensures Devil's Door runs strictly in landscape orientation on mobile/tablet devices.
- * Shows a dark-fantasy "ROTATE DEVICE" overlay when portrait mode is detected.
+ * OrientationManager — Dual-Mode Landscape & Handheld Portrait Console Controller.
+ * Supports:
+ * 1. Landscape Mode: Fullscreen immersive arcade canvas with corner touch buttons.
+ * 2. Portrait Mode: Top 16:9 widescreen game screen with lower ergonomic gamepad deck.
  */
 export class OrientationManager {
   constructor(overlayEl, gameInstance = null) {
     this.overlay = overlayEl;
     this.game = gameInstance;
+    this.gameContainer = document.getElementById('game-container');
     this.isPortrait = false;
 
-    this._initDOM();
     this._attachListeners();
     this.checkOrientation();
-  }
-
-  _initDOM() {
-    if (!this.overlay) return;
-    this.overlay.innerHTML = `
-      <div class="rotate-card">
-        <div class="rotate-emblem">
-          <span class="torii-icon">⛩️</span>
-          <div class="phone-rotate-anim">📱</div>
-        </div>
-        <h2 class="rotate-title">LANDSCAPE REQUIRED</h2>
-        <p class="rotate-subtitle">Please rotate your device to enter the endless shadows of Devil's Door.</p>
-        <div class="rotate-status">↻ ROTATE DEVICE</div>
-      </div>
-    `;
   }
 
   _attachListeners() {
@@ -42,21 +28,28 @@ export class OrientationManager {
     const w = window.innerWidth;
     const h = window.innerHeight;
 
-    // A device is considered portrait on mobile/tablets if height exceeds width
-    const isMobileOrTablet = w < 1024 || 'ontouchstart' in window;
+    // Mobile / tablet portrait detection
+    const isMobileOrTablet = w < 1024 || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
     this.isPortrait = isMobileOrTablet && (h > w);
 
-    if (this.overlay) {
+    if (this.gameContainer) {
       if (this.isPortrait) {
-        this.overlay.classList.remove('hidden');
-        if (this.game && !this.game.isPaused) {
-          this.game.isOrientationBlocked = true;
-        }
+        this.gameContainer.classList.add('portrait-mode');
+        document.body.classList.add('portrait-mode');
       } else {
-        this.overlay.classList.add('hidden');
-        if (this.game && this.game.isOrientationBlocked) {
-          this.game.isOrientationBlocked = false;
-        }
+        this.gameContainer.classList.remove('portrait-mode');
+        document.body.classList.remove('portrait-mode');
+      }
+    }
+
+    if (this.overlay) {
+      this.overlay.classList.add('hidden');
+    }
+
+    if (this.game) {
+      this.game.isOrientationBlocked = false;
+      if (this.game.renderer) {
+        this.game.renderer.resize();
       }
     }
   }

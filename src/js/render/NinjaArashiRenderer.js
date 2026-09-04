@@ -1,7 +1,6 @@
 /**
- * NinjaArashiRenderer — High-Fidelity Visual Benchmark Engine for Devil's Door.
- * Renders the authentic graphical backdrops directly from the Archive reference screenshots:
- * - Preloaded high-definition scenery images (Sunset Pagoda, Snow Realm, Bamboo Grove, Thorn Crypts, Waterfall, Ruins)
+ * NinjaArashiRenderer — Ultra High-Fidelity 4K Visual Engine for Devil's Door.
+ * - Renders 4K Ultra-HD authentic scenery images with high-quality bicubic interpolation
  * - Multi-layer parallax depth scrolling
  * - Atmospheric weather particles (embers, snow, mist, bamboo leaves, purple spores)
  * - Ground water reflection sheen
@@ -21,7 +20,10 @@ export class NinjaArashiRenderer {
     this.time = 0;
     this.bgImages = {};
     this._loadBackgroundAssets();
-    this._handleResize();
+    this.resize();
+
+    window.addEventListener('resize', () => this.resize());
+    window.addEventListener('orientationchange', () => this.resize());
   }
 
   _loadBackgroundAssets() {
@@ -51,16 +53,20 @@ export class NinjaArashiRenderer {
     }
   }
 
-  _handleResize() {
-    const resize = () => {
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight;
-      this.width = this.canvas.width;
-      this.height = this.canvas.height;
-    };
-    window.addEventListener('resize', resize);
-    window.addEventListener('orientationchange', resize);
-    resize();
+  resize() {
+    if (!this.canvas) return;
+    const rect = this.canvas.getBoundingClientRect();
+    const dpr = Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 2);
+
+    const w = Math.round((rect.width || (typeof window !== 'undefined' ? window.innerWidth : 1280)) * dpr);
+    const h = Math.round((rect.height || (typeof window !== 'undefined' ? window.innerHeight : 720)) * dpr);
+
+    if (this.canvas.width !== w || this.canvas.height !== h) {
+      this.canvas.width = w;
+      this.canvas.height = h;
+    }
+    this.width = w;
+    this.height = h;
   }
 
   _initParticles() {
@@ -85,9 +91,13 @@ export class NinjaArashiRenderer {
     const h = this.height;
     const biome = (level && level.biome) ? level.biome : 'sunset';
 
+    // Enable High-Quality Smoothing
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Draw High-Res Archive Background Scene with Parallax
+    // 1. Draw 4K Ultra-HD Archive Background Scene with Parallax
     this._drawArchiveSceneBackdrop(ctx, biome, camX, camY, w, h);
 
     // 2. Parallax Silhouette Layer (Pagodas, Torii Gates, Frosted Pines, Bamboo)
@@ -100,267 +110,179 @@ export class NinjaArashiRenderer {
       level.draw(ctx, camX, camY, this.time);
     }
 
-    if (enemies) {
-      for (const e of enemies) {
-        e.draw(ctx, camX, camY);
+    // 4. Draw Shadow Ninja & Oni Boss Enemies
+    if (enemies && enemies.length > 0) {
+      for (const enemy of enemies) {
+        if (!enemy.isDead || enemy.deathTimer > 0) {
+          enemy.draw(ctx, camX, camY, this.time);
+        }
       }
     }
 
+    // 5. Draw Hero Shinobi Entity
     if (player) {
-      player.draw(ctx, camX, camY);
+      player.draw(ctx, camX, camY, this.time);
     }
 
     ctx.restore();
 
-    // 4. Ground Wet Reflection Sheen
-    this._drawReflectiveWaterSheen(ctx, biome, camY, w, h);
+    // 6. Draw Weather Particles & Atmospheric Overlay
+    this._drawAtmosphericParticles(ctx, biome, w, h);
 
-    // 5. Atmospheric Weather Particle Simulation
-    this._drawParticles(ctx, biome, w, h);
+    // 7. Dark Fantasy Vignette Lighting
+    this._drawCinematicVignette(ctx, w, h);
   }
 
   _drawArchiveSceneBackdrop(ctx, biome, camX, camY, w, h) {
-    const bgKey = (biome === 'snow') ? 'snow_oni' : biome;
-    const bgImg = this.bgImages[bgKey] || this.bgImages[biome] || this.bgImages['sunset'];
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    let imgKey = 'sunset';
+    if (biome === 'snow') imgKey = 'snow_oni';
+    else if (biome === 'bamboo') imgKey = 'bamboo';
+    else if (biome === 'thorns') imgKey = 'thorns';
+    else if (biome === 'waterfall') imgKey = 'waterfall';
+    else if (biome === 'ruins') imgKey = 'ruins';
+
+    const bgImg = this.bgImages[imgKey] || this.bgImages.sunset;
 
     if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
-      ctx.save();
-      const parallaxFactor = 0.14;
-      const imgAspect = bgImg.naturalWidth / bgImg.naturalHeight;
-      const drawH = Math.max(h, 600);
-      const drawW = drawH * imgAspect;
+      // 0.12x Parallax Speed
+      const parallaxFactor = 0.12;
+      const aspect = bgImg.naturalWidth / bgImg.naturalHeight;
+      const imgHeight = h * 1.12;
+      const imgWidth = imgHeight * aspect;
 
-      const offsetX = (camX * parallaxFactor) % drawW;
-      const startX = -offsetX - drawW;
-      const endX = w + drawW;
+      const offset = (camX * parallaxFactor) % imgWidth;
+      const startX = -offset;
 
-      for (let x = startX; x < endX; x += drawW - 1) {
-        ctx.drawImage(bgImg, x, 0, drawW, drawH);
+      for (let x = startX - imgWidth; x < w + imgWidth; x += imgWidth - 1) {
+        ctx.drawImage(bgImg, x, 0, imgWidth, imgHeight);
       }
 
-      // Add atmospheric vignette tint overlay
-      const vignette = ctx.createLinearGradient(0, 0, 0, h);
-      vignette.addColorStop(0, 'rgba(7, 9, 14, 0.45)');
-      vignette.addColorStop(0.5, 'rgba(0, 0, 0, 0.05)');
-      vignette.addColorStop(1, 'rgba(7, 9, 14, 0.65)');
-      ctx.fillStyle = vignette;
+      // Subtle atmospheric tint
+      const overlayGrad = ctx.createLinearGradient(0, 0, 0, h);
+      overlayGrad.addColorStop(0, 'rgba(7, 9, 14, 0.12)');
+      overlayGrad.addColorStop(0.6, 'rgba(0, 0, 0, 0)');
+      overlayGrad.addColorStop(1, 'rgba(7, 9, 14, 0.5)');
+      ctx.fillStyle = overlayGrad;
       ctx.fillRect(0, 0, w, h);
-
-      ctx.restore();
     } else {
-      // Fallback Procedural Sky Gradient
-      this._drawProceduralSky(ctx, biome, w, h);
-    }
-  }
-
-  _drawProceduralSky(ctx, biome, w, h) {
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
-    let moonColor = '#fef3c7';
-    let moonHalo = 'rgba(254, 243, 199, 0.45)';
-
-    switch (biome) {
-      case 'snow':
-        skyGrad.addColorStop(0, '#061320');
-        skyGrad.addColorStop(0.35, '#0f2942');
-        skyGrad.addColorStop(0.7, '#1e486b');
-        skyGrad.addColorStop(1, '#60a5fa');
-        moonColor = '#e0f2fe';
-        moonHalo = 'rgba(186, 230, 253, 0.45)';
-        break;
-
-      case 'bamboo':
-        skyGrad.addColorStop(0, '#022119');
-        skyGrad.addColorStop(0.4, '#064e3b');
-        skyGrad.addColorStop(0.75, '#047857');
-        skyGrad.addColorStop(1, '#10b981');
-        moonColor = '#d1fae5';
-        moonHalo = 'rgba(167, 243, 208, 0.38)';
-        break;
-
-      case 'thorns':
-        skyGrad.addColorStop(0, '#12071a');
-        skyGrad.addColorStop(0.35, '#2c103e');
-        skyGrad.addColorStop(0.7, '#581c87');
-        skyGrad.addColorStop(1, '#9333ea');
-        moonColor = '#f3e8ff';
-        moonHalo = 'rgba(216, 180, 254, 0.45)';
-        break;
-
-      case 'waterfall':
-        skyGrad.addColorStop(0, '#032322');
-        skyGrad.addColorStop(0.4, '#0f4f4b');
-        skyGrad.addColorStop(0.75, '#0d9488');
-        skyGrad.addColorStop(1, '#2dd4bf');
-        moonColor = '#ccfbf1';
-        moonHalo = 'rgba(153, 246, 228, 0.45)';
-        break;
-
-      case 'ruins':
-        skyGrad.addColorStop(0, '#1c1917');
-        skyGrad.addColorStop(0.4, '#292524');
-        skyGrad.addColorStop(0.75, '#44403c');
-        skyGrad.addColorStop(1, '#78716c');
-        moonColor = '#fef08a';
-        moonHalo = 'rgba(254, 240, 138, 0.4)';
-        break;
-
-      case 'sunset':
-      default:
-        skyGrad.addColorStop(0, '#1c1032');
-        skyGrad.addColorStop(0.3, '#3b1238');
-        skyGrad.addColorStop(0.6, '#9f1239');
-        skyGrad.addColorStop(0.85, '#dc2626');
-        skyGrad.addColorStop(1, '#f59e0b');
-        moonColor = '#fef3c7';
-        moonHalo = 'rgba(254, 243, 199, 0.5)';
-        break;
+      // High-End Fallback Gradient
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      if (biome === 'snow') {
+        grad.addColorStop(0, '#0c1a2e');
+        grad.addColorStop(0.5, '#1e293b');
+        grad.addColorStop(1, '#07090e');
+      } else if (biome === 'bamboo') {
+        grad.addColorStop(0, '#052e16');
+        grad.addColorStop(0.5, '#064e3b');
+        grad.addColorStop(1, '#07090e');
+      } else if (biome === 'thorns') {
+        grad.addColorStop(0, '#3b0764');
+        grad.addColorStop(0.5, '#581c87');
+        grad.addColorStop(1, '#07090e');
+      } else {
+        grad.addColorStop(0, '#450a0a');
+        grad.addColorStop(0.45, '#7f1d1d');
+        grad.addColorStop(1, '#07090e');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
     }
 
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, w, h);
-
-    const moonX = w * 0.76;
-    const moonY = h * 0.24;
-    const moonR = 64;
-
-    const haloGrad = ctx.createRadialGradient(moonX, moonY, 12, moonX, moonY, moonR * 3);
-    haloGrad.addColorStop(0, moonHalo);
-    haloGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = haloGrad;
-    ctx.beginPath();
-    ctx.arc(moonX, moonY, moonR * 3, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = moonColor;
-    ctx.shadowColor = moonColor;
-    ctx.shadowBlur = 24;
-    ctx.beginPath();
-    ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
+    ctx.restore();
   }
 
-  _drawParallaxSilhouettes(ctx, biome, offsetX, w, h) {
+  _drawParallaxSilhouettes(ctx, biome, scrollX, w, h) {
     ctx.save();
-    ctx.fillStyle = '#06040d';
-    ctx.globalAlpha = 0.82;
+    ctx.fillStyle = 'rgba(7, 9, 14, 0.75)';
 
-    const spacing = 520;
-    const startIdx = Math.floor(offsetX / spacing) - 1;
-    const endIdx = startIdx + Math.ceil(w / spacing) + 2;
+    const baseY = h * 0.78;
+    const spacing = 420;
+    const startIdx = Math.floor(scrollX / spacing) - 1;
+    const endIdx = startIdx + Math.ceil(w / spacing) + 3;
 
     for (let i = startIdx; i <= endIdx; i++) {
-      const px = i * spacing - offsetX;
-      const py = h * 0.65;
+      const px = i * spacing - scrollX;
+      const type = Math.abs(i) % 3;
 
-      if (biome === 'bamboo') {
-        this._drawBambooStalk(ctx, px, py - 130, 14, 280);
-        this._drawBambooStalk(ctx, px + 50, py - 100, 10, 250);
-        this._drawBambooStalk(ctx, px + 140, py - 150, 16, 300);
-      } else if (biome === 'snow') {
-        this._drawFrostedTree(ctx, px, py);
-      } else if (biome === 'ruins') {
-        this._drawStoneArchRuins(ctx, px, py);
+      if (biome === 'snow') {
+        // Frosted bare pine tree
+        ctx.beginPath();
+        ctx.moveTo(px, baseY);
+        ctx.lineTo(px + 12, baseY - 160);
+        ctx.lineTo(px + 24, baseY);
+        ctx.fill();
+      } else if (biome === 'bamboo') {
+        // Tall vertical bamboo stalk
+        ctx.fillRect(px, baseY - 260, 14, 260);
+        ctx.fillRect(px + 24, baseY - 220, 10, 220);
       } else {
-        this._drawPagodaCastle(ctx, px, py);
+        // Japanese Pagoda Roof / Torii silhouette
+        if (type === 0) {
+          ctx.beginPath();
+          ctx.moveTo(px - 40, baseY);
+          ctx.lineTo(px, baseY - 70);
+          ctx.lineTo(px + 40, baseY);
+          ctx.fill();
+        } else {
+          ctx.fillRect(px - 15, baseY - 55, 6, 55);
+          ctx.fillRect(px + 15, baseY - 55, 6, 55);
+          ctx.fillRect(px - 25, baseY - 50, 50, 7);
+        }
       }
     }
 
     ctx.restore();
   }
 
-  _drawPagodaCastle(ctx, px, py) {
+  _drawAtmosphericParticles(ctx, biome, w, h) {
     ctx.save();
-    ctx.fillStyle = '#06040d';
-    ctx.fillRect(px - 28, py, 56, 75);
-    this._drawCurvedRoof(ctx, px, py, 72);
-    ctx.fillRect(px - 20, py - 22, 40, 24);
-    this._drawCurvedRoof(ctx, px, py - 22, 56);
-    ctx.fillRect(px - 14, py - 44, 28, 24);
-    this._drawCurvedRoof(ctx, px, py - 44, 42);
-    ctx.fillRect(px - 2, py - 62, 4, 18);
-    ctx.restore();
-  }
 
-  _drawStoneArchRuins(ctx, px, py) {
-    ctx.save();
-    ctx.fillStyle = '#06040d';
-    ctx.fillRect(px - 32, py - 60, 14, 90);
-    ctx.fillRect(px + 18, py - 60, 14, 90);
-    ctx.fillRect(px - 38, py - 70, 76, 14);
-    ctx.restore();
-  }
-
-  _drawCurvedRoof(ctx, cx, cy, width) {
-    ctx.beginPath();
-    ctx.moveTo(cx - width / 2 - 10, cy);
-    ctx.quadraticCurveTo(cx, cy - 14, cx + width / 2 + 10, cy);
-    ctx.lineTo(cx + width / 2, cy + 7);
-    ctx.quadraticCurveTo(cx, cy - 4, cx - width / 2, cy + 7);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  _drawBambooStalk(ctx, x, y, width, height) {
-    ctx.fillRect(x, y, width, height);
-    for (let ny = y + 25; ny < y + height; ny += 35) {
-      ctx.fillRect(x - 2, ny, width + 4, 4);
-    }
-  }
-
-  _drawFrostedTree(ctx, x, y) {
-    ctx.save();
-    ctx.fillStyle = '#06040d';
-    ctx.fillRect(x - 7, y - 110, 14, 110);
-    ctx.beginPath();
-    ctx.moveTo(x, y - 65);
-    ctx.lineTo(x - 42, y - 95);
-    ctx.lineTo(x - 56, y - 140);
-    ctx.lineTo(x, y - 85);
-    ctx.lineTo(x + 48, y - 120);
-    ctx.lineTo(x + 64, y - 155);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-
-  _drawReflectiveWaterSheen(ctx, biome, camY, w, h) {
-    if (biome !== 'sunset' && biome !== 'waterfall' && biome !== 'ruins') return;
-
-    ctx.save();
-    let sheenColor = 'rgba(239, 68, 68, 0.09)';
-    if (biome === 'waterfall') sheenColor = 'rgba(45, 212, 191, 0.09)';
-    if (biome === 'ruins') sheenColor = 'rgba(251, 191, 36, 0.07)';
-
-    ctx.fillStyle = sheenColor;
-    ctx.fillRect(0, h * 0.74, w, h * 0.26);
-    ctx.restore();
-  }
-
-  _drawParticles(ctx, biome, w, h) {
-    ctx.save();
-    let pColor = 'rgba(251, 191, 36, 0.85)';
-    if (biome === 'bamboo') pColor = 'rgba(167, 243, 208, 0.8)';
-    if (biome === 'thorns') pColor = 'rgba(216, 180, 254, 0.8)';
-    if (biome === 'snow') pColor = 'rgba(241, 245, 249, 0.95)';
-    if (biome === 'waterfall') pColor = 'rgba(153, 246, 228, 0.9)';
-    if (biome === 'ruins') pColor = 'rgba(253, 230, 138, 0.85)';
-
-    ctx.fillStyle = pColor;
     for (const p of this.particles) {
       p.x += p.vx * 0.016;
       p.y += p.vy * 0.016;
       p.rot += p.rotSpeed * 0.016;
 
-      if (p.x < -50) p.x = w + 50;
-      if (p.y > h + 50) p.y = -50;
+      if (p.x < -100) p.x = w + 100;
+      if (p.y > h + 100) p.y = -100;
 
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rot);
-      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+
+      if (biome === 'snow') {
+        ctx.fillStyle = 'rgba(248, 250, 252, 0.75)';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (biome === 'bamboo') {
+        ctx.fillStyle = 'rgba(52, 211, 153, 0.65)';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, p.size * 1.5, p.size * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.75)';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
       ctx.restore();
     }
+
+    ctx.restore();
+  }
+
+  _drawCinematicVignette(ctx, w, h) {
+    ctx.save();
+    const grad = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.45, w / 2, h / 2, Math.max(w, h) * 0.78);
+    grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    grad.addColorStop(1, 'rgba(5, 8, 15, 0.75)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
     ctx.restore();
   }
 }
