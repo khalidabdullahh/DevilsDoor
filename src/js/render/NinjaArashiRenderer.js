@@ -38,6 +38,37 @@ export class NinjaArashiRenderer {
     }
   }
 
+  _createMipLevels(img) {
+    if (typeof document === 'undefined') return { '4k': img, '2k': img, '1k': img };
+
+    const srcW = img.naturalWidth || img.width || 3840;
+    const srcH = img.naturalHeight || img.height || 2160;
+
+    // 1. 2K Tier (1920 wide - High-DPI Landscape & Large Tablets)
+    const c2k = document.createElement('canvas');
+    c2k.width = Math.round(srcW * 0.5);
+    c2k.height = Math.round(srcH * 0.5);
+    const ctx2k = c2k.getContext('2d');
+    ctx2k.imageSmoothingEnabled = true;
+    ctx2k.imageSmoothingQuality = 'high';
+    ctx2k.drawImage(img, 0, 0, c2k.width, c2k.height);
+
+    // 2. 1K Tier (960 wide - High-DPI Mobile Portrait)
+    const c1k = document.createElement('canvas');
+    c1k.width = Math.round(srcW * 0.25);
+    c1k.height = Math.round(srcH * 0.25);
+    const ctx1k = c1k.getContext('2d');
+    ctx1k.imageSmoothingEnabled = true;
+    ctx1k.imageSmoothingQuality = 'high';
+    ctx1k.drawImage(c2k, 0, 0, c1k.width, c1k.height);
+
+    return {
+      '4k': img,
+      '2k': c2k,
+      '1k': c1k
+    };
+  }
+
   _loadBackgroundAssets() {
     const bgList = {
       sunset: '/src/assets/backgrounds/sunset.jpg',
@@ -59,7 +90,7 @@ export class NinjaArashiRenderer {
         const img = new Image();
         img.src = src;
         img.onload = () => {
-          this.bgImages[key] = img;
+          this.bgImages[key] = this._createMipLevels(img);
         };
       }
     }
@@ -68,8 +99,8 @@ export class NinjaArashiRenderer {
   resize() {
     if (!this.canvas) return;
     const rawDpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
-    // Cap DPR at 2.0 to eliminate fill-rate stutter on high-density mobile GPUs
-    const dpr = Math.min(rawDpr, 2.0);
+    // Support up to DPR 3.0 for ultra-sharp Retina / 4K fidelity
+    const dpr = Math.min(rawDpr, 3.0);
 
     const rect = this.canvas.getBoundingClientRect();
     let cssW = rect.width;
@@ -93,12 +124,12 @@ export class NinjaArashiRenderer {
     this.width = Math.round(720 * aspect);
     this.dpr = dpr;
 
-    // Performance-optimized physical buffer
+    // Direct physical hardware pixel buffer (up to native 4K UHD 3840x2160)
     let bufferW = Math.max(640, Math.round(cssW * dpr));
     let bufferH = Math.max(360, Math.round(cssH * dpr));
 
-    const maxBufferW = 2048;
-    const maxBufferH = 1152;
+    const maxBufferW = 3840;
+    const maxBufferH = 2160;
     if (bufferW > maxBufferW || bufferH > maxBufferH) {
       const scaleDown = Math.min(maxBufferW / bufferW, maxBufferH / bufferH);
       bufferW = Math.round(bufferW * scaleDown);
@@ -219,11 +250,24 @@ export class NinjaArashiRenderer {
       imgKey = 'ruins';
     }
 
-    const bgImg = this.bgImages[imgKey] || this.bgImages.sunset;
+    const mips = this.bgImages[imgKey] || this.bgImages.sunset;
+    if (!mips) return;
 
-    if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
+    // Select the optimal pre-filtered mip level based on physical render height
+    const physicalH = h * (this.scaleFactor || 1);
+    let bgImg = mips['4k'] || mips;
+    if (physicalH <= 650 && mips['1k']) {
+      bgImg = mips['1k'];
+    } else if (physicalH <= 1300 && mips['2k']) {
+      bgImg = mips['2k'];
+    }
+
+    const naturalW = bgImg.naturalWidth || bgImg.width || 3840;
+    const naturalH = bgImg.naturalHeight || bgImg.height || 2160;
+
+    if (bgImg && naturalW > 0) {
       const parallaxFactor = 0.12;
-      const aspect = bgImg.naturalWidth / bgImg.naturalHeight;
+      const aspect = naturalW / naturalH;
       const imgHeight = h;
       const imgWidth = Math.round(imgHeight * aspect);
 

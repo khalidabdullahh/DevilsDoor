@@ -51,6 +51,9 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 #game-canvas {
@@ -60,6 +63,9 @@ html, body {
   width: 100%;
   height: 100%;
   display: block;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  image-rendering: -webkit-optimize-contrast;
 }
 
 /* ==========================================================================
@@ -93,6 +99,8 @@ body.portrait-mode .game-screen-box {
   background: #000000;
   overflow: hidden;
   flex-shrink: 0;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 #game-container.portrait-mode #game-canvas,
@@ -100,6 +108,8 @@ body.portrait-mode #game-canvas {
   width: 100%;
   height: 100%;
   display: block;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 #game-container.portrait-mode .hud-overlay,
