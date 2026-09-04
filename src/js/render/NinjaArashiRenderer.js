@@ -19,11 +19,19 @@ export class NinjaArashiRenderer {
 
     this.time = 0;
     this.bgImages = {};
+    this.scaleFactor = 1;
     this._loadBackgroundAssets();
     this.resize();
 
     window.addEventListener('resize', () => this.resize());
     window.addEventListener('orientationchange', () => this.resize());
+    if (typeof ResizeObserver !== 'undefined' && this.canvas) {
+      this._resizeObserver = new ResizeObserver(() => this.resize());
+      this._resizeObserver.observe(this.canvas);
+      if (this.canvas.parentElement) {
+        this._resizeObserver.observe(this.canvas.parentElement);
+      }
+    }
   }
 
   _loadBackgroundAssets() {
@@ -58,18 +66,32 @@ export class NinjaArashiRenderer {
     const dpr = Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 3);
 
     const rect = this.canvas.getBoundingClientRect();
-    const cssW = rect.width || (typeof window !== 'undefined' ? window.innerWidth : 1280);
-    const cssH = rect.height || (typeof window !== 'undefined' ? window.innerHeight : 720);
+    let cssW = rect.width;
+    let cssH = rect.height;
 
-    const aspect = Math.max(1.33, Math.min(2.4, cssW / (cssH || 1)));
+    // Fallback if dimensions are 0 (e.g. before initial paint)
+    if (!cssW || !cssH) {
+      if (typeof window !== 'undefined') {
+        cssW = window.innerWidth;
+        cssH = window.innerHeight;
+      } else {
+        cssW = 1280;
+        cssH = 720;
+      }
+    }
 
-    // Standard virtual height 720, width adapted to exact viewport ratio
+    const aspect = Math.max(1.2, Math.min(2.6, cssW / (cssH || 1)));
+
+    // Virtual coordinates: fixed height 720, width adapted to exact viewport ratio
     this.height = 720;
     this.width = Math.round(720 * aspect);
     this.dpr = dpr;
 
-    const bufferW = Math.round(this.width * dpr);
-    const bufferH = Math.round(this.height * dpr);
+    // Match physical hardware pixels for 1:1 crispness without interpolation blur
+    const bufferW = Math.max(640, Math.round(cssW * dpr));
+    const bufferH = Math.max(360, Math.round(cssH * dpr));
+
+    this.scaleFactor = bufferH / this.height;
 
     if (this.canvas.width !== bufferW || this.canvas.height !== bufferH) {
       this.canvas.width = bufferW;
@@ -95,15 +117,15 @@ export class NinjaArashiRenderer {
   render(camX, camY, level, player, enemies) {
     this.time += 0.016;
     const ctx = this.ctx;
-    const w = this.width;   // 1280
-    const h = this.height;  // 720
-    const dpr = this.dpr || 1;
+    const w = this.width;
+    const h = this.height;
+    const scale = this.scaleFactor || 1;
     const biome = (level && level.biome) ? level.biome : 'sunset';
 
     ctx.save();
-    ctx.scale(dpr, dpr);
+    ctx.scale(scale, scale);
 
-    // Enable High-Quality Smoothing
+    // Enable High-Quality GPU Texture Smoothing & Filtering
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
 
@@ -134,13 +156,13 @@ export class NinjaArashiRenderer {
       player.draw(ctx, camX, camY, this.time);
     }
 
-    ctx.restore();
-
-    // 6. Draw Weather Particles & Atmospheric Overlay
+    // 6. Draw Weather Particles & Atmospheric Overlay (inside transformed context)
     this._drawAtmosphericParticles(ctx, biome, w, h);
 
-    // 7. Dark Fantasy Vignette Lighting
+    // 7. Dark Fantasy Vignette Lighting (inside transformed context)
     this._drawCinematicVignette(ctx, w, h);
+
+    ctx.restore();
   }
 
   _drawArchiveSceneBackdrop(ctx, biome, camX, camY, w, h) {
@@ -149,11 +171,19 @@ export class NinjaArashiRenderer {
     ctx.imageSmoothingQuality = 'high';
 
     let imgKey = 'sunset';
-    if (biome === 'snow') imgKey = 'snow_oni';
-    else if (biome === 'bamboo') imgKey = 'bamboo';
-    else if (biome === 'thorns') imgKey = 'thorns';
-    else if (biome === 'waterfall') imgKey = 'waterfall';
-    else if (biome === 'ruins') imgKey = 'ruins';
+    if (this.bgImages[biome]) {
+      imgKey = biome;
+    } else if (biome === 'snow') {
+      imgKey = 'snow_oni';
+    } else if (biome === 'bamboo') {
+      imgKey = 'bamboo';
+    } else if (biome === 'thorns') {
+      imgKey = 'thorns';
+    } else if (biome === 'waterfall') {
+      imgKey = 'waterfall';
+    } else if (biome === 'ruins') {
+      imgKey = 'ruins';
+    }
 
     const bgImg = this.bgImages[imgKey] || this.bgImages.sunset;
 

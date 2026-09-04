@@ -99,7 +99,6 @@ body.portrait-mode .game-screen-box {
 body.portrait-mode #game-canvas {
   width: 100%;
   height: 100%;
-  object-fit: contain;
   display: block;
 }
 

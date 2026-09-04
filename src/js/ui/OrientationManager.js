@@ -50,6 +50,13 @@ export class OrientationManager {
       this.game.isOrientationBlocked = false;
       if (this.game.renderer) {
         this.game.renderer.resize();
+        if (typeof requestAnimationFrame !== 'undefined') {
+          requestAnimationFrame(() => {
+            if (this.game && this.game.renderer) {
+              this.game.renderer.resize();
+            }
+          });
+        }
       }
     }
   }
