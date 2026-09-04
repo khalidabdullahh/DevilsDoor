@@ -29,11 +29,11 @@ export class NinjaArashiPlayer {
     this.score = 0;
 
     // Movement Speeds (Fast, athletic Shinobi action)
-    this.moveSpeed = 480;
-    this.jumpForce = 520;
-    this.doubleJumpForce = 480;
-    this.gravity = 1260;
-    this.dashSpeed = 960;
+    this.moveSpeed = 540;
+    this.jumpForce = 550;
+    this.doubleJumpForce = 500;
+    this.gravity = 1280;
+    this.dashSpeed = 1100;
 
     // Movement States
     this.isGrounded = false;

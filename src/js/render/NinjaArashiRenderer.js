@@ -20,6 +20,10 @@ export class NinjaArashiRenderer {
     this.time = 0;
     this.bgImages = {};
     this.scaleFactor = 1;
+    this.cachedOverlayGrad = null;
+    this.cachedVignetteGrad = null;
+    this.cachedFallbackGrads = {};
+
     this._loadBackgroundAssets();
     this.resize();
 
@@ -63,7 +67,9 @@ export class NinjaArashiRenderer {
 
   resize() {
     if (!this.canvas) return;
-    const dpr = Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 3);
+    const rawDpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+    // Cap DPR at 2.0 to eliminate fill-rate stutter on high-density mobile GPUs
+    const dpr = Math.min(rawDpr, 2.0);
 
     const rect = this.canvas.getBoundingClientRect();
     let cssW = rect.width;
@@ -82,14 +88,22 @@ export class NinjaArashiRenderer {
 
     const aspect = Math.max(1.2, Math.min(2.6, cssW / (cssH || 1)));
 
-    // Virtual coordinates: fixed height 720, width adapted to exact viewport ratio
+    // Virtual coordinates: standard height 720, width adapted to exact viewport ratio
     this.height = 720;
     this.width = Math.round(720 * aspect);
     this.dpr = dpr;
 
-    // Match physical hardware pixels for 1:1 crispness without interpolation blur
-    const bufferW = Math.max(640, Math.round(cssW * dpr));
-    const bufferH = Math.max(360, Math.round(cssH * dpr));
+    // Performance-optimized physical buffer
+    let bufferW = Math.max(640, Math.round(cssW * dpr));
+    let bufferH = Math.max(360, Math.round(cssH * dpr));
+
+    const maxBufferW = 2048;
+    const maxBufferH = 1152;
+    if (bufferW > maxBufferW || bufferH > maxBufferH) {
+      const scaleDown = Math.min(maxBufferW / bufferW, maxBufferH / bufferH);
+      bufferW = Math.round(bufferW * scaleDown);
+      bufferH = Math.round(bufferH * scaleDown);
+    }
 
     this.scaleFactor = bufferH / this.height;
 
@@ -97,6 +111,30 @@ export class NinjaArashiRenderer {
       this.canvas.width = bufferW;
       this.canvas.height = bufferH;
     }
+
+    this._updateCachedGradients();
+  }
+
+  _updateCachedGradients() {
+    if (!this.ctx) return;
+    const w = this.width;
+    const h = this.height;
+
+    // Overlay gradient
+    const overlayGrad = this.ctx.createLinearGradient(0, 0, 0, h);
+    overlayGrad.addColorStop(0, 'rgba(7, 9, 14, 0.08)');
+    overlayGrad.addColorStop(0.65, 'rgba(0, 0, 0, 0)');
+    overlayGrad.addColorStop(1, 'rgba(7, 9, 14, 0.45)');
+    this.cachedOverlayGrad = overlayGrad;
+
+    // Vignette gradient
+    const vignetteGrad = this.ctx.createRadialGradient(
+      w / 2, h / 2, Math.min(w, h) * 0.45,
+      w / 2, h / 2, Math.max(w, h) * 0.78
+    );
+    vignetteGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    vignetteGrad.addColorStop(1, 'rgba(5, 8, 15, 0.75)');
+    this.cachedVignetteGrad = vignetteGrad;
   }
 
   _initParticles() {
@@ -125,9 +163,9 @@ export class NinjaArashiRenderer {
     ctx.save();
     ctx.scale(scale, scale);
 
-    // Enable High-Quality GPU Texture Smoothing & Filtering
+    // High-performance image smoothing
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = 'medium';
 
     ctx.clearRect(0, 0, w, h);
 
@@ -166,10 +204,6 @@ export class NinjaArashiRenderer {
   }
 
   _drawArchiveSceneBackdrop(ctx, biome, camX, camY, w, h) {
-    ctx.save();
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-
     let imgKey = 'sunset';
     if (this.bgImages[biome]) {
       imgKey = biome;
@@ -194,33 +228,22 @@ export class NinjaArashiRenderer {
       const imgWidth = Math.round(imgHeight * aspect);
 
       const totalScroll = camX * parallaxFactor;
-      const startTile = Math.floor((totalScroll - imgWidth) / imgWidth);
-      const endTile = Math.ceil((totalScroll + w + imgWidth) / imgWidth);
+      // Fast single-modulo wrapping for zero matrix save/restore overhead
+      const offset = ((totalScroll % imgWidth) + imgWidth) % imgWidth;
+      let drawX = -offset;
 
-      for (let i = startTile; i <= endTile; i++) {
-        const drawX = i * imgWidth - totalScroll;
-        const isMirrored = Math.abs(i) % 2 === 1;
-
-        ctx.save();
-        if (isMirrored) {
-          ctx.translate(drawX + imgWidth, 0);
-          ctx.scale(-1, 1);
-          ctx.drawImage(bgImg, 0, 0, imgWidth, imgHeight);
-        } else {
-          ctx.drawImage(bgImg, drawX, 0, imgWidth, imgHeight);
-        }
-        ctx.restore();
+      while (drawX < w) {
+        ctx.drawImage(bgImg, drawX, 0, imgWidth, imgHeight);
+        drawX += imgWidth;
       }
 
-      // Atmospheric gradient
-      const overlayGrad = ctx.createLinearGradient(0, 0, 0, h);
-      overlayGrad.addColorStop(0, 'rgba(7, 9, 14, 0.08)');
-      overlayGrad.addColorStop(0.65, 'rgba(0, 0, 0, 0)');
-      overlayGrad.addColorStop(1, 'rgba(7, 9, 14, 0.45)');
-      ctx.fillStyle = overlayGrad;
-      ctx.fillRect(0, 0, w, h);
+      // Cached atmospheric gradient
+      if (this.cachedOverlayGrad) {
+        ctx.fillStyle = this.cachedOverlayGrad;
+        ctx.fillRect(0, 0, w, h);
+      }
     } else {
-      // High-End Fallback Gradient
+      // Fallback solid gradient
       const grad = ctx.createLinearGradient(0, 0, 0, h);
       if (biome === 'snow') {
         grad.addColorStop(0, '#0c1a2e');
@@ -242,8 +265,6 @@ export class NinjaArashiRenderer {
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
     }
-
-    ctx.restore();
   }
 
   _drawParallaxSilhouettes(ctx, biome, scrollX, w, h) {
@@ -260,18 +281,15 @@ export class NinjaArashiRenderer {
       const type = Math.abs(i) % 3;
 
       if (biome === 'snow') {
-        // Frosted bare pine tree
         ctx.beginPath();
         ctx.moveTo(px, baseY);
         ctx.lineTo(px + 12, baseY - 160);
         ctx.lineTo(px + 24, baseY);
         ctx.fill();
       } else if (biome === 'bamboo') {
-        // Tall vertical bamboo stalk
         ctx.fillRect(px, baseY - 260, 14, 260);
         ctx.fillRect(px + 24, baseY - 220, 10, 220);
       } else {
-        // Japanese Pagoda Roof / Torii silhouette
         if (type === 0) {
           ctx.beginPath();
           ctx.moveTo(px - 40, baseY);
@@ -290,50 +308,53 @@ export class NinjaArashiRenderer {
   }
 
   _drawAtmosphericParticles(ctx, biome, w, h) {
+    if (!this.particles || this.particles.length === 0) return;
+
     ctx.save();
-
-    for (const p of this.particles) {
-      p.x += p.vx * 0.016;
-      p.y += p.vy * 0.016;
-      p.rot += p.rotSpeed * 0.016;
-
-      if (p.x < -100) p.x = w + 100;
-      if (p.y > h + 100) p.y = -100;
-
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-
-      if (biome === 'snow') {
-        ctx.fillStyle = 'rgba(248, 250, 252, 0.75)';
-        ctx.beginPath();
-        ctx.arc(0, 0, p.size * 0.7, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (biome === 'bamboo') {
-        ctx.fillStyle = 'rgba(52, 211, 153, 0.65)';
-        ctx.beginPath();
-        ctx.ellipse(0, 0, p.size * 1.5, p.size * 0.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.fillStyle = 'rgba(251, 191, 36, 0.75)';
-        ctx.beginPath();
-        ctx.arc(0, 0, p.size * 0.5, 0, Math.PI * 2);
-        ctx.fill();
+    if (biome === 'snow') {
+      ctx.fillStyle = 'rgba(248, 250, 252, 0.75)';
+      ctx.beginPath();
+      for (const p of this.particles) {
+        p.x += p.vx * 0.016;
+        p.y += p.vy * 0.016;
+        if (p.x < -60) p.x = w + 60;
+        if (p.y > h + 60) p.y = -60;
+        ctx.moveTo(p.x + p.size * 0.7, p.y);
+        ctx.arc(p.x, p.y, p.size * 0.7, 0, Math.PI * 2);
       }
-
-      ctx.restore();
+      ctx.fill();
+    } else if (biome === 'bamboo') {
+      ctx.fillStyle = 'rgba(52, 211, 153, 0.65)';
+      ctx.beginPath();
+      for (const p of this.particles) {
+        p.x += p.vx * 0.016;
+        p.y += p.vy * 0.016;
+        if (p.x < -60) p.x = w + 60;
+        if (p.y > h + 60) p.y = -60;
+        ctx.moveTo(p.x + p.size, p.y);
+        ctx.arc(p.x, p.y, p.size * 0.8, 0, Math.PI * 2);
+      }
+      ctx.fill();
+    } else {
+      ctx.fillStyle = 'rgba(251, 191, 36, 0.75)';
+      ctx.beginPath();
+      for (const p of this.particles) {
+        p.x += p.vx * 0.016;
+        p.y += p.vy * 0.016;
+        if (p.x < -60) p.x = w + 60;
+        if (p.y > h + 60) p.y = -60;
+        ctx.moveTo(p.x + p.size * 0.5, p.y);
+        ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
+      }
+      ctx.fill();
     }
-
     ctx.restore();
   }
 
   _drawCinematicVignette(ctx, w, h) {
-    ctx.save();
-    const grad = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.45, w / 2, h / 2, Math.max(w, h) * 0.78);
-    grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    grad.addColorStop(1, 'rgba(5, 8, 15, 0.75)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, w, h);
-    ctx.restore();
+    if (this.cachedVignetteGrad) {
+      ctx.fillStyle = this.cachedVignetteGrad;
+      ctx.fillRect(0, 0, w, h);
+    }
   }
 }

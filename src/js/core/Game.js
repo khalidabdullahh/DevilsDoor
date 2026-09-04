@@ -134,7 +134,7 @@ export class Game {
   }
 
   _loop(timestamp) {
-    const dt = Math.min((timestamp - this.lastTime) / 1000, 0.05);
+    const dt = Math.min((timestamp - this.lastTime) / 1000, 0.08);
     this.lastTime = timestamp;
 
     if (!this.isPaused && !this.isOrientationBlocked && !this.isInSceneSelect && this.world) {
