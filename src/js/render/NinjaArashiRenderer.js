@@ -152,24 +152,35 @@ export class NinjaArashiRenderer {
     const bgImg = this.bgImages[imgKey] || this.bgImages.sunset;
 
     if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
-      // 0.12x Parallax Speed
       const parallaxFactor = 0.12;
       const aspect = bgImg.naturalWidth / bgImg.naturalHeight;
-      const imgHeight = h * 1.12;
-      const imgWidth = imgHeight * aspect;
+      const imgHeight = h;
+      const imgWidth = Math.round(imgHeight * aspect);
 
-      const offset = (camX * parallaxFactor) % imgWidth;
-      const startX = -offset;
+      const totalScroll = camX * parallaxFactor;
+      const startTile = Math.floor((totalScroll - imgWidth) / imgWidth);
+      const endTile = Math.ceil((totalScroll + w + imgWidth) / imgWidth);
 
-      for (let x = startX - imgWidth; x < w + imgWidth; x += imgWidth - 1) {
-        ctx.drawImage(bgImg, x, 0, imgWidth, imgHeight);
+      for (let i = startTile; i <= endTile; i++) {
+        const drawX = i * imgWidth - totalScroll;
+        const isMirrored = Math.abs(i) % 2 === 1;
+
+        ctx.save();
+        if (isMirrored) {
+          ctx.translate(drawX + imgWidth, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(bgImg, 0, 0, imgWidth, imgHeight);
+        } else {
+          ctx.drawImage(bgImg, drawX, 0, imgWidth, imgHeight);
+        }
+        ctx.restore();
       }
 
-      // Subtle atmospheric tint
+      // Atmospheric gradient
       const overlayGrad = ctx.createLinearGradient(0, 0, 0, h);
-      overlayGrad.addColorStop(0, 'rgba(7, 9, 14, 0.12)');
-      overlayGrad.addColorStop(0.6, 'rgba(0, 0, 0, 0)');
-      overlayGrad.addColorStop(1, 'rgba(7, 9, 14, 0.5)');
+      overlayGrad.addColorStop(0, 'rgba(7, 9, 14, 0.08)');
+      overlayGrad.addColorStop(0.65, 'rgba(0, 0, 0, 0)');
+      overlayGrad.addColorStop(1, 'rgba(7, 9, 14, 0.45)');
       ctx.fillStyle = overlayGrad;
       ctx.fillRect(0, 0, w, h);
     } else {
@@ -203,7 +214,7 @@ export class NinjaArashiRenderer {
     ctx.save();
     ctx.fillStyle = 'rgba(7, 9, 14, 0.75)';
 
-    const baseY = h * 0.78;
+    const baseY = 580;
     const spacing = 420;
     const startIdx = Math.floor(scrollX / spacing) - 1;
     const endIdx = startIdx + Math.ceil(w / spacing) + 3;

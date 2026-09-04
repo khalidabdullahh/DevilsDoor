@@ -47,6 +47,19 @@ export class UIManager {
       });
     }
 
+    const btnDeckAudio = document.getElementById('btn-deck-audio');
+    if (btnDeckAudio) {
+      btnDeckAudio.addEventListener('click', () => {
+        if (this.game && this.game.audio) {
+          const isMuted = this.game.audio.toggleMute();
+          btnDeckAudio.textContent = isMuted ? '🔇 MUTED' : '🔊 AUDIO';
+          if (this.audioIcon) {
+            this.audioIcon.classList.toggle('muted', isMuted);
+          }
+        }
+      });
+    }
+
     const btnDeckRestart = document.getElementById('btn-deck-restart');
     if (btnDeckRestart) {
       btnDeckRestart.addEventListener('click', () => {
@@ -61,10 +74,18 @@ export class UIManager {
       });
     }
 
+    const btnDeckMenu = document.getElementById('btn-deck-menu');
+    if (btnDeckMenu) {
+      btnDeckMenu.addEventListener('click', () => this.showPauseModal());
+    }
+
     if (this.btnAudio) {
       this.btnAudio.addEventListener('click', () => {
         if (this.game && this.game.audio) {
           const isMuted = this.game.audio.toggleMute();
+          if (btnDeckAudio) {
+            btnDeckAudio.textContent = isMuted ? '🔇 MUTED' : '🔊 AUDIO';
+          }
           if (this.audioIcon) {
             this.audioIcon.classList.toggle('muted', isMuted);
           }
@@ -146,18 +167,20 @@ export class UIManager {
       deckRealm.textContent = `SHADOW RONIN ⚡ ${names[biome] || 'ENDLESS RUN'}`;
     }
 
-    if (this.healthDisplay) {
-      let dotsHtml = '';
-      for (let i = 0; i < maxHealth; i++) {
-        const isActive = i < health;
-        dotsHtml += `
-          <div class="vitality-dot ${isActive ? 'active' : 'depleted'}" title="Health: ${health}/${maxHealth}">
-            <span class="dot-core"></span>
-          </div>
-        `;
-      }
-      this.healthDisplay.innerHTML = dotsHtml;
+    let dotsHtml = '';
+    for (let i = 0; i < maxHealth; i++) {
+      const isActive = i < health;
+      dotsHtml += `
+        <div class="vitality-dot ${isActive ? 'active' : 'depleted'}" title="Health: ${health}/${maxHealth}">
+          <span class="dot-core"></span>
+        </div>
+      `;
     }
+
+    const healthBars = document.querySelectorAll('.hud-health-bar');
+    healthBars.forEach((el) => {
+      el.innerHTML = dotsHtml;
+    });
   }
 
   showPauseModal(onResume, onRestart, onChangeScene) {

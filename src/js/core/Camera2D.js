@@ -39,8 +39,8 @@ export class Camera2D {
   snapTo(x, y) {
     this.viewportWidth = 1280;
     this.viewportHeight = 720;
-    this.x = x - this.viewportWidth * 0.35;
-    this.y = y - this.viewportHeight * 0.52;
+    this.x = x - this.viewportWidth * 0.32;
+    this.y = (y - 502) * 0.4 - 20;
     this.targetX = this.x;
     this.targetY = this.y;
   }
@@ -51,14 +51,14 @@ export class Camera2D {
 
     if (player) {
       const pvx = player.vx || 0;
-      this.targetLookAhead = player.facing * Math.min(160, Math.abs(pvx) * 0.28);
+      this.targetLookAhead = player.facing * Math.min(180, Math.abs(pvx) * 0.3);
       this.lookAheadX += (this.targetLookAhead - this.lookAheadX) * 0.08;
 
-      const idealX = player.x + this.lookAheadX - this.viewportWidth * 0.35;
-      const idealY = player.y - this.viewportHeight * 0.52;
+      const idealX = player.x + this.lookAheadX - this.viewportWidth * 0.32;
+      const idealY = (player.y - 502) * 0.4 - 20;
 
       this.targetX = Math.max(this.minX, idealX);
-      this.targetY = Math.max(this.minY, idealY);
+      this.targetY = Math.max(-180, Math.min(60, idealY));
     }
 
     this.x += (this.targetX - this.x) * this.lerpSpeed;
