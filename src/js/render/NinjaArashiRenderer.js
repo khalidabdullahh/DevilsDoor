@@ -55,18 +55,20 @@ export class NinjaArashiRenderer {
 
   resize() {
     if (!this.canvas) return;
-    const rect = this.canvas.getBoundingClientRect();
     const dpr = Math.min(typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1, 2);
 
-    const w = Math.round((rect.width || (typeof window !== 'undefined' ? window.innerWidth : 1280)) * dpr);
-    const h = Math.round((rect.height || (typeof window !== 'undefined' ? window.innerHeight : 720)) * dpr);
+    // Fixed 16:9 Widescreen Virtual Canvas Coordinates
+    this.width = 1280;
+    this.height = 720;
+    this.dpr = dpr;
 
-    if (this.canvas.width !== w || this.canvas.height !== h) {
-      this.canvas.width = w;
-      this.canvas.height = h;
+    const bufferW = Math.round(1280 * dpr);
+    const bufferH = Math.round(720 * dpr);
+
+    if (this.canvas.width !== bufferW || this.canvas.height !== bufferH) {
+      this.canvas.width = bufferW;
+      this.canvas.height = bufferH;
     }
-    this.width = w;
-    this.height = h;
   }
 
   _initParticles() {
@@ -87,9 +89,13 @@ export class NinjaArashiRenderer {
   render(camX, camY, level, player, enemies) {
     this.time += 0.016;
     const ctx = this.ctx;
-    const w = this.width;
-    const h = this.height;
+    const w = this.width;   // 1280
+    const h = this.height;  // 720
+    const dpr = this.dpr || 1;
     const biome = (level && level.biome) ? level.biome : 'sunset';
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
 
     // Enable High-Quality Smoothing
     ctx.imageSmoothingEnabled = true;
@@ -104,8 +110,6 @@ export class NinjaArashiRenderer {
     this._drawParallaxSilhouettes(ctx, biome, camX * 0.28, w, h);
 
     // 3. Playable World Chunks, Terrain, Props & Hazards (1.0x)
-    ctx.save();
-
     if (level) {
       level.draw(ctx, camX, camY, this.time);
     }

@@ -63,58 +63,165 @@ html, body {
 }
 
 /* ==========================================================================
-   Portrait Mode (Handheld Gamepad Console Layout)
+   Portrait Mode (Handheld Gamepad Console Layout - Inspired by Oops!)
    ========================================================================== */
-#game-container.portrait-mode {
+#game-container.portrait-mode,
+body.portrait-mode #game-container {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  background: #07090e;
+  background-color: #080a12;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.05) 1.2px, transparent 1.2px),
+    linear-gradient(180deg, #101422 0%, #080a12 50%, #040508 100%);
+  background-size: 16px 16px, 100% 100%;
+  overflow: hidden;
 }
 
-#game-container.portrait-mode .game-screen-box {
+#game-container.portrait-mode .game-screen-box,
+body.portrait-mode .game-screen-box {
   position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9.5;
-  max-height: 48vh;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.95);
+  width: calc(100% - 16px);
+  max-width: 580px;
+  aspect-ratio: 16 / 9;
+  max-height: 44vh;
+  margin-top: max(8px, env(safe-area-inset-top));
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.95), 0 0 16px rgba(56, 189, 248, 0.15);
   background: #000000;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
-#game-container.portrait-mode #touch-controls {
+#game-container.portrait-mode #game-canvas,
+body.portrait-mode #game-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Middle Status / Deck Bar */
+.gamepad-deck-bar {
+  display: none;
+}
+
+#game-container.portrait-mode .gamepad-deck-bar,
+body.portrait-mode .gamepad-deck-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: calc(100% - 16px);
+  max-width: 580px;
+  margin: 8px auto 0 auto;
+  padding: 6px 14px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.deck-info-item {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.deck-actions-cluster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.deck-utility-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #f8fafc;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.1s, background 0.15s;
+}
+
+.deck-utility-btn:active {
+  transform: scale(0.92);
+  background: var(--accent-crimson);
+}
+
+/* Handheld Gamepad Deck */
+#game-container.portrait-mode #touch-controls,
+body.portrait-mode #touch-controls {
   position: relative;
   flex: 1;
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 24px calc(env(safe-area-inset-right, 20px) + 16px) calc(env(safe-area-inset-bottom, 20px) + 24px) calc(env(safe-area-inset-left, 20px) + 16px);
-  background: radial-gradient(circle at 50% 30%, #151c2e 0%, #0a0e17 75%, #05070c 100%);
-  box-shadow: inset 0 6px 20px rgba(0, 0, 0, 0.9);
+  align-items: flex-end;
+  padding: 12px max(18px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+  background: transparent;
   pointer-events: auto;
+  box-sizing: border-box;
 }
 
-#game-container.portrait-mode .dpad-btn {
-  width: 72px;
-  height: 72px;
+#game-container.portrait-mode .touch-dpad,
+body.portrait-mode .touch-dpad {
+  display: flex;
+  gap: 14px;
+  align-items: center;
 }
 
-#game-container.portrait-mode .jump-btn {
-  width: 84px;
-  height: 84px;
+#game-container.portrait-mode .touch-actions,
+body.portrait-mode .touch-actions {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
 }
 
-#game-container.portrait-mode .attack-btn {
-  width: 72px;
-  height: 72px;
+#game-container.portrait-mode .dpad-btn,
+body.portrait-mode .dpad-btn {
+  width: clamp(70px, 18vw, 82px) !important;
+  height: clamp(70px, 18vw, 82px) !important;
+  border-radius: 50% !important;
 }
 
-#game-container.portrait-mode .shuriken-btn {
-  width: 62px;
-  height: 62px;
+#game-container.portrait-mode .jump-btn,
+body.portrait-mode .jump-btn {
+  width: clamp(84px, 22vw, 98px) !important;
+  height: clamp(84px, 22vw, 98px) !important;
+  border-radius: 50% !important;
+  order: 3;
+}
+
+#game-container.portrait-mode .attack-btn,
+body.portrait-mode .attack-btn {
+  width: clamp(68px, 17vw, 78px) !important;
+  height: clamp(68px, 17vw, 78px) !important;
+  border-radius: 50% !important;
+  order: 2;
+  margin-bottom: 8px;
+}
+
+#game-container.portrait-mode .shuriken-btn,
+body.portrait-mode .shuriken-btn {
+  width: clamp(60px, 15vw, 70px) !important;
+  height: clamp(60px, 15vw, 70px) !important;
+  border-radius: 50% !important;
+  order: 1;
+  margin-bottom: 18px;
 }
 
 /* ==========================================================================

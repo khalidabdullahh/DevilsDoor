@@ -37,26 +37,28 @@ export class Camera2D {
   }
 
   snapTo(x, y) {
+    this.viewportWidth = 1280;
+    this.viewportHeight = 720;
     this.x = x - this.viewportWidth * 0.35;
-    this.y = y - this.viewportHeight * 0.45;
+    this.y = y - this.viewportHeight * 0.52;
     this.targetX = this.x;
     this.targetY = this.y;
   }
 
   update(dt, player) {
-    this.viewportWidth = window.innerWidth;
-    this.viewportHeight = window.innerHeight;
+    this.viewportWidth = 1280;
+    this.viewportHeight = 720;
 
     if (player) {
       const pvx = player.vx || 0;
-      this.targetLookAhead = player.facing * Math.min(140, Math.abs(pvx) * 0.28);
-      this.lookAheadX += (this.targetLookAhead - this.lookAheadX) * 0.06;
+      this.targetLookAhead = player.facing * Math.min(160, Math.abs(pvx) * 0.28);
+      this.lookAheadX += (this.targetLookAhead - this.lookAheadX) * 0.08;
 
-      const idealX = player.x + this.lookAheadX - this.viewportWidth * 0.38;
+      const idealX = player.x + this.lookAheadX - this.viewportWidth * 0.35;
       const idealY = player.y - this.viewportHeight * 0.52;
 
-      this.targetX = Math.max(this.minX, Math.min(this.maxX - this.viewportWidth, idealX));
-      this.targetY = Math.max(this.minY, Math.min(this.maxY - this.viewportHeight, idealY));
+      this.targetX = Math.max(this.minX, idealX);
+      this.targetY = Math.max(this.minY, idealY);
     }
 
     this.x += (this.targetX - this.x) * this.lerpSpeed;

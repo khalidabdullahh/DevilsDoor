@@ -47,6 +47,20 @@ export class UIManager {
       });
     }
 
+    const btnDeckRestart = document.getElementById('btn-deck-restart');
+    if (btnDeckRestart) {
+      btnDeckRestart.addEventListener('click', () => {
+        if (this.game) this.game.restartGame();
+      });
+    }
+
+    const btnDeckSettings = document.getElementById('btn-deck-settings');
+    if (btnDeckSettings) {
+      btnDeckSettings.addEventListener('click', () => {
+        if (this.game) this.game.openSettings();
+      });
+    }
+
     if (this.btnAudio) {
       this.btnAudio.addEventListener('click', () => {
         if (this.game && this.game.audio) {
@@ -119,6 +133,19 @@ export class UIManager {
     if (this.highScoreDisplay) {
       this.highScoreDisplay.textContent = `BEST: ${highScore.toLocaleString()}`;
     }
+    const deckRealm = document.getElementById('deck-realm-name');
+    if (deckRealm) {
+      const names = {
+        sunset: 'SUNSET FORTRESS',
+        snow: 'FROZEN ABYSS',
+        bamboo: 'BAMBOO GROVE',
+        thorns: 'THORN CRYPTS',
+        waterfall: 'SKY WATERFALL',
+        ruins: 'ANCIENT RUINS'
+      };
+      deckRealm.textContent = `SHADOW RONIN ⚡ ${names[biome] || 'ENDLESS RUN'}`;
+    }
+
     if (this.healthDisplay) {
       let dotsHtml = '';
       for (let i = 0; i < maxHealth; i++) {
