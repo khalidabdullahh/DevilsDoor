@@ -1,4 +1,4 @@
-# ⛩️ DEVIL'S DOOR v2.1 — COMPLETE ARCHIVAL VAULT & PROJECT LEDGER
+# ⛩️ DEVIL'S DOOR v2.2 — COMPLETE ARCHIVAL VAULT & MASTER PROJECT LEDGER
 
 > [!QUOTE] 
 > **"REACH THE DOOR. TRUST NOTHING."**  
@@ -6,15 +6,15 @@
 
 ```mermaid
 graph TD
-    User["👑 Founder (Khalid Abdullah)"] -->|All Prompts & Requirements| Vault["⛩️ Devil's Door Archival Vault (v2.1)"]
-    Vault --> P["📂 01: Prompt & Implementation Ledger (20 Milestones)"]
+    User["👑 Founder (Khalid Abdullah)"] -->|All Prompts & Requirements| Vault["⛩️ Devil's Door Archival Vault (v2.2 Master Edition)"]
+    Vault --> P["📂 01: Prompt & Implementation Ledger (21 Milestones)"]
     Vault --> A["📂 02: Technical Architecture Blueprints (5 Specs)"]
     Vault --> G["📂 03: Gameplay & World Catalogues (4 Dossiers)"]
-    Vault --> V["📂 04: Version Upgrades & Release Logs (v1.0.0 - v2.1.0)"]
+    Vault --> V["📂 04: Version Upgrades & Release Logs (v1.0.0 - v2.2.0)"]
     Vault --> B["📂 05: Backend & Database Systems (6 Blueprints)"]
-    Vault --> Plans["📂 06: Formal Implementation Plans (10 Plans)"]
+    Vault --> Plans["📂 06: Formal Implementation Plans (11 Plans)"]
     
-    P & A & G & V & B & Plans --> Engine["🌐 Production Engine (Vercel & CrazyGames v2.1)"]
+    P & A & G & V & B & Plans --> Engine["🌐 Production Engine (Vercel & CrazyGames v2.2)"]
 ```
 
 ---
@@ -23,23 +23,23 @@ graph TD
 
 | Metric / Parameter | Value / Status | Direct Link |
 |:---|:---|:---:|
-| 🏷️ **Current Active Version** | `v2.1.0 (PRODUCTION)` | [[v2.1.0_Publisher_Submission_&_Production_Release]] |
+| 🏷️ **Current Active Version** | `v2.2.0 (MASTER EDITION)` | [[v2.2.0_Master_Edition_New_Heroes_&_HD_Scenes]] |
 | 🌐 **Live Web Demo** | `PRODUCTION ACTIVE` | [devils-door.vercel.app](https://devils-door.vercel.app/) |
 | 🕹️ **Direct Game Portal** | `60 FPS CANVAS` | [devils-door.vercel.app/game](https://devils-door.vercel.app/game) |
 | 📦 **GitHub Canonical Repo** | `SYNCHRONIZED` | [github.com/khalidabdullahh/DevilsDoor](https://github.com/khalidabdullahh/DevilsDoor) |
+| 🥷 **Official Shinobi Roster** | `4 MASTER SHINOBIS (HD SKETCHES)` | [[Playable_Shinobi_Roster_Dossier]] |
+| ⛩️ **4K Concept Environments** | `4 MASTER SCENES` | [[Biomes_Atmospheric_Palettes_&_Dynamic_Hazards]] |
+| 💰 **Unlock Economy** | `POINT UNLOCKS (0, 500, 700, 1000)` | [[Plan_11_New_4_Hero_Shinobi_Roster_HD_Scenes_&_Point_Unlocks]] |
 | 🕹️ **CrazyGames Submission** | `AWAITING REVIEW` | `dist-crazygames/` / `devils-door-crazygames.zip` |
 | 🛡️ **IP & Legal Protection** | `DUAL LICENSE (MIT + ARR)` | [[Prompt_09_Dual_Licensing_IP_Protection_&_Commercial_Rights]] |
-| 🥷 **Playable Shinobi Roster** | `6 UNLOCKED HEROES` | [[Playable_Shinobi_Roster_Dossier]] |
-| ⛩️ **Dynamic Biomes** | `6 CYCLIC ATMOSPHERES` | [[Biomes_Atmospheric_Palettes_&_Dynamic_Hazards]] |
 | 🎵 **Audio System** | `0KB PROCEDURAL SYNTH` | [[Procedural_Audio_Synthesis_Bible]] |
 | 🗄️ **Database & Save Engine** | `LOCALSTORAGE + POSTGRES/REDIS` | [[01_Client_Storage_&_Save_State_Engine]] |
-| 📐 **Formal Implementation Plans**| `10 FULL ARCHITECTURAL PLANS` | [[Plan_01_Project_Genesis_&_10_Design_Bibles]] |
 
 ---
 
 ## 📑 Map of Content (MOC) & Complete Directory
 
-### 📂 01. Complete Prompt Ledger (20 Milestones)
+### 📂 01. Complete Prompt Ledger (21 Milestones)
 1. [[Prompt_01_Genesis_Architecture_&_Design_Bibles|Prompt 01: Genesis Concept, Specification Bibles & Open-Source Governance Suite]]
 2. [[Prompt_02_Responsive_Physics_&_SubPixel_Collisions|Prompt 02: Responsive Kinematics, Coyote Time (100ms) & Jump Buffering (120ms)]]
 3. [[Prompt_03_Trigger_Condition_Action_Deception_Engine|Prompt 03: Data-Driven Deception Engine & Modular Door Behaviors]]
@@ -60,6 +60,7 @@ graph TD
 18. [[Prompt_18_Anti_Cheat_Run_Verification_Hashing_System|Prompt 18: Anti-Cheat Cryptographic Run Signature Hashing & Speed Caps]]
 19. [[Prompt_19_Client_Save_State_Engine_&_Version_Migration|Prompt 19: Client Save State Engine Schema & Automated Version Migration]]
 20. [[Prompt_20_Continuous_Integration_Production_Server_Validation|Prompt 20: Automated Node.js Production Server Simulator & CI Test Suite]]
+21. [[Prompt_21_New_4_Hero_Shinobi_Roster_&_HD_Scenes_Integration|Prompt 21: New 4-Hero Shinobi Roster, 4K Concept Scenes & Point Unlock Economy]]
 
 ---
 
@@ -73,8 +74,8 @@ graph TD
 ---
 
 ### 📂 03. Gameplay, Heroes & World Catalogues
-- [[Playable_Shinobi_Roster_Dossier|Playable Shinobi Roster Dossier (#01 to #06 Hero Stats & Sprites)]]
-- [[Biomes_Atmospheric_Palettes_&_Dynamic_Hazards|Biomes Atmospheric Palettes, Weather Particles & Dynamic Hazards]]
+- [[Playable_Shinobi_Roster_Dossier|Playable Shinobi Roster Dossier — 4 Master Shinobis (Kage-Ryu, Ryujin, Raijin, Tsukuyomi)]]
+- [[Biomes_Atmospheric_Palettes_&_Dynamic_Hazards|Biomes, 4K Concept Scenes & Dynamic Hazard Environments]]
 - [[Deceptive_Doors_&_Trap_Catalog|Deceptive Doors & Environmental Traps Catalog]]
 - [[Level_Design_Bible_&_The_7_Acts_of_Descent|Level Design Bible, Telegraphing Rules & The 7 Acts of Descent]]
 
@@ -85,8 +86,9 @@ graph TD
 - [[v1.5.0_Multi_Hero_Roster_Upgrade|v1.5.0 — 6-Hero Playable Shinobi Roster & Verlet Cloth Integration]]
 - [[v1.8.0_Archive_Biomes_&_Dynamic_Cycles|v1.8.0 — 16 Archive Reference Scenes & 3-Minute Dynamic Cycles]]
 - [[v2.0.0_Unified_Game_Flow_Upgrade|v2.0.0 — Seamless Landing Page to Character Select UX]]
-- [[v2.1.0_Publisher_Submission_&_Production_Release|v2.1.0 — CrazyGames Bundle, Poki Submission & Dual IP Protection (Current Active)]]
-- [[Architecture_Decision_Records_ADRs|Architecture Decision Records (ADR-001 through ADR-005)]]
+- [[v2.1.0_Publisher_Submission_&_Production_Release|v2.1.0 — CrazyGames Bundle, Poki Submission & Dual IP Protection]]
+- [[v2.2.0_Master_Edition_New_Heroes_&_HD_Scenes|v2.2.0 — Master Edition: 4 New Shinobis, 4K HD Scenes & Point Economy (Current Active)]]
+- [[Architecture_Decision_Records_ADRs|Architecture Decision Records (ADR-001 through ADR-006)]]
 
 ---
 
@@ -100,8 +102,7 @@ graph TD
 
 ---
 
-### 📂 06. Formal Implementation Plans (Detailed Architectural Design Plans)
-Complete technical design proposals with file-by-file changes (`[NEW]`, `[MODIFY]`) and verification criteria:
+### 📂 06. Formal Implementation Plans (Complete Architectural Design Plans)
 - [[Plan_01_Project_Genesis_&_10_Design_Bibles|Plan 01: Project Genesis, Governance & 10 Locked Design Bibles]]
 - [[Plan_02_Physics_Engine_&_Deception_State_Machine|Plan 02: Responsive Physics Engine & Deception State Machine]]
 - [[Plan_03_Procedural_Audio_Synthesizer_&_Zero_Asset_Architecture|Plan 03: Procedural Web Audio Synthesizer & Zero-Asset Architecture]]
@@ -112,8 +113,9 @@ Complete technical design proposals with file-by-file changes (`[NEW]`, `[MODIFY
 - [[Plan_08_Publisher_Submission_&_Dual_IP_Licensing|Plan 08: Publisher Submission, Marketing Assets & Dual IP Licensing]]
 - [[Plan_09_Vercel_Edge_Deployment_&_Automated_CI_Testing|Plan 09: Vercel Edge Deployment & Automated CI Testing]]
 - [[Plan_10_Backend_Save_Engine_&_Anti_Cheat_Leaderboard|Plan 10: Backend Save Engine, Telemetry DB & Anti-Cheat Leaderboard]]
+- [[Plan_11_New_4_Hero_Shinobi_Roster_HD_Scenes_&_Point_Unlocks|Plan 11: New 4-Hero Shinobi Roster, 4K HD Scenes & Point Economy (v2.2)]]
 
 ---
 
 ## 🏷️ Global Vault Tags
-`#project/devils-door` `#prompt-log` `#implementation-plan` `#gamedev` `#architecture` `#physics` `#webaudio` `#backend` `#database` `#sql` `#redis` `#serverless` `#v2-1`
+`#project/devils-door` `#prompt-log` `#implementation-plan` `#gamedev` `#characters` `#scenes` `#shinobi` `#v2-2`

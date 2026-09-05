@@ -101,6 +101,7 @@ const requiredGameFiles = [
   'src/js/ui/UIManager.js',
   'src/js/ui/CharacterSelect.js',
   'src/js/ui/SceneSelect.js',
+  'src/js/ui/RewardedAdModal.js',
   'src/js/ui/TouchControls.js'
 ];
 

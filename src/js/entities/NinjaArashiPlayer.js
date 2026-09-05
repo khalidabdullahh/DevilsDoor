@@ -60,6 +60,12 @@ export class NinjaArashiPlayer {
     this.diamonds = 0;
     this.score = 0;
 
+    // 3-Life Checkpoint & Invulnerability System
+    this.lastSafeGroundedX = x;
+    this.lastSafeGroundedY = y;
+    this.isInvulnerable = false;
+    this.invulnerableTimer = 0;
+
     // Movement Speeds (Fluid, athletic Ninja Arashi physics)
     this.moveSpeed = 540;
     this.jumpForce = 560;
@@ -168,6 +174,10 @@ export class NinjaArashiPlayer {
     this.vx = 0;
     this.vy = 0;
     this.health = this.maxHealth;
+    this.lastSafeGroundedX = x;
+    this.lastSafeGroundedY = y;
+    this.isInvulnerable = false;
+    this.invulnerableTimer = 0;
     this.isDead = false;
     this.isDashing = false;
     this.dashTimer = 0;
@@ -181,16 +191,30 @@ export class NinjaArashiPlayer {
     this._initClothNodes();
   }
 
-  takeDamage(amount = 1, audio = null, camera = null) {
-    if (this.isDead || this.isDashing) return;
-    this.health -= amount;
-    this.vy = -260;
-    this.vx = -this.facing * 240;
+  takeDamage(amount = 1, audio = null, camera = null, level = null) {
+    if (this.isDead || this.isDashing || this.isInvulnerable) return;
 
-    if (camera) camera.addShake(0.5);
-    if (audio) audio.playBladeHit();
+    if (this.health > 1) {
+      // 3-Life Vitality Checkpoint Respawn
+      this.health -= amount;
 
-    if (this.health <= 0) {
+      const respawnX = this.lastSafeGroundedX || Math.max(120, this.x - 80);
+      const respawnY = (this.lastSafeGroundedY || 560) - 16;
+
+      this.x = respawnX;
+      this.y = respawnY;
+      this.vx = 0;
+      this.vy = -160;
+
+      this.isInvulnerable = true;
+      this.invulnerableTimer = 2.0; // 2s ghost invulnerability
+      this.isFlipping = false;
+      this.flipAngle = 0;
+
+      if (camera) camera.addShake(0.55);
+      if (audio) audio.playBladeHit();
+    } else {
+      // All 3 lives lost -> Run ends
       this.kill(audio, camera);
     }
   }
@@ -212,6 +236,15 @@ export class NinjaArashiPlayer {
       this.y += this.vy * dt;
       this._updateCloth(dt);
       return;
+    }
+
+    // Update ghost invulnerability timer
+    if (this.invulnerableTimer > 0) {
+      this.invulnerableTimer -= dt;
+      if (this.invulnerableTimer <= 0) {
+        this.invulnerableTimer = 0;
+        this.isInvulnerable = false;
+      }
     }
 
     this.animTime += dt * 14;
@@ -413,6 +446,12 @@ export class NinjaArashiPlayer {
           this.isGrounded = true;
           this.isFlipping = false;
           this.flipAngle = 0;
+
+          // Record safe grounded checkpoint
+          if (!solid.isFalling && solid.tag !== 'collapsing_plank' && solid.y < 800) {
+            this.lastSafeGroundedX = this.x;
+            this.lastSafeGroundedY = this.y;
+          }
         } else if (this.vy < 0) {
           this.y = solid.y + solid.height;
           this.vy = 0;
@@ -421,11 +460,11 @@ export class NinjaArashiPlayer {
     }
 
     if (level.checkHazardCollision(this.x, this.y, this.width, this.height)) {
-      this.kill(audio, camera);
+      this.takeDamage(1, audio, camera, level);
     }
 
     if (this.y > 850) {
-      this.kill(audio, camera);
+      this.takeDamage(1, audio, camera, level);
     }
   }
 
@@ -558,6 +597,10 @@ export class NinjaArashiPlayer {
 
     // 5. Draw Master Hand-Drawn Ninja Sketch Character
     ctx.save();
+    if (this.isInvulnerable) {
+      const flicker = Math.sin(performance.now() * 0.035);
+      ctx.globalAlpha = flicker > 0 ? 0.35 : 0.85;
+    }
     ctx.translate(px + this.width / 2, py + this.height / 2);
     ctx.scale(this.facing, 1);
 

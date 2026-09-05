@@ -1,7 +1,9 @@
+import { RewardedAdModal } from '../ui/RewardedAdModal.js';
+
 /**
  * RewardProvider — Rewarded Video Ad & Bonus Points Abstraction for Devil's Door v2.2.
  * Supports:
- * 1. MockRewardProvider (Web, Development & Fallback)
+ * 1. Interactive Google AdSense & H5 Video Ad Simulation via RewardedAdModal
  * 2. CrazyGamesRewardProvider (Production Portal SDK)
  * 3. Cooldown Countdown & Random 5-20 Points generation
  */
@@ -10,6 +12,7 @@ export class RewardProvider {
     this.economy = economyManager;
     this.cooldownSeconds = cooldownDurationSeconds;
     this.STORAGE_KEY_COOLDOWN = 'devils_door_reward_cooldown_expiry';
+    this.adModal = new RewardedAdModal(this.economy);
   }
 
   /**
@@ -71,8 +74,12 @@ export class RewardProvider {
       return this._showCrazyGamesAd();
     }
 
-    // Fallback: Mock Provider with brief realistic simulation
-    return this._showMockAd();
+    // Interactive Google AdSense & H5 Video Ad Modal with 6s duration
+    const result = await this.adModal.showAd(6);
+    if (result && result.success) {
+      this._startCooldown();
+    }
+    return result;
   }
 
   async _showCrazyGamesAd() {
@@ -89,34 +96,22 @@ export class RewardProvider {
             resolve({ success: true, pointsEarned: points });
           },
           adError: (error) => {
-            console.warn('[RewardProvider] CrazyGames ad error, falling back to instant reward:', error);
-            const points = this._generateRandomReward();
-            this.economy.addPoints(points, 'rewarded_ad_fallback');
-            this._startCooldown();
-            resolve({ success: true, pointsEarned: points });
+            console.warn('[RewardProvider] CrazyGames ad error, falling back to modal:', error);
+            this.adModal.showAd(6).then(res => {
+              if (res && res.success) this._startCooldown();
+              resolve(res);
+            });
           }
         };
 
         window.CrazyGames.SDK.ad.requestAd('rewarded', callbacks);
       } catch (err) {
         console.error('[RewardProvider] Ad request exception:', err);
-        const points = this._generateRandomReward();
-        this.economy.addPoints(points, 'rewarded_ad_fallback');
-        this._startCooldown();
-        resolve({ success: true, pointsEarned: points });
+        this.adModal.showAd(6).then(res => {
+          if (res && res.success) this._startCooldown();
+          resolve(res);
+        });
       }
-    });
-  }
-
-  async _showMockAd() {
-    return new Promise((resolve) => {
-      // Simulate 1.2s smooth ad view simulation
-      setTimeout(() => {
-        const points = this._generateRandomReward();
-        this.economy.addPoints(points, 'rewarded_ad_mock');
-        this._startCooldown();
-        resolve({ success: true, pointsEarned: points });
-      }, 1000);
     });
   }
 }

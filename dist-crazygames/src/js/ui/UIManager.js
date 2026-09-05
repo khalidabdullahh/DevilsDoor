@@ -278,19 +278,31 @@ export class UIManager {
   }
 
   /**
-   * Show animated notification when reaching 1000m milestones
+   * Show animated notification when reaching 1000m milestones (strictly non-blocking)
    */
   showMilestoneNotification(pointsEarned, totalDistance) {
-    const container = document.getElementById('game-container') || document.body;
-    const toast = document.createElement('div');
-    toast.className = 'vnext-milestone-toast';
-    toast.innerHTML = `
-      <span class="milestone-badge">⛩️ ${totalDistance.toLocaleString()}M SURVIVED!</span>
-      <strong class="milestone-reward">+${pointsEarned} POINTS</strong>
-    `;
-    container.appendChild(toast);
-    setTimeout(() => toast.classList.add('fade-out'), 2200);
-    setTimeout(() => toast.remove(), 2600);
+    try {
+      const container = document.getElementById('game-screen-box') || document.getElementById('game-container') || document.body;
+      const old = container.querySelector('.vnext-milestone-toast');
+      if (old) old.remove();
+
+      const toast = document.createElement('div');
+      toast.className = 'vnext-milestone-toast';
+      toast.innerHTML = `
+        <span class="milestone-badge">⛩️ ${totalDistance.toLocaleString()}M REACHED!</span>
+        <strong class="milestone-reward">+${pointsEarned} POINTS</strong>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast && toast.parentNode) toast.classList.add('fade-out');
+      }, 2000);
+      setTimeout(() => {
+        if (toast && toast.parentNode) toast.remove();
+      }, 2500);
+    } catch (err) {
+      console.warn('[UIManager] Milestone toast notification error:', err);
+    }
   }
 
   showPauseModal(onResume, onRestart, onChangeScene, onChangeChar) {

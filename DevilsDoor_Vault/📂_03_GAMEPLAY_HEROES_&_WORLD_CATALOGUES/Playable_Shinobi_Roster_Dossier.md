@@ -1,20 +1,58 @@
-# 🥷 Playable Shinobi Roster Dossier (`character.zip`)
+# 🥷 Playable Shinobi Roster Dossier — Official Master Suite
 
-> **Vault Hub**: [[⛩️_00_MASTER_INDEX]]  
-> **Related**: [[Prompt_05_Official_6_Hero_Roster_&_Verlet_Cloth_Scarf]], [[Prompt_07_Landing_Page_to_Character_Select_Navigation_Flow]]
+> [!INFO] ⛩️ **DEVIL'S DOOR ARCHIVAL VAULT** · `HEROES DOSSIER`
+> **Status**: `PRODUCTION ACTIVE` 🟢 · **Roster Version**: `v2.2.0 Master Edition` · **Maintainer**: `Khalid Abdullah`  
+> **Direct Navigation**: [[⛩️_00_MASTER_INDEX|⛩️ Master Hub]] · **Related Plan**: [[Plan_11_New_4_Hero_Shinobi_Roster_HD_Scenes_&_Point_Unlocks|📐 Plan 11]]  
+> **Tags**: `#project/devils-door` `#characters` `#shinobi` `#stats` `#combat` `#v2-2`
+
+---
+
+## ⚔️ Master Shinobi Attribute & Unlock Matrix
+
+| # | Serial | Shinobi Hero | Title & Archetype | Signature Weaponry | Unlock Price | Speed | Jump | Damage | Health | Aura & Accent |
+|:---:|:---:|:---|:---|:---|:---:|:---:|:---:|:---:|:---:|:---|
+| **01** | `#01` | **KAGE-RYU** | *Shadow Shinobi*<br/>(Speed / Mobility) | Dual Shadow Katanas & Void Kunai | **FREE** | 95 | 90 | 85 | 80 | Void Shadow<br/>`#a855f7` |
+| **02** | `#02` | **RYUJIN** | *Dragon Ninja*<br/>(Heavy Juggernaut) | Molten Flame Odachi & Dragon Fire | **500 Pts** | 80 | 78 | 100 | 100 | Dragon Flame<br/>`#f97316` |
+| **03** | `#03` | **RAIJIN** | *Lightning Ronin*<br/>(Stance / AoE Counter) | Dual Lightning Ninjatos & Chain Shurikens | **700 Pts** | 90 | 88 | 90 | 85 | Storm Lightning<br/>`#38bdf8` |
+| **04** | `#04` | **TSUKUYOMI** | *Crimson Kunoichi*<br/>(Ultra-Fast Acrobatic) | Dual Crimson Sickle Scythes (Kama) | **1000 Pts** | 100 | 95 | 85 | 70 | Blood Moon<br/>`#ef4444` |
 
 ---
 
-## ⚔️ Complete 6-Hero Attribute Matrix
+## 🥋 Individual Shinobi Dossiers
 
-| # | Shinobi Name | Class Role | Base Speed | Jump Force | Signature Ability | Visual Silhouette & Weaponry |
-|:---:|:---|:---|:---:|:---:|:---|:---|
-| **#01** | **Shadow Ninja** | *Infiltrator* | $260\text{ px/s}$ | $-520\text{ px/s}$ | **Chaya Dash**<br/>Double somersault flip + afterimage sprint | Pointed fabric cowl hood, face mask, 9-node Verlet crimson scarf, katana & shurikens. |
-| **#02** | **Shadow Ronin** | *Duelist* | $240\text{ px/s}$ | $-500\text{ px/s}$ | **Iaijutsu Stance**<br/>High-poise quick-draw counter cleave | Conical straw Kasa hat, flowing black haori robe, glowing cyan eye slit, dual katanas. |
-| **#03** | **Oni Warrior** | *Juggernaut* | $210\text{ px/s}$ | $-480\text{ px/s}$ | **Hyper-Armor Slam**<br/>Ground shockwave breaking hazard blocks | Horned demon mask with red eye, spiky samurai plate armor, massive spiked Kanabo club. |
-| **#04** | **Cursed Monk** | *Sorcerer* | $250\text{ px/s}$ | $-510\text{ px/s}$ | **Orb Halo Levitation**<br/>Chasm hover glide + 6 shielding sutra orbs | Floating necromancer monk in tattered robes, skull mask, 6 orbiting dark curse prayer orbs. |
-| **#05** | **Crimson Assassin**| *Stalker* | $285\text{ px/s}$ | $-540\text{ px/s}$ | **Twin Reapers Flurry**<br/>Rapid multi-slash + acrobatic wall reset | Split half-red half-black mask, crimson sash, dual curved Kama scythes in reverse grip. |
-| **#06** | **Shadow Entity** | *Phantom* | $270\text{ px/s}$ | $-530\text{ px/s}$ | **Void Singularity**<br/>Phase flight through solid deceptive walls | Orbiting fractured dark obsidian crystal shards with a pulsing hollow crimson void core. |
+### #01. KAGE-RYU — The Shadow Shinobi (Serial: 01)
+- **Asset Files**: `Characters/01_kage_ryu_shadow_shinobi.jpg`, `src/assets/characters/sketch/hero_01_kage_ryu_sketch.png`
+- **Lore**: The silent wanderer of the Void Realm. Trained in the ancient art of Chaya Dash, Kage-Ryu moves between dimensional shadows to bypass lethal traps.
+- **Visual Anatomy**: Matte black assassin armor, pointed fabric cowl hood, glowing crimson eye visor, dual katanas on back, throwing kunai bandolier.
+- **Combat Style**: High agility, double somersault flip, afterimage sprint with brief projectile immunity.
+- **Aura Token**: `#a855f7` (Deep Amethyst Void Aura).
 
 ---
-*Related: [[⛩️_00_MASTER_INDEX]], [[Prompt_05_Official_6_Hero_Roster_&_Verlet_Cloth_Scarf]]*
+
+### #02. RYUJIN — The Dragon-Flame Demonic Ninja (Serial: 02)
+- **Asset Files**: `Characters/02_ryujin_dragon_ninja.jpg`, `src/assets/characters/sketch/hero_02_ryujin_sketch.png`
+- **Lore**: Forged in the molten core of Mount Onigashima. Ryujin channels the demonic dragon flame through a massive curved Odachi blade capable of sundering stone barricades.
+- **Visual Anatomy**: Dark dragon-scale samurai plate armor, horned Oni dragon mask with burning vents, molten glowing orange blade edges.
+- **Combat Style**: Hyper-Armor poise, ground-shockwave cleaves, heavy resistance to physical knockback.
+- **Aura Token**: `#f97316` (Molten Dragon Fire Aura).
+
+---
+
+### #03. RAIJIN — The Storm / Lightning Ronin (Serial: 03)
+- **Asset Files**: `Characters/03_raijin_lightning_ronin.jpg`, `src/assets/characters/sketch/hero_03_raijin_sketch.png`
+- **Lore**: A master of the storm blade wandering the endless tempest mist. Raijin's strikes are faster than thunder, parrying incoming hazards with electrical precision.
+- **Visual Anatomy**: Weathered conical straw Kasa hat, flowing black haori coat with glowing electric-blue runes, cyan glowing eyes, dual reverse-grip Ninjato blades.
+- **Combat Style**: Iaijutsu stance quick-draw, chain lightning shuriken discharges, instant counter-cleave.
+- **Aura Token**: `#38bdf8` (Glacial Electric Cyan Aura).
+
+---
+
+### #04. TSUKUYOMI — The Crimson Kunoichi (Serial: 04)
+- **Asset Files**: `Characters/04_tsukuyomi_crimson_kunoichi.jpg`, `src/assets/characters/sketch/hero_04_tsukuyomi_sketch.png`
+- **Lore**: The deadly phantom of the Blood Moon. Tsukuyomi executes rapid multi-hit flurries and acrobatics, dancing over crumbling platforms with unmatched speed.
+- **Visual Anatomy**: Form-fitting black & crimson assassin suit, silver porcelain half-mask, dynamic high ponytail, dual glowing curved Kama sickle blades.
+- **Combat Style**: Ultra-fast sprint velocity ($100$), acrobatic wall-jump resets, rapid dual-scythe circular flurries.
+- **Aura Token**: `#ef4444` (Ruby Blood Moon Aura).
+
+---
+*Related: [[⛩️_00_MASTER_INDEX]], [[Plan_11_New_4_Hero_Shinobi_Roster_HD_Scenes_&_Point_Unlocks]], [[Biomes_Atmospheric_Palettes_&_Dynamic_Hazards]]*

@@ -34,7 +34,9 @@ export class CharacterSelect {
     if (this.economy) {
       this.economy.subscribe(() => {
         this._updateWallet();
-        this.render();
+        if (this.container && !this.container.classList.contains('hidden') && this.container.style.display !== 'none') {
+          this.render();
+        }
       });
     }
 
