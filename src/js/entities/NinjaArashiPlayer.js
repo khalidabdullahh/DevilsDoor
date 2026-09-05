@@ -1,46 +1,12 @@
 import { Shuriken } from './Shuriken.js';
 
-// Pre-load Authentic Hand-Drawn Ninja Sketch Sprites
-const SKETCH_IMAGE_MAP = {
-  kage_ryu: '/src/assets/characters/sketch/hero_01_kage_ryu_sketch.png',
-  shadow_ninja: '/src/assets/characters/sketch/hero_01_kage_ryu_sketch.png',
-  ryujin: '/src/assets/characters/sketch/hero_02_ryujin_sketch.png',
-  oni_guard: '/src/assets/characters/sketch/hero_02_ryujin_sketch.png',
-  raijin: '/src/assets/characters/sketch/hero_03_raijin_sketch.png',
-  shadow_ronin: '/src/assets/characters/sketch/hero_03_raijin_sketch.png',
-  tsukuyomi: '/src/assets/characters/sketch/hero_04_tsukuyomi_sketch.png',
-  crimson_assassin: '/src/assets/characters/sketch/hero_04_tsukuyomi_sketch.png'
-};
-
-const loadedSketchImages = {};
-
-function getSketchImage(heroType) {
-  const key = heroType || 'kage_ryu';
-  if (loadedSketchImages[key]) {
-    return loadedSketchImages[key];
-  }
-  const src = SKETCH_IMAGE_MAP[key] || SKETCH_IMAGE_MAP.kage_ryu;
-  if (typeof Image !== 'undefined') {
-    const img = new Image();
-    img.src = src;
-    loadedSketchImages[key] = img;
-    return img;
-  }
-  return null;
-}
-
-// Eagerly pre-load all 4 hero sketches into memory
-if (typeof Image !== 'undefined') {
-  ['kage_ryu', 'ryujin', 'raijin', 'tsukuyomi'].forEach(id => getSketchImage(id));
-}
-
 /**
- * NinjaArashiPlayer — Authentic Hand-Drawn Ninja Sketch & Silhouette Gameplay Engine.
- * Features true concept-art ninja sketch rendering in 60 FPS gameplay:
- * - 01 KAGE-RYU: Hand-Drawn Void Shadow Shinobi (Pointed Cowl, 16-Node Flowing Crimson Scarf, Dual Katana Scabbards, Piercing Red Eyes)
- * - 02 RYUJIN: Hand-Drawn Oni Dragon Samurai (Curved Demon Horns, Spiked Pauldrons, Flame Greatsword, Glowing Magma Veins)
- * - 03 RAIJIN: Hand-Drawn Lightning Ronin (Conical Woven Kasa Hat, Billowing Samurai Haori Coat, Dual Daisho, Electric Cyan Eyes)
- * - 04 TSUKUYOMI: Hand-Drawn Crimson Kunoichi (High Collar, Split Mask, Dual Kama Sickles, Flowing Twin Ribbons, Ruby Eyes)
+ * NinjaArashiPlayer — Authentic Procedural Articulated Ninja Arashi Gameplay Engine.
+ * Features 60 FPS inverse-kinematics running, jumping, wall-sliding, slashing, and flip animations:
+ * - 01 KAGE-RYU: Void Shadow Shinobi (Pointed Cowl, Hitai-ate Headband, 14-Node Flowing Crimson Scarf, Dual Katana Scabbards, Crimson Eyes)
+ * - 02 RYUJIN: Oni Dragon Samurai (Curved Demon Horns, Spiked Pauldrons, Flame Greatsword, Glowing Magma Veins)
+ * - 03 RAIJIN: Lightning Ronin (Conical Woven Kasa Hat, Billowing Samurai Haori Coat, Dual Daisho, Electric Cyan Eyes)
+ * - 04 TSUKUYOMI: Crimson Kunoichi (High Collar, Split Mask, Dual Kama Sickles, Flowing Twin Ribbons, Ruby Eyes)
  */
 export class NinjaArashiPlayer {
   constructor(x = 120, y = 480, heroType = 'kage_ryu') {
@@ -146,7 +112,6 @@ export class NinjaArashiPlayer {
     }
     this.health = this.maxHealth;
     this._initClothNodes();
-    getSketchImage(this.heroType);
   }
 
   _initClothNodes() {
@@ -522,17 +487,11 @@ export class NinjaArashiPlayer {
     for (const g of this.ghosts) {
       ctx.save();
       ctx.globalAlpha = g.alpha * 0.45;
-      const ghostImg = getSketchImage(g.heroType);
-      if (ghostImg && ghostImg.complete && ghostImg.naturalWidth > 0) {
-        ctx.translate((g.x - camX) + this.width / 2, (g.y - camY) + this.height / 2);
-        ctx.scale(g.facing, 1);
-        const drawH = this.height * 1.35;
-        const drawW = drawH * (ghostImg.naturalWidth / ghostImg.naturalHeight);
-        ctx.drawImage(ghostImg, -drawW * 0.48, -drawH * 0.52, drawW, drawH);
-      } else {
-        ctx.fillStyle = g.color || '#a855f7';
-        ctx.fillRect((g.x - camX), (g.y - camY), this.width, this.height);
-      }
+      ctx.translate((g.x - camX) + this.width / 2, (g.y - camY) + this.height / 2);
+      ctx.scale(g.facing, 1);
+      ctx.shadowColor = g.color || '#a855f7';
+      ctx.shadowBlur = 18;
+      this._renderShinobiModel(ctx, 0, false);
       ctx.restore();
     }
 
@@ -595,7 +554,7 @@ export class NinjaArashiPlayer {
       ctx.restore();
     }
 
-    // 5. Draw Master Hand-Drawn Ninja Sketch Character
+    // 5. Draw Master Procedural Articulated Shinobi Character
     ctx.save();
     if (this.isInvulnerable) {
       const flicker = Math.sin(performance.now() * 0.035);
@@ -610,107 +569,503 @@ export class NinjaArashiPlayer {
 
     const isRunning = this.isGrounded && Math.abs(this.vx) > 20;
     const stride = isRunning ? Math.sin(this.animTime) : 0;
-    const bobbing = isRunning ? Math.abs(Math.sin(this.animTime)) * 3 : 0;
-    const leanAngle = isRunning ? 0.30 : (this.isDashing ? 0.48 : 0);
+    const bobbing = isRunning ? Math.abs(Math.sin(this.animTime)) * 3.5 : 0;
+    const leanAngle = isRunning ? 0.28 : (this.isDashing ? 0.46 : 0);
 
     ctx.translate(0, -bobbing);
     ctx.rotate(leanAngle);
 
-    const sketchImg = getSketchImage(this.heroType);
-
-    if (sketchImg && sketchImg.complete && sketchImg.naturalWidth > 0) {
-      // Render the Authentic Hand-Drawn Ninja Sketch Sprite
-      const drawHeight = this.height * 1.38;
-      const aspectRatio = sketchImg.naturalWidth / sketchImg.naturalHeight;
-      const drawWidth = drawHeight * aspectRatio;
-
-      // Draw subtle shadow / ground ambient occlusion under feet
-      if (this.isGrounded) {
-        ctx.save();
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-        ctx.beginPath();
-        ctx.ellipse(0, this.height * 0.48, this.width * 0.45, 6, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-
-      // Draw Sketch Character
-      ctx.drawImage(
-        sketchImg,
-        -drawWidth * 0.48,
-        -drawHeight * 0.52,
-        drawWidth,
-        drawHeight
-      );
-
-      // Dynamic Eye Glow Overlay
+    // Ground ambient occlusion shadow under feet
+    if (this.isGrounded) {
       ctx.save();
-      if (this.heroType === 'kage_ryu' || this.heroType === 'shadow_ninja') {
-        ctx.fillStyle = '#ef4444';
-        ctx.shadowColor = '#ef4444';
-        ctx.shadowBlur = 12;
-        ctx.beginPath();
-        ctx.arc(8, -drawHeight * 0.26, 3, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (this.heroType === 'ryujin' || this.heroType === 'oni_guard') {
-        ctx.fillStyle = '#fbbf24';
-        ctx.shadowColor = '#f97316';
-        ctx.shadowBlur = 14;
-        ctx.beginPath();
-        ctx.arc(6, -drawHeight * 0.28, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (this.heroType === 'raijin' || this.heroType === 'shadow_ronin') {
-        ctx.fillStyle = '#38bdf8';
-        ctx.shadowColor = '#38bdf8';
-        ctx.shadowBlur = 14;
-        ctx.beginPath();
-        ctx.arc(4, -drawHeight * 0.20, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (this.heroType === 'tsukuyomi' || this.heroType === 'crimson_assassin') {
-        ctx.fillStyle = '#f43f5e';
-        ctx.shadowColor = '#f43f5e';
-        ctx.shadowBlur = 12;
-        ctx.beginPath();
-        ctx.arc(6, -drawHeight * 0.26, 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
-
-      // Dash Katana Slash Crescent Effect
-      if (this.isDashing) {
-        ctx.save();
-        let slashColor = '#a855f7';
-        if (this.heroType === 'ryujin' || this.heroType === 'oni_guard') slashColor = '#f97316';
-        if (this.heroType === 'raijin' || this.heroType === 'shadow_ronin') slashColor = '#38bdf8';
-        if (this.heroType === 'tsukuyomi' || this.heroType === 'crimson_assassin') slashColor = '#f43f5e';
-
-        ctx.strokeStyle = slashColor;
-        ctx.shadowColor = slashColor;
-        ctx.shadowBlur = 18;
-        ctx.lineWidth = 4.5;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.arc(10, 4, 38, -Math.PI * 0.35, Math.PI * 0.35);
-        ctx.stroke();
-
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2.0;
-        ctx.beginPath();
-        ctx.arc(10, 4, 38, -Math.PI * 0.25, Math.PI * 0.25);
-        ctx.stroke();
-        ctx.restore();
-      }
-    } else {
-      // Fallback Silhouette rendering while sprite loads
-      ctx.fillStyle = '#111827';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
       ctx.beginPath();
-      ctx.arc(0, -this.height * 0.32, 10, 0, Math.PI * 2);
+      ctx.ellipse(0, 36, 18, 5, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillRect(-this.width * 0.35, -this.height * 0.2, this.width * 0.7, this.height * 0.5);
-      ctx.fillRect(-this.width * 0.3, this.height * 0.3, this.width * 0.25, this.height * 0.3);
-      ctx.fillRect(this.width * 0.05, this.height * 0.3, this.width * 0.25, this.height * 0.3);
+      ctx.restore();
     }
 
+    // Render the Fully Articulated Vector Shinobi
+    this._renderShinobiModel(ctx, stride, isRunning);
+
+    ctx.restore();
+  }
+
+  /**
+   * High-Precision Procedural Shinobi Silhouette & Vector Anatomical Renderer
+   */
+  _renderShinobiModel(ctx, stride, isRunning) {
+    const isAir = !this.isGrounded;
+    const isAscending = isAir && this.vy < 0;
+    const isDescending = isAir && this.vy >= 0;
+
+    const isKage = (this.heroType === 'kage_ryu' || this.heroType === 'shadow_ninja');
+    const isRyujin = (this.heroType === 'ryujin' || this.heroType === 'oni_guard');
+    const isRaijin = (this.heroType === 'raijin' || this.heroType === 'shadow_ronin');
+    const isTsukuyomi = (this.heroType === 'tsukuyomi' || this.heroType === 'crimson_assassin');
+
+    // ----------------------------------------------------
+    // 1. BACK LEG (Left Leg - Darker silhouette tone)
+    // ----------------------------------------------------
+    ctx.save();
+    let backKneeX = -4 - stride * 12;
+    let backKneeY = 22 - Math.max(0, stride) * 5;
+    let backFootX = -4 - stride * 20;
+    let backFootY = 34 + Math.max(0, stride) * 6;
+
+    if (isAscending) {
+      backKneeX = -12; backKneeY = 20;
+      backFootX = -18; backFootY = 28;
+    } else if (isDescending) {
+      backKneeX = -6; backKneeY = 24;
+      backFootX = -8; backFootY = 35;
+    }
+
+    // Back Thigh
+    ctx.strokeStyle = '#070a12';
+    ctx.lineWidth = 9;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-4, 10);
+    ctx.lineTo(backKneeX, backKneeY);
+    ctx.stroke();
+
+    // Back Shin
+    ctx.lineWidth = 7.5;
+    ctx.beginPath();
+    ctx.moveTo(backKneeX, backKneeY);
+    ctx.lineTo(backFootX, backFootY);
+    ctx.stroke();
+
+    // Back Tabi Boot
+    ctx.fillStyle = '#020306';
+    ctx.beginPath();
+    ctx.ellipse(backFootX + 3, backFootY + 2, 6.5, 3.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // ----------------------------------------------------
+    // 2. BACK WEAPON / SCABBARD (Strapped across back)
+    // ----------------------------------------------------
+    ctx.save();
+    if (isKage) {
+      // Dual Crossed Katanas on Back
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(4, 4);
+      ctx.lineTo(-24, -26);
+      ctx.stroke();
+
+      // Golden Scabbard Tip & Collar
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(-26, -28, 4, 4);
+      ctx.fillRect(2, 2, 4, 4);
+
+      // Katana Handle Tsuka
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(-24, -26);
+      ctx.lineTo(-34, -36);
+      ctx.stroke();
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(-35, -37, 3, 3);
+    } else if (isRyujin) {
+      // Heavy Spiked Magma Greatsword
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-18, -32, 10, 44);
+      ctx.fillStyle = '#ea580c';
+      ctx.fillRect(-17, -30, 2, 40); // Magma vein
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.arc(-13, -34, 4, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (isRaijin) {
+      // Daisho Katana Sheaths at Hip
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(0, 6);
+      ctx.lineTo(-26, 16);
+      ctx.stroke();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-26, 16);
+      ctx.lineTo(-30, 18);
+      ctx.stroke();
+    } else if (isTsukuyomi) {
+      // Dual Kama Sickles on Back
+      ctx.strokeStyle = '#881337';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(2, 4);
+      ctx.lineTo(-20, -22);
+      ctx.stroke();
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(-20, -22, 9, Math.PI * 0.4, Math.PI * 1.2);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // ----------------------------------------------------
+    // 3. TORSO & WAIST (Shinobi Shōzoku Body Armor)
+    // ----------------------------------------------------
+    ctx.save();
+    // Segmented Torso Body
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.moveTo(-11, -12);
+    ctx.lineTo(13, -12);
+    ctx.lineTo(10, 10);
+    ctx.lineTo(-9, 10);
+    ctx.closePath();
+    ctx.fill();
+
+    // Chest Vest Texture & V-neck Shinobi Wrap
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.moveTo(-9, -12);
+    ctx.lineTo(2, 2);
+    ctx.lineTo(11, -12);
+    ctx.lineTo(6, -12);
+    ctx.lineTo(2, -4);
+    ctx.lineTo(-4, -12);
+    ctx.closePath();
+    ctx.fill();
+
+    // Metallic Chest Plate Straps
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-10, -4);
+    ctx.lineTo(12, -4);
+    ctx.moveTo(-9, 2);
+    ctx.lineTo(10, 2);
+    ctx.stroke();
+
+    // Character Specific Torso Highlights
+    if (isKage) {
+      // Crimson sash
+      ctx.fillStyle = '#991b1b';
+      ctx.fillRect(-9, 5, 20, 5);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(0, 5.5, 4, 4); // Gold buckle
+    } else if (isRyujin) {
+      // Magma cracks on chest
+      ctx.fillStyle = '#ea580c';
+      ctx.fillRect(-6, -6, 14, 2.5);
+      ctx.fillStyle = '#f97316';
+      ctx.fillRect(-4, 0, 10, 2.5);
+      // Heavy Rope Belt
+      ctx.fillStyle = '#451a03';
+      ctx.fillRect(-10, 4, 22, 6);
+    } else if (isRaijin) {
+      // Flowing Samurai Haori Overcoat Flaps
+      ctx.fillStyle = '#090d16';
+      ctx.beginPath();
+      ctx.moveTo(-11, 4);
+      ctx.lineTo(12, 4);
+      ctx.lineTo(15, 22);
+      ctx.lineTo(-15, 22);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    } else if (isTsukuyomi) {
+      // High Corset Sash
+      ctx.fillStyle = '#881337';
+      ctx.fillRect(-8, 3, 18, 7);
+      ctx.fillStyle = '#f43f5e';
+      ctx.fillRect(-1, 4, 4, 5);
+    }
+    ctx.restore();
+
+    // ----------------------------------------------------
+    // 4. FRONT LEG (Right Leg - Foreground Articulation)
+    // ----------------------------------------------------
+    ctx.save();
+    let frontKneeX = 4 + stride * 14;
+    let frontKneeY = 22 - Math.max(0, -stride) * 5;
+    let frontFootX = 4 + stride * 22;
+    let frontFootY = 34 + Math.max(0, -stride) * 6;
+
+    if (isAscending) {
+      frontKneeX = 2; frontKneeY = 18;
+      frontFootX = -2; frontFootY = 25;
+    } else if (isDescending) {
+      frontKneeX = 8; frontKneeY = 26;
+      frontFootX = 10; frontFootY = 36;
+    }
+
+    // Front Thigh
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 9.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(4, 10);
+    ctx.lineTo(frontKneeX, frontKneeY);
+    ctx.stroke();
+
+    // Front Shin
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(frontKneeX, frontKneeY);
+    ctx.lineTo(frontFootX, frontFootY);
+    ctx.stroke();
+
+    // Shin Bandages / Leg Guards
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(frontKneeX - 2, frontKneeY + 4);
+    ctx.lineTo(frontKneeX + 4, frontKneeY + 5);
+    ctx.moveTo(frontFootX - 3, frontFootY - 4);
+    ctx.lineTo(frontFootX + 3, frontFootY - 3);
+    ctx.stroke();
+
+    // Front Tabi Boot
+    ctx.fillStyle = '#020306';
+    ctx.beginPath();
+    ctx.ellipse(frontFootX + 4, frontFootY + 2, 7.5, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // ----------------------------------------------------
+    // 5. HEAD, HOOD, MASK & EYES
+    // ----------------------------------------------------
+    ctx.save();
+    const headX = 2;
+    const headY = -22;
+
+    // Head Base Cowl
+    ctx.fillStyle = '#090d16';
+    ctx.beginPath();
+    ctx.arc(headX, headY, 11.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Character Specific Head Archetypes
+    if (isKage) {
+      // Pointed Shinobi Cowl Hood
+      ctx.fillStyle = '#090d16';
+      ctx.beginPath();
+      ctx.moveTo(headX - 11, headY + 2);
+      ctx.lineTo(headX - 6, headY - 18);
+      ctx.lineTo(headX + 10, headY - 4);
+      ctx.closePath();
+      ctx.fill();
+
+      // Forehead Protector (Hitai-ate)
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(headX - 2, headY - 6, 12, 4.5);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillRect(headX + 1, headY - 5, 6, 2.5);
+    } else if (isRyujin) {
+      // Horned Oni Kabuto Mask
+      ctx.fillStyle = '#020617';
+      ctx.beginPath();
+      ctx.arc(headX, headY, 12.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Curved Demon Horns
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath();
+      ctx.moveTo(headX - 2, headY - 8);
+      ctx.quadraticCurveTo(headX - 8, headY - 24, headX - 16, headY - 22);
+      ctx.quadraticCurveTo(headX - 8, headY - 14, headX - 1, headY - 5);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(headX + 4, headY - 8);
+      ctx.quadraticCurveTo(headX + 12, headY - 26, headX + 18, headY - 22);
+      ctx.quadraticCurveTo(headX + 10, headY - 14, headX + 5, headY - 5);
+      ctx.closePath();
+      ctx.fill();
+    } else if (isRaijin) {
+      // Wide Conical Bamboo Kasa Hat
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.moveTo(headX + 2, headY - 18);
+      ctx.lineTo(headX - 24, headY - 2);
+      ctx.lineTo(headX + 26, headY - 2);
+      ctx.closePath();
+      ctx.fill();
+
+      // Bamboo Woven Lines
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(headX + 2, headY - 18);
+      ctx.lineTo(headX - 8, headY - 2);
+      ctx.moveTo(headX + 2, headY - 18);
+      ctx.lineTo(headX + 10, headY - 2);
+      ctx.stroke();
+    } else if (isTsukuyomi) {
+      // High Kunoichi Collar & Hair Bun
+      ctx.fillStyle = '#881337';
+      ctx.beginPath();
+      ctx.arc(headX - 8, headY - 6, 5, 0, Math.PI * 2);
+      ctx.fill();
+      // Flowing Hair Ribbons
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(headX - 8, headY - 6);
+      ctx.quadraticCurveTo(headX - 18, headY + 4, headX - 26, headY + 12);
+      ctx.stroke();
+    }
+
+    // Lower Face Mask
+    ctx.fillStyle = '#05070d';
+    ctx.beginPath();
+    ctx.moveTo(headX + 1, headY + 1);
+    ctx.lineTo(headX + 12, headY + 4);
+    ctx.lineTo(headX + 4, headY + 12);
+    ctx.lineTo(headX - 6, headY + 8);
+    ctx.closePath();
+    ctx.fill();
+
+    // Piercing Glowing Eye
+    ctx.save();
+    let eyeColor = '#ef4444';
+    if (isRyujin) eyeColor = '#fbbf24';
+    if (isRaijin) eyeColor = '#38bdf8';
+    if (isTsukuyomi) eyeColor = '#f43f5e';
+
+    ctx.fillStyle = eyeColor;
+    ctx.shadowColor = eyeColor;
+    ctx.shadowBlur = 16;
+    ctx.beginPath();
+    ctx.ellipse(headX + 7, headY - 1, 3.5, 1.8, 0.15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Intense pupil core
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(headX + 7.5, headY - 1, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    ctx.restore();
+
+    // ----------------------------------------------------
+    // 6. ARMS & WIELDED KATANA / WEAPON
+    // ----------------------------------------------------
+    ctx.save();
+    if (this.isDashing) {
+      // Lethal Thrust / Slash Pose
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 7.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(6, -8);
+      ctx.lineTo(24, -4);
+      ctx.lineTo(38, -2);
+      ctx.stroke();
+
+      // Drawn Blade Extended Forward
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(38, -2);
+      ctx.lineTo(76, -4);
+      ctx.stroke();
+
+      // Razor Edge Glint
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(40, -1);
+      ctx.lineTo(76, -3);
+      ctx.stroke();
+
+      // Energy Slash Crescent Wave
+      let slashGlow = '#a855f7';
+      if (isRyujin) slashGlow = '#f97316';
+      if (isRaijin) slashGlow = '#38bdf8';
+      if (isTsukuyomi) slashGlow = '#f43f5e';
+      if (isKage) slashGlow = '#ef4444';
+
+      ctx.strokeStyle = slashGlow;
+      ctx.shadowColor = slashGlow;
+      ctx.shadowBlur = 24;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(42, 0, 48, -Math.PI * 0.35, Math.PI * 0.35);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(42, 0, 48, -Math.PI * 0.2, Math.PI * 0.2);
+      ctx.stroke();
+    } else if (isRunning) {
+      // Iconic Naruto / Shinobi Running Arm Pose (Arms trailing behind with Katana)
+      // Front Left Arm
+      ctx.strokeStyle = '#070a12';
+      ctx.lineWidth = 6.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(4, -8);
+      ctx.lineTo(16, 0);
+      ctx.stroke();
+
+      // Back Right Arm holding drawn blade angled backwards
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.moveTo(-6, -8);
+      ctx.lineTo(-24, 6);
+      ctx.stroke();
+
+      // Drawn Katana Blade Pointing Backwards
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(-24, 6);
+      ctx.lineTo(-58, 20);
+      ctx.stroke();
+
+      // Edge Shimmer
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(-24, 7);
+      ctx.lineTo(-58, 21);
+      ctx.stroke();
+    } else {
+      // Idle Ready Stance
+      // Left Arm relaxed
+      ctx.strokeStyle = '#070a12';
+      ctx.lineWidth = 6.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(8, -8);
+      ctx.lineTo(14, 4);
+      ctx.stroke();
+
+      // Right Arm with hand on Katana hilt
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.moveTo(-4, -8);
+      ctx.lineTo(4, 2);
+      ctx.stroke();
+
+      // Katana hilt and guard in hand
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(4, 1, 4, 3);
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(6, 2);
+      ctx.lineTo(12, -4);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 }
