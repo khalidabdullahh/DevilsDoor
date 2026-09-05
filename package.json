@@ -1,8 +1,8 @@
 {
   "name": "devils-door",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "type": "module",
-  "description": "DEVIL'S DOOR v2.1 — 4K Dark Fantasy Ninja Action-Platformer with 4 official 4K realms, 4 legendary playable shinobis, locked realm selection, and cross-device zero-blur rendering. Created by Khalid Abdullah.",
+  "description": "DEVIL'S DOOR v2.2 (vNext Master Edition) — Endless 2.5D Dark-Fantasy Action Game with 3D-Rendered Shinobi Roster, 4K Realms, Centralized Point Economy, and Cross-Platform Handheld Console UX. Created by Khalid Abdullah.",
   "main": "src/index.html",
   "scripts": {
     "dev": "python3 -m http.server 8080",

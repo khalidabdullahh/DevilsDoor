@@ -1,325 +1,362 @@
 import { CHARACTER_ROSTER } from '../data/CharacterRoster.js';
 
 /**
- * CharacterSelect — Commercial Dark-Fantasy Character Selection Screen.
- * Features:
- * - Large full-body character presentation with atmospheric lighting & breathing animation
- * - Character stats, lore tagline, and signature trait display
- * - Responsive mobile-landscape carousel with swipe & tap selection
- * - Desktop arrow key & Enter confirmation navigation
- * - Smooth transition directly into the Endless Domain run
+ * CharacterSelect — vNext 3D Focus-Animated Character Selection Screen.
+ * Strict Minimal Information Rule:
+ * - Serial number (01)
+ * - Character name (KAGE-RYU)
+ * - Price / Unlock state (FREE / 500 PTS)
+ * - Action button (SELECT / UNLOCK)
+ * - Dynamic 3D Focus Selector with perspective, scale & depth
+ * - Swipe, tap, keyboard, and click navigation
  */
 export class CharacterSelect {
-  constructor(containerEl, onStartRunCallback) {
+  constructor(containerEl, economyManager, rewardProvider, onSelectCallback) {
     this.container = containerEl;
-    this.onStartRun = onStartRunCallback;
+    this.economy = economyManager;
+    this.rewards = rewardProvider;
+    this.onSelect = onSelectCallback;
 
     this.roster = CHARACTER_ROSTER;
-    this.selectedIndex = 0;
-    this.activeCharacter = this.roster[0];
+    const currentId = this.economy ? this.economy.getSelectedCharacter() : 'kage_ryu';
+    const foundIndex = this.roster.findIndex(c => c.id === currentId);
+    this.selectedIndex = foundIndex !== -1 ? foundIndex : 0;
 
     this.touchStartX = 0;
     this.touchStartY = 0;
+    this.isSwiping = false;
 
     this._initDOM();
     this._attachEventListeners();
     this.render();
+
+    // Subscribe to economy updates
+    if (this.economy) {
+      this.economy.subscribe(() => {
+        this._updateWallet();
+        this.render();
+      });
+    }
+
+    // Cooldown interval for reward button
+    this.cooldownInterval = setInterval(() => {
+      this._updateRewardButton();
+    }, 1000);
   }
 
   _initDOM() {
     if (!this.container) return;
     this.container.innerHTML = `
-      <div class="char-select-backdrop"></div>
-      
-      <!-- Top Bar: Header Branding & Diamond Balance -->
-      <header class="char-select-header">
-        <div class="char-select-brand">
-          <span class="brand-torii">⛩️</span>
-          <span class="brand-title">SELECT YOUR SHINOBI</span>
+      <div class="vnext-select-backdrop"></div>
+
+      <!-- Minimal Header: Step Indicator & Points Wallet & Watch Ad CTA -->
+      <header class="vnext-header">
+        <div class="vnext-step-badge">
+          <span class="step-num">STEP 1</span>
+          <span class="step-label">CHOOSE SHINOBI</span>
         </div>
-        <div class="char-select-wallet">
-          <span class="wallet-icon">💎</span>
-          <span id="char-wallet-diamonds" class="wallet-val">0</span>
+
+        <div class="vnext-header-right">
+          <button id="btn-char-reward-ad" class="vnext-ad-btn" title="Watch Ad for Bonus Points">
+            <span class="ad-icon">📺</span>
+            <span id="char-ad-btn-text" class="ad-text">+POINTS</span>
+          </button>
+
+          <div class="vnext-wallet-badge">
+            <span class="wallet-gem">💎</span>
+            <span id="char-wallet-points" class="wallet-num">0</span>
+            <span class="wallet-label">PTS</span>
+          </div>
         </div>
       </header>
 
-      <!-- Main Stage Split Layout (Desktop & Landscape Mobile) -->
-      <main class="char-select-stage">
-        <!-- Left / Center: Dominant Full-Body Character Showcase -->
-        <div class="char-preview-panel">
-          <div class="char-preview-aura" id="char-preview-aura"></div>
-          <div class="char-preview-figure-wrapper" id="char-figure-wrapper">
-            <img id="char-preview-img" class="char-preview-img" src="" alt="Selected Character" />
+      <!-- Main Stage: 3D Perspective Character Focus Showcase -->
+      <main class="vnext-char-stage">
+        <!-- 3D Carousel Stage -->
+        <div class="vnext-carousel-viewport" id="char-carousel-viewport">
+          <div class="vnext-cards-track" id="char-cards-track">
+            <!-- Rendered dynamically -->
           </div>
-          <!-- Navigation Arrow Controls -->
-          <button id="btn-prev-char" class="char-nav-arrow arrow-left" aria-label="Previous Shinobi">‹</button>
-          <button id="btn-next-char" class="char-nav-arrow arrow-right" aria-label="Next Shinobi">›</button>
+
+          <!-- Navigation Arrow Buttons -->
+          <button id="btn-char-prev" class="vnext-nav-arrow arrow-left" aria-label="Previous Shinobi">‹</button>
+          <button id="btn-char-next" class="vnext-nav-arrow arrow-right" aria-label="Next Shinobi">›</button>
         </div>
 
-        <!-- Right: Character Info, Traits, Stats & Actions -->
-        <div class="char-info-panel">
-          <div class="char-info-header">
-            <span id="char-number-tag" class="char-number-tag">#01</span>
-            <span id="char-role-tag" class="char-role-tag">PROTAGONIST</span>
-          </div>
-          
-          <h2 id="char-name-title" class="char-name-title">SHADOW NINJA</h2>
-          <p id="char-tagline" class="char-tagline">"The silent wanderer of the Domain."</p>
-
-          <!-- Signature Trait Badge -->
-          <div class="char-trait-box">
-            <div class="trait-header">
-              <span class="trait-icon">⚔️</span>
-              <span class="trait-label">SIGNATURE TRAIT</span>
-            </div>
-            <div id="char-trait-name" class="trait-name">AGILITY & CHAYA DASH</div>
-            <div id="char-trait-desc" class="trait-desc">High movement speed, double somersault flip, and high-speed cleaving dash.</div>
+        <!-- Minimal Action & Pricing Area -->
+        <div class="vnext-action-deck" id="char-action-deck">
+          <div class="vnext-meta-row">
+            <span id="char-meta-serial" class="meta-serial">01</span>
+            <h2 id="char-meta-name" class="meta-name">KAGE-RYU</h2>
+            <span id="char-meta-price" class="meta-price">FREE</span>
           </div>
 
-          <!-- Stats Overview -->
-          <div class="char-stats-grid">
-            <div class="stat-row">
-              <span class="stat-name">SPEED</span>
-              <div class="stat-bar-track"><div id="stat-bar-speed" class="stat-bar-fill" style="width: 95%;"></div></div>
-            </div>
-            <div class="stat-row">
-              <span class="stat-name">JUMP</span>
-              <div class="stat-bar-track"><div id="stat-bar-jump" class="stat-bar-fill" style="width: 90%;"></div></div>
-            </div>
-            <div class="stat-row">
-              <span class="stat-name">DAMAGE</span>
-              <div class="stat-bar-track"><div id="stat-bar-damage" class="stat-bar-fill" style="width: 85%;"></div></div>
-            </div>
-          </div>
-
-          <!-- Primary CTA Button -->
-          <div class="char-action-group">
-            <button id="btn-start-run" class="btn-start-run">
-              <span class="btn-text">⚔️ START RUN</span>
-              <span class="btn-subtext">ENTER THE ENDLESS DOMAIN</span>
+          <div class="vnext-btn-row">
+            <button id="btn-char-action" class="vnext-primary-cta">
+              <span id="char-action-text" class="cta-text">SELECT SHINOBI ➔</span>
             </button>
           </div>
         </div>
       </main>
-
-      <!-- Bottom Horizontal Roster Carousel (Thumb-Friendly for Landscape Mobile) -->
-      <footer class="char-roster-footer">
-        <div class="char-roster-carousel" id="char-roster-carousel">
-          <!-- Populated dynamically -->
-        </div>
-      </footer>
     `;
   }
 
   _attachEventListeners() {
     if (!this.container) return;
 
-    // Previous / Next Buttons
-    const btnPrev = this.container.querySelector('#btn-prev-char');
-    const btnNext = this.container.querySelector('#btn-next-char');
-    if (btnPrev) btnPrev.addEventListener('click', () => this.prevCharacter());
-    if (btnNext) btnNext.addEventListener('click', () => this.nextCharacter());
+    // Navigation Arrows
+    const btnPrev = this.container.querySelector('#btn-char-prev');
+    const btnNext = this.container.querySelector('#btn-char-next');
+    if (btnPrev) btnPrev.addEventListener('click', () => this.prev());
+    if (btnNext) btnNext.addEventListener('click', () => this.next());
 
-    // Start Run Button
-    const btnStart = this.container.querySelector('#btn-start-run');
-    if (btnStart) {
-      btnStart.addEventListener('click', () => this._handleStartRun());
+    // Primary Action Button (Select / Unlock / Proceed)
+    const btnAction = this.container.querySelector('#btn-char-action');
+    if (btnAction) {
+      btnAction.addEventListener('click', () => this._handleAction());
     }
 
-    // Touch Swipe Gestures on Mobile
-    this.container.addEventListener('touchstart', (e) => {
-      if (e.touches.length > 0) {
-        this.touchStartX = e.touches[0].clientX;
-        this.touchStartY = e.touches[0].clientY;
-      }
-    }, { passive: true });
+    // Rewarded Ad Button
+    const btnAd = this.container.querySelector('#btn-char-reward-ad');
+    if (btnAd) {
+      btnAd.addEventListener('click', () => this._handleWatchAd());
+    }
 
-    this.container.addEventListener('touchend', (e) => {
-      if (e.changedTouches.length > 0) {
-        const deltaX = e.changedTouches[0].clientX - this.touchStartX;
-        const deltaY = e.changedTouches[0].clientY - this.touchStartY;
-        // Check horizontal swipe threshold
-        if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
-          if (deltaX < 0) {
-            this.nextCharacter();
-          } else {
-            this.prevCharacter();
-          }
-        }
-      }
-    }, { passive: true });
-
-    // Keyboard Navigation
+    // Keyboard Navigation (Desktop)
     window.addEventListener('keydown', (e) => {
-      if (!this.isVisible()) return;
-
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-        this.prevCharacter();
-      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-        this.nextCharacter();
-      } else if (e.key === 'Enter' || e.key === ' ') {
-        this._handleStartRun();
+      if (this.container.classList.contains('hidden') || this.container.style.display === 'none') {
+        return;
+      }
+      if (e.code === 'ArrowLeft') {
+        this.prev();
+      } else if (e.code === 'ArrowRight') {
+        this.next();
+      } else if (e.code === 'Enter' || e.code === 'Space') {
+        this._handleAction();
       }
     });
+
+    // Touch Swipe Navigation (Mobile)
+    const viewport = this.container.querySelector('#char-carousel-viewport');
+    if (viewport) {
+      viewport.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          this.touchStartX = e.touches[0].clientX;
+          this.touchStartY = e.touches[0].clientY;
+          this.isSwiping = true;
+        }
+      }, { passive: true });
+
+      viewport.addEventListener('touchend', (e) => {
+        if (!this.isSwiping) return;
+        this.isSwiping = false;
+        const deltaX = e.changedTouches[0].clientX - this.touchStartX;
+        const deltaY = e.changedTouches[0].clientY - this.touchStartY;
+
+        // Check horizontal swipe threshold
+        if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+          if (deltaX < 0) {
+            this.next();
+          } else {
+            this.prev();
+          }
+        }
+      }, { passive: true });
+    }
   }
 
-  selectCharacter(index) {
-    if (index < 0 || index >= this.roster.length) return;
-    this.selectedIndex = index;
-    this.activeCharacter = this.roster[this.selectedIndex];
-    this.render();
+  prev() {
+    if (this.selectedIndex > 0) {
+      this.selectedIndex--;
+      this.render();
+    }
   }
 
-  nextCharacter() {
-    const nextIdx = (this.selectedIndex + 1) % this.roster.length;
-    this.selectCharacter(nextIdx);
+  next() {
+    if (this.selectedIndex < this.roster.length - 1) {
+      this.selectedIndex++;
+      this.render();
+    }
   }
 
-  prevCharacter() {
-    const prevIdx = (this.selectedIndex - 1 + this.roster.length) % this.roster.length;
-    this.selectCharacter(prevIdx);
+  selectIndex(index) {
+    if (index >= 0 && index < this.roster.length) {
+      this.selectedIndex = index;
+      this.render();
+    }
   }
 
   render() {
     if (!this.container) return;
-
-    const char = this.activeCharacter;
+    const char = this.roster[this.selectedIndex];
     if (!char) return;
 
-    // 1. Update Preview Image and Atmospheric Glow
-    const imgEl = this.container.querySelector('#char-preview-img');
-    const auraEl = this.container.querySelector('#char-preview-aura');
-    const figureWrapper = this.container.querySelector('#char-figure-wrapper');
+    this._updateWallet();
+    this._updateRewardButton();
 
-    if (imgEl) {
-      imgEl.src = char.image;
-      imgEl.alt = char.name;
-    }
+    const track = this.container.querySelector('#char-cards-track');
+    if (track) {
+      track.innerHTML = this.roster.map((item, idx) => {
+        const offset = idx - this.selectedIndex;
+        const isSelected = offset === 0;
+        const isUnlocked = this.economy ? this.economy.isCharacterUnlocked(item.id) : item.isFree;
 
-    if (auraEl) {
-      auraEl.style.background = `radial-gradient(circle, ${char.glowColor} 0%, rgba(0,0,0,0) 70%)`;
-    }
+        let transformStyle = '';
+        let opacityStyle = 0.35;
+        let zIndexStyle = 10 - Math.abs(offset);
 
-    if (figureWrapper) {
-      // Trigger a subtle pop-in animation on switch
-      figureWrapper.classList.remove('animate-switch');
-      void figureWrapper.offsetWidth;
-      figureWrapper.classList.add('animate-switch');
-    }
+        if (offset === 0) {
+          transformStyle = 'translateX(0px) scale(1.22) translateZ(60px)';
+          opacityStyle = 1.0;
+        } else if (offset === -1) {
+          transformStyle = 'translateX(-160px) scale(0.78) rotateY(18deg) translateZ(0px)';
+          opacityStyle = 0.55;
+        } else if (offset === 1) {
+          transformStyle = 'translateX(160px) scale(0.78) rotateY(-18deg) translateZ(0px)';
+          opacityStyle = 0.55;
+        } else if (offset < -1) {
+          transformStyle = `translateX(${offset * 140}px) scale(0.6) rotateY(25deg) translateZ(-40px)`;
+          opacityStyle = 0.2;
+        } else {
+          transformStyle = `translateX(${offset * 140}px) scale(0.6) rotateY(-25deg) translateZ(-40px)`;
+          opacityStyle = 0.2;
+        }
 
-    // 2. Update Info Panel
-    const numTag = this.container.querySelector('#char-number-tag');
-    const roleTag = this.container.querySelector('#char-role-tag');
-    const nameTitle = this.container.querySelector('#char-name-title');
-    const tagline = this.container.querySelector('#char-tagline');
-    const traitName = this.container.querySelector('#char-trait-name');
-    const traitDesc = this.container.querySelector('#char-trait-desc');
-
-    if (numTag) numTag.textContent = char.number;
-    if (roleTag) {
-      roleTag.textContent = char.role;
-      roleTag.style.borderColor = char.accentColor;
-      roleTag.style.color = char.accentColor;
-    }
-    if (nameTitle) nameTitle.textContent = char.name;
-    if (tagline) tagline.textContent = char.tagline;
-    if (traitName) traitName.textContent = char.trait.name;
-    if (traitDesc) traitDesc.textContent = char.trait.desc;
-
-    // 3. Update Stat Progress Bars
-    const barSpeed = this.container.querySelector('#stat-bar-speed');
-    const barJump = this.container.querySelector('#stat-bar-jump');
-    const barDamage = this.container.querySelector('#stat-bar-damage');
-
-    if (barSpeed) {
-      barSpeed.style.width = `${char.stats.speed}%`;
-      barSpeed.style.background = char.accentColor;
-    }
-    if (barJump) {
-      barJump.style.width = `${char.stats.jump}%`;
-      barJump.style.background = char.accentColor;
-    }
-    if (barDamage) {
-      barDamage.style.width = `${char.stats.damage}%`;
-      barDamage.style.background = char.accentColor;
-    }
-
-    // 4. Update Diamond Balance
-    const diamonds = parseInt(localStorage.getItem('devilsdoor_diamonds') || '0', 10);
-    const walletEl = this.container.querySelector('#char-wallet-diamonds');
-    if (walletEl) walletEl.textContent = diamonds.toLocaleString();
-
-    // 5. Update Action Button (Start Run vs Unlock)
-    const btnStart = this.container.querySelector('#btn-start-run');
-    if (btnStart) {
-      if (char.status === 'unlocked' || char.cost === 0) {
-        btnStart.className = 'btn-start-run btn-unlocked';
-        btnStart.innerHTML = `
-          <span class="btn-text">⚔️ START RUN</span>
-          <span class="btn-subtext">ENTER THE ENDLESS DOMAIN</span>
+        return `
+          <div class="vnext-char-card ${isSelected ? 'selected' : ''} ${isUnlocked ? 'unlocked' : 'locked'}"
+               style="transform: ${transformStyle}; opacity: ${opacityStyle}; z-index: ${zIndexStyle};"
+               data-index="${idx}">
+            <div class="vnext-char-aura" style="background: radial-gradient(circle at 50% 50%, ${item.glowColor} 0%, transparent 70%);"></div>
+            <div class="vnext-char-img-wrapper">
+              <img src="${item.image}" alt="${item.name}" class="vnext-char-img" />
+              ${!isUnlocked ? '<div class="vnext-lock-overlay"><span class="lock-icon">🔒</span></div>' : ''}
+            </div>
+          </div>
         `;
-        btnStart.style.boxShadow = `0 0 24px ${char.glowColor}`;
+      }).join('');
+
+      // Bind click on cards to jump to selection
+      track.querySelectorAll('.vnext-char-card').forEach((card) => {
+        card.addEventListener('click', () => {
+          const idx = parseInt(card.getAttribute('data-index'), 10);
+          this.selectIndex(idx);
+        });
+      });
+    }
+
+    // Update Meta Info (Minimal Information Rule)
+    const metaSerial = this.container.querySelector('#char-meta-serial');
+    const metaName = this.container.querySelector('#char-meta-name');
+    const metaPrice = this.container.querySelector('#char-meta-price');
+    const actionBtn = this.container.querySelector('#btn-char-action');
+    const actionText = this.container.querySelector('#char-action-text');
+
+    const isUnlocked = this.economy ? this.economy.isCharacterUnlocked(char.id) : char.isFree;
+    const isSelected = this.economy ? this.economy.getSelectedCharacter() === char.id : (this.selectedIndex === 0);
+
+    if (metaSerial) metaSerial.textContent = char.serial;
+    if (metaName) metaName.textContent = `${char.name} • ${char.title}`;
+
+    if (metaPrice) {
+      if (isUnlocked) {
+        metaPrice.textContent = 'UNLOCKED';
+        metaPrice.className = 'meta-price unlocked';
       } else {
-        const canAfford = diamonds >= char.cost;
-        btnStart.className = `btn-start-run btn-locked ${canAfford ? 'can-afford' : 'cannot-afford'}`;
-        btnStart.innerHTML = `
-          <span class="btn-text">🔒 UNLOCK FOR 💎 ${char.cost}</span>
-          <span class="btn-subtext">${canAfford ? 'TAP TO UNLOCK & SELECT' : 'COLLECT MORE GEMS IN RUNS'}</span>
-        `;
-        btnStart.style.boxShadow = `0 0 16px rgba(245, 158, 11, 0.3)`;
+        metaPrice.textContent = `${char.price} POINTS`;
+        metaPrice.className = 'meta-price locked';
       }
     }
 
-    // 6. Update Bottom Thumbnail Carousel
-    this._renderCarousel();
+    if (actionBtn && actionText) {
+      if (isUnlocked) {
+        actionBtn.className = 'vnext-primary-cta unlocked';
+        actionText.textContent = isSelected ? 'PROCEED TO REALMS ➔' : 'SELECT SHINOBI ➔';
+      } else {
+        const points = this.economy ? this.economy.getPoints() : 0;
+        const canAfford = points >= char.price;
+        actionBtn.className = `vnext-primary-cta ${canAfford ? 'can-buy' : 'cannot-buy'}`;
+        actionText.textContent = canAfford ? `UNLOCK (${char.price} PTS) 🔓` : `NEED ${char.price - points} MORE PTS`;
+      }
+    }
+
+    // Update Arrow button visibility
+    const btnPrev = this.container.querySelector('#btn-char-prev');
+    const btnNext = this.container.querySelector('#btn-char-next');
+    if (btnPrev) btnPrev.style.visibility = this.selectedIndex > 0 ? 'visible' : 'hidden';
+    if (btnNext) btnNext.style.visibility = this.selectedIndex < this.roster.length - 1 ? 'visible' : 'hidden';
   }
 
-  _renderCarousel() {
-    const carousel = this.container.querySelector('#char-roster-carousel');
-    if (!carousel) return;
-
-    carousel.innerHTML = this.roster.map((c, idx) => {
-      const isSelected = idx === this.selectedIndex;
-      return `
-        <div class="carousel-card ${isSelected ? 'active' : ''}" data-index="${idx}">
-          <div class="card-img-box">
-            <img src="${c.image}" alt="${c.name}" class="carousel-thumb" />
-          </div>
-          <div class="card-meta">
-            <span class="card-num">${c.number}</span>
-            <span class="card-name">${c.name}</span>
-          </div>
-          ${isSelected ? '<div class="card-active-glow"></div>' : ''}
-        </div>
-      `;
-    }).join('');
-
-    // Attach click events on thumbnail cards
-    const cards = carousel.querySelectorAll('.carousel-card');
-    cards.forEach((card) => {
-      card.addEventListener('click', () => {
-        const idx = parseInt(card.getAttribute('data-index'), 10);
-        this.selectCharacter(idx);
-      });
-    });
+  _updateWallet() {
+    if (!this.container) return;
+    const walletEl = this.container.querySelector('#char-wallet-points');
+    if (walletEl && this.economy) {
+      walletEl.textContent = this.economy.getPoints().toLocaleString();
+    }
   }
 
-  _handleStartRun() {
-    const char = this.activeCharacter;
+  _updateRewardButton() {
+    if (!this.container || !this.rewards) return;
+    const btnAd = this.container.querySelector('#btn-char-reward-ad');
+    const textEl = this.container.querySelector('#char-ad-btn-text');
+    if (!btnAd || !textEl) return;
+
+    if (this.rewards.isAvailable()) {
+      btnAd.classList.remove('cooldown');
+      textEl.textContent = '+POINTS';
+    } else {
+      btnAd.classList.add('cooldown');
+      textEl.textContent = this.rewards.getFormattedRemainingTime();
+    }
+  }
+
+  async _handleWatchAd() {
+    if (!this.rewards) return;
+    if (!this.rewards.isAvailable()) return;
+
+    const btnAd = this.container.querySelector('#btn-char-reward-ad');
+    if (btnAd) btnAd.classList.add('loading');
+
+    const result = await this.rewards.showRewardedAd();
+    if (btnAd) btnAd.classList.remove('loading');
+
+    if (result && result.success) {
+      this._showRewardNotification(`+${result.pointsEarned} POINTS EARNED!`);
+      this.render();
+    }
+  }
+
+  _showRewardNotification(msg) {
+    const notif = document.createElement('div');
+    notif.className = 'vnext-reward-toast';
+    notif.textContent = `💎 ${msg}`;
+    this.container.appendChild(notif);
+    setTimeout(() => notif.classList.add('fade-out'), 1800);
+    setTimeout(() => notif.remove(), 2200);
+  }
+
+  _handleAction() {
+    const char = this.roster[this.selectedIndex];
     if (!char) return;
 
-    if (char.status === 'unlocked' || char.cost === 0) {
+    const isUnlocked = this.economy ? this.economy.isCharacterUnlocked(char.id) : char.isFree;
+
+    if (isUnlocked) {
+      if (this.economy) {
+        this.economy.setSelectedCharacter(char.id);
+      }
       this.hide();
-      if (typeof this.onStartRun === 'function') {
-        this.onStartRun(char);
+      if (this.onSelect) {
+        this.onSelect(char);
       }
     } else {
-      // Handle Unlocking with Diamonds
-      const diamonds = parseInt(localStorage.getItem('devilsdoor_diamonds') || '0', 10);
-      if (diamonds >= char.cost) {
-        localStorage.setItem('devilsdoor_diamonds', (diamonds - char.cost).toString());
-        char.status = 'unlocked';
+      // Attempt Purchase
+      const success = this.economy ? this.economy.unlockCharacter(char.id, char.price) : false;
+      if (success) {
+        this._showRewardNotification(`${char.name} UNLOCKED!`);
+        if (this.economy) this.economy.setSelectedCharacter(char.id);
         this.render();
+      } else {
+        this._showRewardNotification(`NOT ENOUGH POINTS (NEED ${char.price})`);
       }
     }
   }
@@ -327,6 +364,7 @@ export class CharacterSelect {
   show() {
     if (this.container) {
       this.container.classList.remove('hidden');
+      this.container.style.display = 'flex';
       this.render();
     }
   }
@@ -334,10 +372,13 @@ export class CharacterSelect {
   hide() {
     if (this.container) {
       this.container.classList.add('hidden');
+      this.container.style.display = 'none';
     }
   }
 
-  isVisible() {
-    return this.container && !this.container.classList.contains('hidden');
+  destroy() {
+    if (this.cooldownInterval) {
+      clearInterval(this.cooldownInterval);
+    }
   }
 }

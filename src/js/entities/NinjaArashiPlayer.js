@@ -75,6 +75,10 @@ export class NinjaArashiPlayer {
     this.setHeroType(heroType);
   }
 
+  setCharacter(charId) {
+    this.setHeroType(charId);
+  }
+
   setHeroType(heroType) {
     this.heroType = heroType;
     if (heroType === 'ryujin' || heroType === 'oni_guard') {

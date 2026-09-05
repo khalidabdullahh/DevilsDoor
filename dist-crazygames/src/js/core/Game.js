@@ -4,11 +4,18 @@ import { NinjaArashiPlayer } from '../entities/NinjaArashiPlayer.js';
 import { EndlessWorld } from '../levels/EndlessWorld.js';
 import { AnalyticsManager } from './AnalyticsManager.js';
 import { AdManager } from './AdManager.js';
+import { EconomyManager } from './EconomyManager.js';
+import { RewardProvider } from './RewardProvider.js';
 import { SCENE_ROSTER } from '../data/SceneRoster.js';
+import { CHARACTER_ROSTER } from '../data/CharacterRoster.js';
 
 /**
- * Game — Master Coordinator for Devil's Door v2.0: Endless Dark Fantasy Action-Platformer.
- * Pure Distance & Combat Score progression with zero diamond clutter.
+ * Game — Master Coordinator for Devil's Door v2.2 (vNext Master Edition).
+ * Orchestrates:
+ * 1. Primary Flow: Landing -> Character Select -> Scene Select -> Endless Run -> Rewards
+ * 2. Real-Time Distance & Point Milestone Rewards (+10 PTS per 1000m)
+ * 3. 3D-Rendered Character Archetype Rendering
+ * 4. High-Resolution 4K Realm Simulation
  */
 export class Game {
   constructor(canvas, inputManager, audioManager, uiManager) {
@@ -22,28 +29,38 @@ export class Game {
     this.player = null;
     this.world = null;
     this.adManager = null;
+    this.characterSelect = null;
     this.sceneSelect = null;
     this.settingsModal = null;
 
-    // Selected Scene
-    this.selectedScene = SCENE_ROSTER[0];
+    // Centralized Economy & Rewards
+    this.economy = new EconomyManager();
+    this.rewards = new RewardProvider(this.economy, 90);
 
-    // Endless Metrics & Scoring
+    // Active Selection State
+    const activeSceneId = this.economy.getSelectedScene();
+    this.selectedScene = SCENE_ROSTER.find(s => s.id === activeSceneId) || SCENE_ROSTER[0];
+    const activeCharId = this.economy.getSelectedCharacter();
+    this.selectedCharacter = CHARACTER_ROSTER.find(c => c.id === activeCharId) || CHARACTER_ROSTER[0];
+
+    // Metrics & Progression
     this.distance = 0;
     this.score = 0;
+    this.pointsEarnedInRun = 0;
     this.highScore = parseInt(localStorage.getItem('devils_door_v2_highscore') || '0', 10);
     this.deaths = 0;
 
+    // Game Flow States
     this.isPaused = false;
     this.isGameOver = false;
     this.isOrientationBlocked = false;
-    this.isInSceneSelect = true;
+    this.isInSelectionFlow = true;
     this.lastTime = 0;
 
     // Bind input callbacks
     this.input.onRestartCallback = () => this.restartGame();
     this.input.onPauseCallback = () => {
-      if (!this.isInSceneSelect) {
+      if (!this.isInSelectionFlow) {
         if (!this.isPaused) this.ui.showPauseModal();
         else {
           this.ui.hideModal();
@@ -53,11 +70,12 @@ export class Game {
     };
   }
 
-  init(sceneSelectInstance = null, settingsModalInstance = null) {
+  init(characterSelectInstance = null, sceneSelectInstance = null, settingsModalInstance = null) {
     this.renderer = new NinjaArashiRenderer(this.canvas);
     this.camera = new Camera2D(window.innerWidth, window.innerHeight);
-    this.player = new NinjaArashiPlayer(120, 480, 'shadow_ronin');
+    this.player = new NinjaArashiPlayer(120, 480, this.selectedCharacter ? this.selectedCharacter.id : 'kage_ryu');
     this.adManager = new AdManager(this);
+    this.characterSelect = characterSelectInstance;
     this.sceneSelect = sceneSelectInstance;
     this.settingsModal = settingsModalInstance;
 
@@ -73,19 +91,63 @@ export class Game {
     }
   }
 
+  openCharacterSelect() {
+    this.isInSelectionFlow = true;
+    this.isPaused = false;
+    this.isGameOver = false;
+    if (this.ui) {
+      this.ui.hideHUD();
+      this.ui.hideModal();
+    }
+    if (this.sceneSelect) {
+      this.sceneSelect.hide();
+    }
+    if (this.characterSelect) {
+      this.characterSelect.show();
+    }
+  }
+
+  openSceneSelect() {
+    this.isInSelectionFlow = true;
+    this.isPaused = false;
+    this.isGameOver = false;
+    if (this.ui) {
+      this.ui.hideHUD();
+      this.ui.hideModal();
+    }
+    if (this.characterSelect) {
+      this.characterSelect.hide();
+    }
+    if (this.sceneSelect) {
+      this.sceneSelect.show();
+    }
+  }
+
+  openSettings() {
+    if (this.settingsModal) {
+      this.settingsModal.show();
+    }
+  }
+
   startEndlessRun(sceneData = null) {
     if (sceneData) {
       this.selectedScene = sceneData;
     }
 
-    this.isInSceneSelect = false;
-    this.world = new EndlessWorld(this.selectedScene ? this.selectedScene.id : 'sunset');
+    const activeCharId = this.economy.getSelectedCharacter();
+    this.selectedCharacter = CHARACTER_ROSTER.find(c => c.id === activeCharId) || CHARACTER_ROSTER[0];
+
+    this.isInSelectionFlow = false;
+    this.world = new EndlessWorld(this.selectedScene ? this.selectedScene.id : 'sunset_torii');
+    this.player.setCharacter(this.selectedCharacter ? this.selectedCharacter.id : 'kage_ryu');
     this.player.reset(this.world.playerStartX, this.world.playerStartY);
     this.camera.snapTo(this.player.x, this.player.y);
     this.camera.setBounds(0, 9999999, 0, 950);
 
     this.distance = 0;
     this.score = 0;
+    this.pointsEarnedInRun = 0;
+    this.economy.resetRunMilestones();
     this.isGameOver = false;
     this.isPaused = false;
 
@@ -99,25 +161,6 @@ export class Game {
         this.player.maxHealth,
         this.world.biome
       );
-    }
-  }
-
-  openSceneSelect() {
-    this.isInSceneSelect = true;
-    this.isPaused = false;
-    this.isGameOver = false;
-    if (this.ui) {
-      this.ui.hideHUD();
-      this.ui.hideModal();
-    }
-    if (this.sceneSelect) {
-      this.sceneSelect.show();
-    }
-  }
-
-  openSettings() {
-    if (this.settingsModal) {
-      this.settingsModal.show();
     }
   }
 
@@ -137,12 +180,11 @@ export class Game {
     const dt = Math.min((timestamp - this.lastTime) / 1000, 0.08);
     this.lastTime = timestamp;
 
-    if (!this.isPaused && !this.isOrientationBlocked && !this.isInSceneSelect && this.world) {
+    if (!this.isPaused && !this.isOrientationBlocked && !this.isInSelectionFlow && this.world) {
       this._update(dt);
       this._render();
     }
 
-    // Crucial: Clear single-frame pulses at the end of each frame
     if (this.input) {
       this.input.update();
     }
@@ -155,20 +197,32 @@ export class Game {
     this.player.update(dt, this.input, this.world, this.audio, this.camera);
     this.world.update(dt, this.player, this.audio, this.camera);
 
-    // 2. Camera tracking
+    // 2. Camera Tracking
     this.camera.update(dt, this.player, this.renderer.width, this.renderer.height);
 
     // 3. Update Real-Time Metrics (Meters & Score)
     this.distance = Math.max(this.distance, Math.floor(this.player.x / 10));
     this.score = this.distance * 10 + (this.player.score || 0);
 
-    // 4. Update High Score in localStorage
+    // 4. Milestone Point Rewards (+10 PTS per 1000m)
+    const milestone = this.economy.checkDistanceMilestones(this.distance);
+    if (milestone) {
+      this.pointsEarnedInRun += milestone.pointsEarned;
+      if (this.ui) {
+        this.ui.showMilestoneNotification(milestone.pointsEarned, milestone.milestoneDistance);
+      }
+      if (this.audio) {
+        this.audio.playShurikenSound();
+      }
+    }
+
+    // 5. Update High Score in localStorage
     if (this.score > this.highScore) {
       this.highScore = this.score;
       localStorage.setItem('devils_door_v2_highscore', String(this.highScore));
     }
 
-    // 5. Update HUD
+    // 6. Update HUD
     if (this.ui) {
       this.ui.updateEndlessHUD(
         this.distance,
@@ -180,12 +234,13 @@ export class Game {
       );
     }
 
-    // 6. Check Game Over
+    // 7. Check Game Over
     if (this.player.isDead && !this.isGameOver) {
       this.isGameOver = true;
       AnalyticsManager.track('endless_game_over', {
         distance: this.distance,
         score: this.score,
+        pointsEarned: this.pointsEarnedInRun,
         biome: this.world.biome
       });
 
@@ -195,8 +250,11 @@ export class Game {
             this.distance,
             this.score,
             this.highScore,
+            this.pointsEarnedInRun,
+            this.economy.getPoints(),
             () => this.restartGame(),
-            () => this.openSceneSelect()
+            () => this.openSceneSelect(),
+            () => this.openCharacterSelect()
           );
         }
       }, 500);

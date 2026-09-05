@@ -478,345 +478,554 @@ body.portrait-mode .touch-floating-audio-btn:active {
 }
 
 /* ==========================================================================
-   Scene / Realm Selection Screen (Spacious Dark Fantasy 2-Column Stage)
+   vNext Master Selection Subsystem (3D Focus Selector & Cinematic Gallery)
    ========================================================================== */
-.char-select-overlay {
+.vnext-select-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, #15091e 0%, #07090e 85%);
+  background: radial-gradient(ellipse at center, #100818 0%, #060810 85%);
   z-index: 150;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: env(safe-area-inset-top, 12px) calc(env(safe-area-inset-right, 20px) + 12px) calc(env(safe-area-inset-bottom, 12px) + 8px) calc(env(safe-area-inset-left, 20px) + 12px);
+  padding: env(safe-area-inset-top, 10px) calc(env(safe-area-inset-right, 16px) + 8px) calc(env(safe-area-inset-bottom, 12px) + 8px) calc(env(safe-area-inset-left, 16px) + 8px);
   overflow: hidden;
   transition: opacity 0.3s ease, transform 0.3s ease;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-.scene-select-backdrop {
+.vnext-select-backdrop {
   position: absolute;
   inset: 0;
   background-image: 
-    radial-gradient(circle at 30% 40%, rgba(239, 68, 68, 0.12) 0%, transparent 60%),
-    radial-gradient(circle at 75% 60%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
+    radial-gradient(circle at 25% 35%, rgba(168, 85, 247, 0.12) 0%, transparent 55%),
+    radial-gradient(circle at 75% 65%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
+    radial-gradient(rgba(255, 255, 255, 0.04) 1.5px, transparent 1.5px);
+  background-size: 100% 100%, 100% 100%, 20px 20px;
   pointer-events: none;
 }
 
-/* Header */
-.scene-select-header {
+/* Minimal Header */
+.vnext-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 10;
-  padding-bottom: 4px;
+  z-index: 20;
+  padding: 4px 6px;
+  position: relative;
 }
 
-.scene-select-brand {
+.vnext-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vnext-back-btn {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  color: #f8fafc;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: transform 0.1s, border-color 0.15s, background 0.15s;
+}
+
+.vnext-back-btn:active {
+  transform: scale(0.92);
+  border-color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.2);
+}
+
+.vnext-step-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 3px 10px;
+}
+
+.step-num {
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  letter-spacing: 0.1em;
+}
+
+.step-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: 0.06em;
+}
+
+.vnext-header-right {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.brand-torii {
-  font-size: 1.3rem;
-  filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.5));
-}
-
-.brand-title {
-  font-size: 1.05rem;
+.vnext-ad-btn {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.85), rgba(249, 115, 22, 0.85));
+  border: 1.5px solid #fdba74;
+  color: #ffffff;
+  font-size: 0.7rem;
   font-weight: 900;
-  letter-spacing: 0.15em;
-  color: var(--text-primary);
-}
-
-.scene-select-wallet {
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 16px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(251, 191, 36, 0.35);
-  padding: 4px 12px;
-  border-radius: 18px;
-  box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+  gap: 4px;
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
+  transition: transform 0.1s, opacity 0.15s;
 }
 
-.wallet-val {
-  font-weight: 900;
-  font-size: 0.9rem;
-  color: var(--accent-gold);
+.vnext-ad-btn:active {
+  transform: scale(0.92);
 }
 
-/* Stage Layout (Desktop & Landscape Mobile) */
-.scene-select-stage {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1.15fr 1fr;
+.vnext-ad-btn.cooldown {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: default;
+}
+
+.vnext-wallet-badge {
+  display: flex;
   align-items: center;
-  gap: clamp(14px, 3.5vw, 36px);
+  gap: 5px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
+  border-radius: 18px;
+  padding: 4px 12px;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.2);
+}
+
+.wallet-gem { font-size: 0.85rem; }
+.wallet-num {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #38bdf8;
+  font-family: monospace;
+}
+.wallet-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Character Select: 3D Perspective Focus Selector
+   ========================================================================== */
+.vnext-char-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
   z-index: 10;
+  perspective: 1000px;
   min-height: 0;
 }
 
-/* Left: Scenic Showcase */
-.scene-preview-panel {
+.vnext-carousel-viewport {
   position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: clamp(220px, 48vh, 360px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform-style: preserve-3d;
+}
+
+.vnext-cards-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform-style: preserve-3d;
+}
+
+.vnext-char-card {
+  position: absolute;
+  width: clamp(140px, 32vw, 200px);
+  height: clamp(200px, 44vh, 320px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease, filter 0.35s ease;
+  will-change: transform, opacity;
+}
+
+.vnext-char-aura {
+  position: absolute;
+  inset: -15%;
+  border-radius: 50%;
+  opacity: 0.65;
+  filter: blur(24px);
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.vnext-char-card.selected .vnext-char-aura {
+  opacity: 1;
+  filter: blur(28px);
+}
+
+.vnext-char-img-wrapper {
+  position: relative;
+  width: 100%;
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.scene-preview-aura {
-  position: absolute;
-  width: min(360px, 65vw);
-  height: min(240px, 45vh);
-  border-radius: 24px;
-  pointer-events: none;
-  filter: blur(28px);
-  opacity: 0.65;
-  transition: background 0.4s ease;
-}
-
-.scene-preview-frame {
-  position: relative;
-  width: 100%;
-  max-width: 440px;
-  height: clamp(160px, 46vh, 260px);
-  border-radius: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-  overflow: hidden;
-}
-
-.scene-preview-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.vnext-char-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.9));
   pointer-events: none;
   transition: transform 0.4s ease;
 }
 
-.scene-nav-arrow {
+.vnext-char-card.selected .vnext-char-img {
+  animation: charFloat 3.6s ease-in-out infinite;
+}
+
+@keyframes charFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.vnext-lock-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 8, 16, 0.65);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  backdrop-filter: blur(3px);
+}
+
+.lock-icon {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.8));
+}
+
+.lock-price {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  letter-spacing: 0.08em;
+}
+
+/* Navigation Arrow Buttons */
+.vnext-nav-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: var(--text-primary);
-  font-size: 1.6rem;
-  line-height: 1;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
+  background: rgba(12, 17, 28, 0.88);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: #f8fafc;
+  font-size: 1.8rem;
+  line-height: 1;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(8px);
-  z-index: 20;
+  z-index: 30;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+  transition: transform 0.1s, border-color 0.15s, background 0.15s;
 }
 
-.arrow-left { left: -8px; }
-.arrow-right { right: -8px; }
+.vnext-nav-arrow.arrow-left { left: 4px; }
+.vnext-nav-arrow.arrow-right { right: 4px; }
 
-.scene-nav-arrow:active {
+.vnext-nav-arrow:active {
   transform: translateY(-50%) scale(0.92);
-  border-color: var(--accent-cyan);
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.25);
 }
 
-/* Right: Realm Info Panel */
-.scene-info-panel {
+/* ==========================================================================
+   Scene Select: 16:9 Cinematic Gallery with Edge Peek
+   ========================================================================== */
+.vnext-scene-stage {
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: clamp(6px, 1.4vh, 10px);
-  max-width: 440px;
-}
-
-.scene-info-header {
-  display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.scene-number-tag {
-  font-family: monospace;
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: var(--accent-gold);
-  letter-spacing: 0.1em;
-}
-
-.scene-hero-tag {
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  padding: 2px 8px;
-  border: 1px solid var(--accent-cyan);
-  border-radius: 10px;
-  color: var(--accent-cyan);
-  background: rgba(15, 23, 42, 0.7);
-}
-
-.scene-name-title {
-  font-size: clamp(1.3rem, 3.2vw, 1.8rem);
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  color: var(--text-primary);
-  line-height: 1.1;
-  text-shadow: 0 0 16px rgba(0, 0, 0, 0.6);
-}
-
-.scene-subtitle {
-  font-size: clamp(0.8rem, 1.6vw, 0.9rem);
-  font-style: italic;
-  color: var(--text-muted);
-  line-height: 1.3;
-}
-
-.scene-hazard-box {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-left: 3px solid var(--accent-crimson);
-  border-radius: 8px;
-  padding: 6px 12px;
-  backdrop-filter: blur(8px);
-}
-
-.hazard-header {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 2px;
-}
-
-.hazard-icon { font-size: 0.78rem; }
-.hazard-label {
-  font-size: 0.68rem;
-  font-weight: 800;
-  color: var(--accent-gold);
-  letter-spacing: 0.08em;
-}
-
-.hazard-desc {
-  font-size: 0.76rem;
-  color: var(--text-primary);
-  line-height: 1.25;
-}
-
-.scene-lore-desc {
-  font-size: clamp(0.75rem, 1.5vw, 0.82rem);
-  color: var(--text-muted);
-  line-height: 1.35;
-}
-
-/* CTA Button */
-.scene-action-group {
-  margin-top: 2px;
-}
-
-.btn-start-run {
-  width: 100%;
-  background: linear-gradient(135deg, #0284c7, #38bdf8);
-  border: none;
-  border-radius: 10px;
-  padding: 10px 18px;
-  color: #030712;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  transition: transform 0.1s ease, box-shadow 0.2s ease;
-}
-
-.btn-start-run:active {
-  transform: scale(0.97);
-}
-
-.btn-start-run .btn-text {
-  font-size: 1.05rem;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-}
-
-.btn-start-run .btn-subtext {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  opacity: 0.85;
-}
-
-/* Bottom Realm Carousel */
-.scene-roster-footer {
-  z-index: 10;
-  padding-top: 4px;
-}
-
-.scene-roster-carousel {
-  display: flex;
-  justify-content: center;
-  gap: clamp(6px, 1.8vw, 12px);
-  overflow-x: auto;
-  padding: 2px 0;
-  scrollbar-width: none;
-}
-
-.scene-roster-carousel::-webkit-scrollbar {
-  display: none;
-}
-
-.scene-card {
   position: relative;
-  width: clamp(74px, 13vw, 100px);
-  height: clamp(52px, 9.5vw, 68px);
-  background: rgba(15, 23, 42, 0.85);
-  border: 2px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 3px;
-  overflow: hidden;
-  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  flex-shrink: 0;
-}
-
-.scene-card.active {
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
-  transform: translateY(-2px) scale(1.04);
-}
-
-.scene-card-img-box {
+  z-index: 10;
+  min-height: 0;
   width: 100%;
-  height: 72%;
-  border-radius: 6px;
-  overflow: hidden;
 }
 
-.scene-card-thumb {
+.vnext-gallery-viewport {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  height: clamp(180px, 46vh, 320px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border-radius: 16px;
+}
+
+.vnext-gallery-track {
+  display: flex;
+  align-items: center;
+  gap: 3%;
+  width: 100%;
+  height: 100%;
+  padding-left: 9%;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.vnext-scene-card {
+  position: relative;
+  width: 82%;
+  height: 100%;
+  flex-shrink: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
+  transition: transform 0.4s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+  opacity: 0.55;
+}
+
+.vnext-scene-card.selected {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.45), 0 10px 36px rgba(0, 0, 0, 0.95);
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+.vnext-scene-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.vnext-scene-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.scene-card-meta {
-  width: 100%;
-  text-align: center;
-  padding-top: 2px;
-}
-
-.scene-card-name {
-  font-size: 0.58rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   display: block;
+}
+
+.vnext-scene-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(6, 8, 16, 0.92) 100%);
+}
+
+.vnext-scene-card-label {
+  position: absolute;
+  bottom: 10px;
+  left: 14px;
+  font-size: clamp(0.78rem, 1.8vw, 0.95rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #f8fafc;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+/* ==========================================================================
+   Minimal Action Deck & Pricing Area (Minimal Information Rule)
+   ========================================================================== */
+.vnext-action-deck {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 20;
+  padding-bottom: 2px;
+}
+
+.vnext-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.meta-serial {
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  letter-spacing: 0.1em;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.meta-name {
+  font-size: clamp(1.1rem, 2.8vw, 1.5rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #f8fafc;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.meta-price {
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 3px 9px;
+  border-radius: 12px;
+}
+
+.meta-price.unlocked {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+.meta-price.locked {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.vnext-btn-row {
+  width: 100%;
+}
+
+.vnext-primary-cta {
+  width: 100%;
+  background: linear-gradient(135deg, #0284c7, #38bdf8);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  color: #030712;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(56, 189, 248, 0.45);
+  transition: transform 0.1s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.vnext-primary-cta:active {
+  transform: scale(0.97);
+}
+
+.vnext-primary-cta .cta-text {
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.vnext-primary-cta.can-buy {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.45);
+}
+
+.vnext-primary-cta.cannot-buy {
+  background: rgba(30, 41, 59, 0.85);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+}
+
+/* Notifications & Toasts */
+.vnext-reward-toast {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid #38bdf8;
+  color: #f8fafc;
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 8px 18px;
+  border-radius: 20px;
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.6);
+  z-index: 200;
+  animation: toastPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.vnext-milestone-toast {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(12, 17, 30, 0.95);
+  border: 2px solid var(--accent-gold);
+  border-radius: 14px;
+  padding: 8px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+  z-index: 100;
+  animation: toastPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.milestone-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: 0.1em;
+}
+
+.milestone-reward {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+  letter-spacing: 0.08em;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+@keyframes toastPop {
+  0% { transform: translate(-50%, -20px) scale(0.85); opacity: 0; }
+  100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
 }
 
 /* ==========================================================================

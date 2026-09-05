@@ -1,19 +1,23 @@
 import { AnalyticsManager } from '../core/AnalyticsManager.js';
 
 /**
- * UIManager — High-Polish Mobile-First HUD, Modals, and Player Navigation for Devil's Door.
- * Fully bespoke SVG icons and responsive layout with zero generic emojis.
+ * UIManager — High-Polish Action HUD, Modals & Progression UI for Devil's Door v2.2.
+ * Features:
+ * - Real-time Distance, Score, Health Vitality dots, Realm indicators
+ * - Milestone Point Reward Notifications (+10 PTS per 1000m)
+ * - Game Over Modal with Run Points, Total Wallet & Rewarded Ad bonus
+ * - Pause Modal with Quick Navigation (Resume, Realms, Shinobi, Settings)
+ * - Cross-Browser Fullscreen API Management
  */
 export class UIManager {
-  constructor(game) {
-    this.game = game;
+  constructor(gameInstance = null) {
+    this.game = gameInstance;
 
     this.hudElement = document.getElementById('game-hud');
     this.touchControls = document.getElementById('touch-controls');
     this.distanceDisplay = document.getElementById('distance-display');
     this.highScoreDisplay = document.getElementById('highscore-display');
     this.healthDisplay = document.getElementById('health-display');
-    this.avatarImg = document.getElementById('hud-avatar-img');
 
     this.btnSettings = document.getElementById('btn-settings');
     this.btnRestart = document.getElementById('btn-restart');
@@ -239,7 +243,7 @@ export class UIManager {
     if (this.touchControls) this.touchControls.classList.add('hidden');
   }
 
-  updateEndlessHUD(distance, score, highScore, health = 3, maxHealth = 3, biome = 'sunset') {
+  updateEndlessHUD(distance, score, highScore, health = 3, maxHealth = 3, biome = 'sunset_torii') {
     if (this.distanceDisplay) {
       this.distanceDisplay.textContent = `${distance.toLocaleString()}m`;
     }
@@ -273,7 +277,23 @@ export class UIManager {
     });
   }
 
-  showPauseModal(onResume, onRestart, onChangeScene) {
+  /**
+   * Show animated notification when reaching 1000m milestones
+   */
+  showMilestoneNotification(pointsEarned, totalDistance) {
+    const container = document.getElementById('game-container') || document.body;
+    const toast = document.createElement('div');
+    toast.className = 'vnext-milestone-toast';
+    toast.innerHTML = `
+      <span class="milestone-badge">⛩️ ${totalDistance.toLocaleString()}M SURVIVED!</span>
+      <strong class="milestone-reward">+${pointsEarned} POINTS</strong>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add('fade-out'), 2200);
+    setTimeout(() => toast.remove(), 2600);
+  }
+
+  showPauseModal(onResume, onRestart, onChangeScene, onChangeChar) {
     if (this.game) this.game.setPaused(true);
     if (this.modalTitle) this.modalTitle.textContent = 'PAUSED';
     if (this.modalDescription) this.modalDescription.textContent = 'Take breath, shinobi. The endless descent awaits your blade.';
@@ -292,7 +312,7 @@ export class UIManager {
     if (this.modalOverlay) this.modalOverlay.classList.remove('hidden');
   }
 
-  showGameOverModal(distance, score, highScore, onRestart, onChangeScene) {
+  showGameOverModal(distance, score, highScore, pointsEarnedInRun, totalWalletPoints, onRestart, onChangeScene, onChangeChar, onWatchAd) {
     if (this.game) this.game.setPaused(true);
 
     const isNewHigh = score >= highScore && score > 0;
@@ -301,7 +321,8 @@ export class UIManager {
       this.modalDescription.innerHTML = `
         <div class="modal-stats-card">
           <div class="modal-stat-line"><span>DISTANCE:</span> <strong>${distance.toLocaleString()}m</strong></div>
-          <div class="modal-stat-line"><span>SCORE:</span> <strong>${score.toLocaleString()}</strong></div>
+          <div class="modal-stat-line"><span>POINTS EARNED:</span> <strong style="color:#fbbf24;">+${pointsEarnedInRun} PTS</strong></div>
+          <div class="modal-stat-line"><span>TOTAL WALLET:</span> <strong style="color:#38bdf8;">💎 ${totalWalletPoints.toLocaleString()} PTS</strong></div>
           <div class="modal-stat-line highlight"><span>RECORD:</span> <strong>${highScore.toLocaleString()}</strong></div>
         </div>
       `;

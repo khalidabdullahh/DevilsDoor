@@ -3,11 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>DEVIL'S DOOR — Endless Dark Fantasy Ninja Action-Platformer</title>
-  <meta name="description" content="Devil's Door is an endless dark fantasy ninja action-platformer featuring infinite procedural chunks, 3-minute dynamic biome cycles, swinging pendulum axes, spinning skull-saw wheels, and high-octane shadow combat. Created by Khalid Abdullah." />
+  <title>DEVIL'S DOOR — Official Dark Fantasy Endless 2.5D Action Game</title>
+  <meta name="description" content="Devil's Door v2.2 is an endless dark-fantasy 2.5D action game. Master 4 legendary 3D-rendered shinobis, survive dynamic 4K atmospheric realms, dodge swinging pendulums, and unlock new content with gameplay points." />
+  <meta name="keywords" content="Devil's Door, ninja game, endless runner, action platformer, dark fantasy, html5 game, 2.5D game, Khalid Abdullah, play online, mobile game" />
+  <meta name="author" content="Khalid Abdullah" />
+  <meta name="theme-color" content="#060810" />
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://devils-door.vercel.app/" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://devils-door.vercel.app/" />
+  <meta property="og:title" content="DEVIL'S DOOR — Endless Dark Fantasy Action Game" />
+  <meta property="og:description" content="Enter the endless dark fantasy domain. 4 legendary 3D-rendered shinobis, 4K atmospheric realms, real-time points economy, and zero-blur cross-device gameplay." />
+  <meta property="og:image" content="https://devils-door.vercel.app/src/assets/backgrounds/scene_01_sunset_torii.jpg" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://devils-door.vercel.app/" />
+  <meta name="twitter:title" content="DEVIL'S DOOR — Official Dark Fantasy Action Game" />
+  <meta name="twitter:description" content="Run, jump, dash-slash, and survive through continuous procedural chunks in Devil's Door v2.2." />
+  <meta name="twitter:image" content="https://devils-door.vercel.app/src/assets/backgrounds/scene_01_sunset_torii.jpg" />
+
+  <!-- Schema.org JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://devils-door.vercel.app/#website",
+        "url": "https://devils-door.vercel.app/",
+        "name": "Devil's Door Official Game Website",
+        "description": "Official portal for Devil's Door dark-fantasy action-platformer.",
+        "publisher": {
+          "@type": "Person",
+          "name": "Khalid Abdullah"
+        },
+        "inLanguage": "en"
+      },
+      {
+        "@type": "VideoGame",
+        "@id": "https://devils-door.vercel.app/#game",
+        "name": "Devil's Door",
+        "url": "https://devils-door.vercel.app/game",
+        "description": "An endless dark-fantasy 2.5D action-platformer featuring procedural chunk generation, 3D-rendered shinobi heroes, and 4K atmospheric realms.",
+        "genre": ["Action", "Platformer", "Endless Runner", "Dark Fantasy"],
+        "gamePlatform": ["Web Browser", "Mobile Phone", "Tablet", "Desktop"],
+        "operatingSystem": "Any HTML5 compatible browser",
+        "applicationCategory": "Game",
+        "author": {
+          "@type": "Person",
+          "name": "Khalid Abdullah"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://devils-door.vercel.app/#organization",
+        "name": "Devil's Door Studios",
+        "url": "https://devils-door.vercel.app/",
+        "founder": {
+          "@type": "Person",
+          "name": "Khalid Abdullah"
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet" />
+  
   <link rel="stylesheet" href="/website/css/theme.css" />
   <link rel="stylesheet" href="/website/css/website.css" />
 </head>
@@ -15,220 +90,414 @@
   <!-- Header Navigation -->
   <header class="site-header">
     <nav class="nav-container">
-      <a href="/" class="brand-link">
+      <a href="/" class="brand-link" aria-label="Devil's Door Home">
         <span class="brand-icon">⛩️</span>
         <span class="brand-text"><strong class="brand-devil">DEVIL'S</strong> <span class="brand-door">DOOR</span></span>
       </a>
       <ul class="nav-links">
-        <li><a href="#gameplay">Game</a></li>
-        <li><a href="#biomes">Biomes</a></li>
-        <li><a href="#combat">Combat</a></li>
-        <li><a href="#boss">Encounter</a></li>
+        <li><a href="#domain">Domain</a></li>
+        <li><a href="#gameplay">Gameplay</a></li>
+        <li><a href="#shinobi">Shinobi</a></li>
+        <li><a href="#realms">Realms</a></li>
+        <li><a href="#progression">Progression</a></li>
+        <li><a href="#crossplay">Platforms</a></li>
       </ul>
       <div class="nav-actions">
-        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme" title="Switch Theme">🌓</button>
+        <a href="/game" class="nav-cta-btn">⚔️ PLAY GAME</a>
       </div>
     </nav>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="hero-content">
-      <div class="hero-badge">VERSION 2.0 • ENDLESS PLATFORMER • 3-MIN BIOME CYCLES</div>
-      <h1 class="hero-title">DEVIL'S DOOR</h1>
-      <h2 class="hero-tagline">ENDLESS SHADOW ASCENSION</h2>
-      <p class="hero-description">
-        An infinite dark fantasy ninja action-platformer. Run, jump, dash-slash, and survive through continuous procedural chunks as the world seamlessly morphs every 3 minutes across 5 atmospheric biomes.
-      </p>
-      <div class="hero-cta-group">
-        <a href="/game" class="btn-cta-primary">
-          <span>⚔️ PLAY DEVIL'S DOOR</span>
+  <main>
+    <!-- 1. Hero Section -->
+    <section class="hero-section" id="hero">
+      <div class="hero-background-art"></div>
+      <div class="hero-particles"></div>
+      <div class="hero-content">
+        <div class="hero-badge">VERSION 2.2 • ENDLESS DARK-FANTASY 2.5D ACTION</div>
+        <h1 class="hero-title">DEVIL'S DOOR</h1>
+        <p class="hero-tagline">ENDLESS SHADOW ASCENSION</p>
+        <p class="hero-description">
+          Enter an infinite dark fantasy domain. Run, leap, dash-slash, and survive across procedural 4K realms where danger lurks behind every shadow. Reach the door. Trust nothing.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="/game" class="btn-cta-primary" id="hero-play-btn">
+            <span class="cta-icon">⚔️</span>
+            <span class="cta-text">PLAY GAME</span>
+            <span class="cta-arrow">➔</span>
+          </a>
+          <a href="#domain" class="btn-cta-secondary">
+            <span>⚡ EXPLORE THE DOMAIN</span>
+          </a>
+        </div>
+
+        <div class="hero-platform-pill">
+          <span class="pill-dot">●</span>
+          <span>AVAILABLE ON MOBILE PORTRAIT • TABLET • DESKTOP (ZERO BLUR 4K)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Enter the Domain -->
+    <section id="domain" class="section domain-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">01 / THE SHADOW REALM</span>
+          <h2 class="section-title">Enter the Domain</h2>
+          <p class="section-subtitle">
+            An endless void forged from charcoal stone, spectral cyan mist, and blood-red twilight. Survival is earned with every blade stroke.
+          </p>
+        </div>
+
+        <div class="domain-cards-grid">
+          <article class="domain-card">
+            <span class="domain-icon">⛩️</span>
+            <h3 class="domain-card-title">The Gateway of Shadows</h3>
+            <p class="domain-card-text">
+              Step through the ancient Torii threshold into an ever-expanding labyrinth where terrain continuously shifts ahead of your sprint.
+            </p>
+          </article>
+
+          <article class="domain-card">
+            <span class="domain-icon">🩸</span>
+            <h3 class="domain-card-title">The Price of Descent</h3>
+            <p class="domain-card-text">
+              Every 1,000 meters conquered earns valuable gameplay Points. Master acrobatic double-jumps and devastating dash-slashes to push deeper into the void.
+            </p>
+          </article>
+
+          <article class="domain-card">
+            <span class="domain-icon">👁️</span>
+            <h3 class="domain-card-title">Trust Nothing</h3>
+            <p class="domain-card-text">
+              Swinging chain-scythes, falling stalactites, crumbling pagoda bridges, and ruthless shadow guards await any shinobi whose blade hesitates.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Gameplay Experience -->
+    <section id="gameplay" class="section gameplay-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">02 / CORE MECHANICS</span>
+          <h2 class="section-title">Master the Endless Descent</h2>
+          <p class="section-subtitle">
+            Engineered with 60 FPS sub-pixel physics, multi-touch responsive controls, and high-octane shadow combat.
+          </p>
+        </div>
+
+        <div class="gameplay-grid">
+          <div class="gameplay-feature-card">
+            <div class="feature-badge">INFINITE CHUNKS</div>
+            <h3 class="feature-title">Procedural Terrain Generation</h3>
+            <p class="feature-desc">
+              High ledges, wall-sliding shafts, perilous spike pits, and floating stone platforms spawn dynamically ahead of you with zero stutter.
+            </p>
+          </div>
+
+          <div class="gameplay-feature-card">
+            <div class="feature-badge">DYNAMIC BIOMES</div>
+            <h3 class="feature-title">3-Minute Atmospheric Cycles</h3>
+            <p class="feature-desc">
+              Every 180 seconds of survival seamlessly morphs the skybox, parallax mountains, weather lighting, and hazard palettes in real time.
+            </p>
+          </div>
+
+          <div class="gameplay-feature-card">
+            <div class="feature-badge">COMBAT & AGILITY</div>
+            <h3 class="feature-title">Dash-Slash & Shuriken Flurry</h3>
+            <p class="feature-desc">
+              Cleave through patrolling shadow ronin sentries with supersonic katana dashes and pick off distant threats with rapid shuriken volleys.
+            </p>
+          </div>
+
+          <div class="gameplay-feature-card">
+            <div class="feature-badge">LETHAL HAZARDS</div>
+            <h3 class="feature-title">Pendulum Blades & Spike Pits</h3>
+            <p class="feature-desc">
+              Time your acrobatics past giant swinging crescent scythes, spinning skull-saw wheels, and volcanic flame plumes.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Choose Your Shinobi (Character Roster Showcase) -->
+    <section id="shinobi" class="section shinobi-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">03 / 3D-RENDERED HEROES</span>
+          <h2 class="section-title">Choose Your Shinobi</h2>
+          <p class="section-subtitle">
+            Pre-rendered 3D hero models featuring bespoke silhouettes, dynamic glowing auras, and distinct combat attributes.
+          </p>
+        </div>
+
+        <div class="roster-grid">
+          <!-- Character 01 -->
+          <article class="hero-showcase-card">
+            <div class="hero-card-img-box">
+              <img src="/src/assets/characters/solo/hero_01_kage_ryu.png" alt="01 Kage-Ryu Shadow Shinobi" loading="lazy" class="hero-card-img" />
+              <div class="hero-card-aura aura-purple"></div>
+            </div>
+            <div class="hero-card-body">
+              <span class="hero-serial">01 • FREE</span>
+              <h3 class="hero-name">KAGE-RYU</h3>
+              <p class="hero-title-tag">VOID SHADOW SHINOBI</p>
+              <p class="hero-bio">Clad in matte-black cowl armor with flowing crimson ribbons, striking from the void with dual swift katanas.</p>
+            </div>
+          </article>
+
+          <!-- Character 02 -->
+          <article class="hero-showcase-card">
+            <div class="hero-card-img-box">
+              <img src="/src/assets/characters/solo/hero_02_ryujin.png" alt="02 Ryujin Dragon Ninja" loading="lazy" class="hero-card-img" />
+              <div class="hero-card-aura aura-orange"></div>
+            </div>
+            <div class="hero-card-body">
+              <span class="hero-serial">02 • 500 PTS</span>
+              <h3 class="hero-name">RYUJIN</h3>
+              <p class="hero-title-tag">DRAGON-FLAME NINJA</p>
+              <p class="hero-bio">A heavy juggernaut in demonic horned Oni armor, cleaving foes with a molten flame greatsword.</p>
+            </div>
+          </article>
+
+          <!-- Character 03 -->
+          <article class="hero-showcase-card">
+            <div class="hero-card-img-box">
+              <img src="/src/assets/characters/solo/hero_03_raijin.png" alt="03 Raijin Lightning Ronin" loading="lazy" class="hero-card-img" />
+              <div class="hero-card-aura aura-cyan"></div>
+            </div>
+            <div class="hero-card-body">
+              <span class="hero-serial">03 • 700 PTS</span>
+              <h3 class="hero-name">RAIJIN</h3>
+              <p class="hero-title-tag">STORM LIGHTNING RONIN</p>
+              <p class="hero-bio">Wandering thunder warrior beneath a straw Kasa hat, wielding twin electric shock blades.</p>
+            </div>
+          </article>
+
+          <!-- Character 04 -->
+          <article class="hero-showcase-card">
+            <div class="hero-card-img-box">
+              <img src="/src/assets/characters/solo/hero_04_tsukuyomi.png" alt="04 Tsukuyomi Crimson Kunoichi" loading="lazy" class="hero-card-img" />
+              <div class="hero-card-aura aura-crimson"></div>
+            </div>
+            <div class="hero-card-body">
+              <span class="hero-serial">04 • 1000 PTS</span>
+              <h3 class="hero-name">TSUKUYOMI</h3>
+              <p class="hero-title-tag">CRIMSON KUNOICHI</p>
+              <p class="hero-bio">Porcelain-masked acrobatic reaper slicing through the shadows with dual crescent Kama sickles.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Explore the Scenes (4K Realm Showcase) -->
+    <section id="realms" class="section realms-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">04 / 4K ATMOSPHERIC REALMS</span>
+          <h2 class="section-title">Explore the Scenes</h2>
+          <p class="section-subtitle">
+            Hand-crafted 4K parallax backgrounds rendered with zero quality drop and zero blur on every device.
+          </p>
+        </div>
+
+        <div class="realms-grid">
+          <!-- Realm 01 -->
+          <article class="realm-card">
+            <div class="realm-img-frame">
+              <img src="/src/assets/backgrounds/scene_01_sunset_torii.jpg" alt="Sunset Sanctuary 4K Realm" loading="lazy" class="realm-img" />
+              <div class="realm-tag">REALM 01 • FREE</div>
+            </div>
+            <div class="realm-body">
+              <h3 class="realm-title">Sunset Sanctuary</h3>
+              <p class="realm-desc">Sacred Torii gates and ancient pagoda shrines silhouetted against glowing amber-crimson twilight.</p>
+            </div>
+          </article>
+
+          <!-- Realm 02 -->
+          <article class="realm-card">
+            <div class="realm-img-frame">
+              <img src="/src/assets/backgrounds/scene_02_moonlight_ruins.jpg" alt="Moonlight Citadel 4K Realm" loading="lazy" class="realm-img" />
+              <div class="realm-tag">REALM 02 • 500 PTS</div>
+            </div>
+            <div class="realm-body">
+              <h3 class="realm-title">Moonlight Citadel</h3>
+              <p class="realm-desc">Nocturnal temple arches enveloped in spectral cyan mist under a colossal glowing crescent moon.</p>
+            </div>
+          </article>
+
+          <!-- Realm 03 -->
+          <article class="realm-card">
+            <div class="realm-img-frame">
+              <img src="/src/assets/backgrounds/scene_03_scythe_chasm.jpg" alt="Shadow Scythe Grove 4K Realm" loading="lazy" class="realm-img" />
+              <div class="realm-tag">REALM 03 • 700 PTS</div>
+            </div>
+            <div class="realm-body">
+              <h3 class="realm-title">Shadow Scythe Grove</h3>
+              <p class="realm-desc">Ominous emerald mist forest crisscrossed by giant swinging guillotine blades over abyssal crags.</p>
+            </div>
+          </article>
+
+          <!-- Realm 04 -->
+          <article class="realm-card">
+            <div class="realm-img-frame">
+              <img src="/src/assets/backgrounds/scene_04_crystal_abyss.jpg" alt="Ruby Crystal Abyss 4K Realm" loading="lazy" class="realm-img" />
+              <div class="realm-tag">REALM 04 • 1000 PTS</div>
+            </div>
+            <div class="realm-body">
+              <h3 class="realm-title">Ruby Crystal Abyss</h3>
+              <p class="realm-desc">Vertical dark obsidian cliffs studded with glowing blood-red ruby crystal clusters and smoke vents.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Progress & Unlock System -->
+    <section id="progression" class="section progression-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">05 / PERSISTENT ECONOMY</span>
+          <h2 class="section-title">Progress & Unlock</h2>
+          <p class="section-subtitle">
+            Pure gameplay progression. Survive the endless descent to accumulate Points and unlock your arsenal.
+          </p>
+        </div>
+
+        <div class="progression-flow">
+          <div class="flow-step">
+            <div class="step-circle">1</div>
+            <h3 class="step-heading">PLAY RUN</h3>
+            <p class="step-text">Choose your shinobi and enter the endless domain.</p>
+          </div>
+          <div class="flow-arrow">➔</div>
+
+          <div class="flow-step">
+            <div class="step-circle">2</div>
+            <h3 class="step-heading">TRAVEL 1,000M</h3>
+            <p class="step-text">Survive lethal traps and shadow guards in the procedural world.</p>
+          </div>
+          <div class="flow-arrow">➔</div>
+
+          <div class="flow-step">
+            <div class="step-circle">3</div>
+            <h3 class="step-heading">EARN +10 POINTS</h3>
+            <p class="step-text">Receive real-time milestone points directly into your persistent wallet.</p>
+          </div>
+          <div class="flow-arrow">➔</div>
+
+          <div class="flow-step">
+            <div class="step-circle">4</div>
+            <h3 class="step-heading">UNLOCK HEROES</h3>
+            <p class="step-text">Unlock Ryujin, Raijin, Tsukuyomi, and new 4K realms forever.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Play Your Way (Cross-Platform) -->
+    <section id="crossplay" class="section crossplay-section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">06 / CROSS-PLATFORM EXCELLENCE</span>
+          <h2 class="section-title">Play Your Way</h2>
+          <p class="section-subtitle">
+            Seamlessly engineered for mobile vertical thumb play, tablet landscape, and desktop precision.
+          </p>
+        </div>
+
+        <div class="crossplay-grid">
+          <div class="crossplay-card">
+            <span class="crossplay-icon">📱</span>
+            <h3 class="crossplay-title">Mobile Portrait Gamepad</h3>
+            <p class="crossplay-text">
+              Dedicated handheld arcade console deck below a 16:9 upper viewport. Large green Jump button, smooth D-pad sliding, and haptic vibration.
+            </p>
+          </div>
+
+          <div class="crossplay-card">
+            <span class="crossplay-icon">🔄</span>
+            <h3 class="crossplay-title">Landscape & Fullscreen</h3>
+            <p class="crossplay-text">
+              Rotate your device or press the top-right Fullscreen button for a 100% immersive edge-to-edge view with sleek unobtrusive HUD.
+            </p>
+          </div>
+
+          <div class="crossplay-card">
+            <span class="crossplay-icon">💻</span>
+            <h3 class="crossplay-title">Desktop & Gamepad</h3>
+            <p class="crossplay-text">
+              Ultra-high framerate keyboard (WASD/Arrows, Space/J, K, L) and hardware gamepad controller support on any modern browser.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Final Call to Action -->
+    <section class="section final-cta-section">
+      <div class="final-cta-card">
+        <span class="final-cta-emblem">⛩️</span>
+        <h2 class="final-cta-title">ENTER DEVIL'S DOOR</h2>
+        <p class="final-cta-subtitle">
+          The endless descent awaits your blade. Choose your shinobi and conquer the shadow realms today.
+        </p>
+        <a href="/game" class="btn-cta-primary final-play-btn">
+          <span>⚔️ PLAY NOW — FREE IN BROWSER</span>
           <span>➔</span>
         </a>
-        <a href="https://github.com/khalidabdullahh/DevilsDoor" target="_blank" rel="noopener noreferrer" class="btn-cta-secondary">
-          <span>⚡ VIEW GITHUB</span>
-        </a>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
-  <!-- Section 1: Gameplay Showcase -->
-  <section id="gameplay" class="section">
-    <div class="section-header">
-      <span class="section-tag">01 / INFINITE PROCEDURAL ENGINE</span>
-      <h2 class="section-title">Master the Endless Descent</h2>
-      <p class="section-subtitle">
-        Procedural terrain generation, glowing diamonds, swinging crescent battleaxes, and lethal shadow guards test your shinobi reflexes.
-      </p>
-    </div>
-
-    <div class="grid-cards">
-      <div class="feature-card">
-        <span class="card-icon">♾️</span>
-        <h3 class="card-title">Infinite Procedural Chunks</h3>
-        <p class="card-text">
-          No two runs are identical. High ledges, collapsing rope bridges, wall-jump shafts, and spike pits spawn dynamically ahead of you.
-        </p>
-      </div>
-
-      <div class="feature-card">
-        <span class="card-icon">⏱️</span>
-        <h3 class="card-title">3-Minute Biome Cycles</h3>
-        <p class="card-text">
-          Every 180 seconds, the atmospheric sky, parallax background ridges, weather particles, and platform textures seamlessly morph in real time.
-        </p>
-      </div>
-
-      <div class="feature-card">
-        <span class="card-icon">💎</span>
-        <h3 class="card-title">Diamonds & High Scores</h3>
-        <p class="card-text">
-          Collect glowing celestial diamonds, rack up distance multipliers, and cement your all-time distance record on the local leaderboard.
-        </p>
-      </div>
-
-      <div class="feature-card">
-        <span class="card-icon">🪓</span>
-        <h3 class="card-title">Lethal Demonic Traps</h3>
-        <p class="card-text">
-          Dodge massive swinging pendulum blades, giant spinning crimson skull-saw gears, ceiling spikes, and reaching demon claws.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section 2: Five Biomes -->
-  <section id="biomes" class="section">
-    <div class="section-header">
-      <span class="section-tag">02 / FIVE SIGNATURE REALMS</span>
-      <h2 class="section-title">Seamless Atmospheric Morphing</h2>
-      <p class="section-subtitle">
-        Every 3 minutes, the world transitions across the authentic dark fantasy visual aesthetics from the Archive collection.
-      </p>
-    </div>
-
-    <div class="acts-grid">
-      <div class="act-card">
-        <div class="act-header">
-          <span class="act-num">REALM 01</span>
-          <span class="act-title">Sunset Fortress</span>
-          <span class="act-levels">Torii Gates & Campfires</span>
-        </div>
-        <p class="act-desc">
-          Amber-crimson twilight skies, distant Torii gates, multi-tier pagodas, warm lantern halos, and floating golden embers.
-        </p>
-      </div>
-
-      <div class="act-card">
-        <div class="act-header">
-          <span class="act-num">REALM 02</span>
-          <span class="act-title">Frozen Abyss</span>
-          <span class="act-levels">Snow Ledges & Frost Trees</span>
-        </div>
-        <p class="act-desc">
-          Glacial ice blue skies, snow-capped rocky cliffs, frosted dead pine branches, demon mask pillars, and drifting snow flurries.
-        </p>
-      </div>
-
-      <div class="act-card">
-        <div class="act-header">
-          <span class="act-num">REALM 03</span>
-          <span class="act-title">Whispering Bamboo</span>
-          <span class="act-levels">Swinging Crescent Blades</span>
-        </div>
-        <p class="act-desc">
-          Deep emerald teal mist, dense vertical bamboo stalks, swinging pendulum battleaxes, and swirling teal bamboo leaves.
-        </p>
-      </div>
-
-      <div class="act-card">
-        <div class="act-header">
-          <span class="act-num">REALM 04</span>
-          <span class="act-title">Demonic Thorn Crypts</span>
-          <span class="act-levels">Skull-Saw Gear Wheels</span>
-        </div>
-        <p class="act-desc">
-          Lilac purple twilight, giant spinning red skull-saw wheels, crimson thorny tentacles, and glowing demonic eyes in the fog.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section 3: Combat Overview -->
-  <section id="combat" class="section">
-    <div class="section-header">
-      <span class="section-tag">03 / PRECISION SHINOBI ARSENAL</span>
-      <h2 class="section-title">Master the Blade & Shuriken</h2>
-      <p class="section-subtitle">
-        Equipped with authentic artwork touch buttons and responsive desktop keyboard controls.
-      </p>
-    </div>
-
-    <div class="grid-cards">
-      <div class="feature-card">
-        <span class="card-icon">⚔️</span>
-        <h3 class="card-title">Katana Dash-Slash</h3>
-        <p class="card-text">
-          Cleave through dual-blade shadow scouts and armored naginata spearmen with high-speed golden blade dash-slashes.
-        </p>
-      </div>
-
-      <div class="feature-card">
-        <span class="card-icon">✦</span>
-        <h3 class="card-title">4-Pointed Shurikens</h3>
-        <p class="card-text">
-          Throw lethal metallic ninja stars from distance to dispatch crossbow archers and disarm distant sentries safely.
-        </p>
-      </div>
-
-      <div class="feature-card">
-        <span class="card-icon">🤸‍♂️</span>
-        <h3 class="card-title">Acrobatic Somersaults</h3>
-        <p class="card-text">
-          Perform mid-air somersault double jump flips, wall-slide leaps with ember sparks, and flowing red cloth scarf physics.
-        </p>
-      </div>
-
-      <div class="feature-card">
-        <span class="card-icon">📱</span>
-        <h3 class="card-title">Engraved Touch Controls</h3>
-        <p class="card-text">
-          Ornate triangular scrollwork directional arrows on bottom-left, and dedicated circular Jump, Slash, and Shuriken cluster on bottom-right.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section 4: Boss Encounter Section -->
-  <section id="boss" class="section boss-section">
-    <div class="boss-content">
-      <span class="section-tag">04 / THE DEMONIC ENCOUNTER</span>
-      <h2 class="boss-title">THE DEMONIC ONI</h2>
-      <p class="boss-tagline">Every 1,000 meters. One demon. One test of mastery.</p>
-      <p class="boss-desc">
-        Face the giant Demonic Oni Samurai Boss with ground shockwaves, dual katanas, and lightning strikes as you push your distance record to legendary heights.
-      </p>
-      <a href="/game" class="btn-cta-primary btn-cta-large">
-        <span>⚔️ PLAY DEVIL'S DOOR</span>
-        <span>➔</span>
-      </a>
-    </div>
-  </section>
-
-  <!-- Minimal Footer -->
+  <!-- 9. Footer -->
   <footer class="site-footer">
     <div class="footer-container">
-      <div class="footer-left">
-        <span class="footer-brand">DEVIL'S DOOR</span>
-        <span class="footer-copy">Created & Developed by Khalid Abdullah &middot; MIT Open Source License &middot; &copy; 2026 Khalid Abdullah</span>
+      <div class="footer-brand">
+        <span class="brand-icon">⛩️</span>
+        <span class="brand-text"><strong>DEVIL'S</strong> DOOR</span>
+        <p class="footer-tagline">Endless Dark-Fantasy Action Game</p>
       </div>
-      <div class="footer-right">
-        <a href="/game" class="footer-link">Play Game</a>
-        <a href="https://github.com/khalidabdullahh/DevilsDoor" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+
+      <div class="footer-links-group">
+        <div class="footer-col">
+          <h4>GAMEPLAY</h4>
+          <ul>
+            <li><a href="/game">Play Game</a></li>
+            <li><a href="#shinobi">Shinobi Roster</a></li>
+            <li><a href="#realms">4K Realms</a></li>
+            <li><a href="#progression">Point Economy</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>DEVELOPER</h4>
+          <ul>
+            <li><a href="https://github.com/khalidabdullahh/DevilsDoor" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
+            <li><a href="https://github.com/khalidabdullahh/DevilsDoor/releases" target="_blank" rel="noopener noreferrer">Version Releases (v2.2)</a></li>
+            <li><a href="https://developer.crazygames.com" target="_blank" rel="noopener noreferrer">CrazyGames Publisher</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>LEGAL & IP</h4>
+          <ul>
+            <li><span class="footer-legal-text">© 2026 Khalid Abdullah</span></li>
+            <li><span class="footer-legal-text">Commercial Rights Reserved</span></li>
+            <li><span class="footer-legal-text">PEGI 12 Compliant</span></li>
+          </ul>
+        </div>
       </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Devil's Door v2.2 (vNext Master Edition) • Developed & Directed by <strong>Khalid Abdullah</strong>.</p>
     </div>
   </footer>
 
-  <script type="module" src="/website/js/website.js"></script>
+  <script src="/website/js/website.js"></script>
 </body>
 </html>

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Devil's Door — Endless Ninja Action-Platformer</title>
   <meta name="description" content="An endless dark fantasy ninja action-platformer. Procedural chunks, 3-minute dynamic biome cycles, and infinite shadow combat. Reach the door. Trust nothing." />
   <meta name="theme-color" content="#07090e" />
+  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
   <link rel="stylesheet" href="./src/css/game.css" />
 </head>
 <body>
@@ -96,8 +96,13 @@
     <!-- Portrait Blocker Overlay (Disabled/Hidden in favor of Handheld Gamepad console layout) -->
     <div id="rotate-overlay" class="rotate-overlay hidden"></div>
 
-    <!-- Scene / Stage Selection Screen Overlay -->
-    <div id="character-select-screen" class="char-select-overlay">
+    <!-- Character Selection Screen Overlay (Step 1) -->
+    <div id="character-select-screen" class="vnext-select-overlay">
+      <!-- Injected and managed by CharacterSelect.js -->
+    </div>
+
+    <!-- Scene / Realm Selection Screen Overlay (Step 2) -->
+    <div id="scene-select-screen" class="vnext-select-overlay hidden">
       <!-- Injected and managed by SceneSelect.js -->
     </div>
 

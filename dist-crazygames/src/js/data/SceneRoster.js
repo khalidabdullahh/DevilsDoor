@@ -1,51 +1,54 @@
 /**
- * SceneRoster — Official Selectable Stages & 4K Realms for Devil's Door v2.1.
- * High-definition cinematic realms with zero quality drop across all devices.
+ * SceneRoster — Official 4K Realms Roster for Devil's Door v2.2 (vNext Master Edition).
+ * High-definition cinematic realms in fixed serial order:
+ * 01 — SUNSET SANCTUARY [FREE]
+ * 02 — MOONLIGHT CITADEL [500 POINTS]
+ * 03 — SHADOW SCYTHE GROVE [700 POINTS]
+ * 04 — RUBY CRYSTAL ABYSS [1000 POINTS]
  */
 export const SCENE_ROSTER = [
   {
     id: 'sunset_torii',
-    number: 'REALM I',
+    serial: '01',
+    number: 'REALM 01',
     name: 'SUNSET SANCTUARY',
-    subtitle: 'Torii Shrine, Sacred Lake & Crimson Twilight',
-    description: 'Traverse sacred water Torii portals and ancient stone paths under a radiant sunset sky and Mount Fuji silhouette.',
+    price: 0,
+    isFree: true,
     image: '/src/assets/backgrounds/scene_01_sunset_torii.jpg',
     accentColor: '#ef4444',
-    glowColor: 'rgba(239, 68, 68, 0.5)',
-    hazards: 'Spike pits, hanging lanterns, archer sentries'
+    glowColor: 'rgba(239, 68, 68, 0.6)'
   },
   {
     id: 'moonlight_ruins',
-    number: 'REALM II',
+    serial: '02',
+    number: 'REALM 02',
     name: 'MOONLIGHT CITADEL',
-    subtitle: 'Spectral Pagoda Ruins & Cyan Mist',
-    description: 'Leap across towering nocturnal pagoda castles and crumbling temple arches enveloped in spectral cyan fog.',
+    price: 500,
+    isFree: false,
     image: '/src/assets/backgrounds/scene_02_moonlight_ruins.jpg',
     accentColor: '#06b6d4',
-    glowColor: 'rgba(6, 182, 212, 0.5)',
-    hazards: 'Tower chasms, spectral sentries, crumbling stone'
+    glowColor: 'rgba(6, 182, 212, 0.6)'
   },
   {
     id: 'scythe_chasm',
-    number: 'REALM III',
+    serial: '03',
+    number: 'REALM 03',
     name: 'SHADOW SCYTHE GROVE',
-    subtitle: 'Swinging Pendulum Scythes & Emerald Forest',
-    description: 'Sprint through an ominous mist forest dodging giant swinging chain-scythe guillotine blades across mossy crags.',
+    price: 700,
+    isFree: false,
     image: '/src/assets/backgrounds/scene_03_scythe_chasm.jpg',
     accentColor: '#10b981',
-    glowColor: 'rgba(16, 185, 129, 0.5)',
-    hazards: 'Swinging chain-scythes, deep abyssal pits'
+    glowColor: 'rgba(16, 185, 129, 0.6)'
   },
   {
     id: 'crystal_abyss',
-    number: 'REALM IV',
+    serial: '04',
+    number: 'REALM 04',
     name: 'RUBY CRYSTAL ABYSS',
-    subtitle: 'Glowing Ruby Crystals & Obsidian Crags',
-    description: 'Navigate vertical dark obsidian cliffs studded with glowing blood-red ruby crystal clusters over a deep smoking chasm.',
+    price: 1000,
+    isFree: false,
     image: '/src/assets/backgrounds/scene_04_crystal_abyss.jpg',
     accentColor: '#f43f5e',
-    glowColor: 'rgba(244, 63, 94, 0.5)',
-    hazards: 'Razor crystal spikes, volcanic heat plumes'
+    glowColor: 'rgba(244, 63, 94, 0.6)'
   }
 ];
-
