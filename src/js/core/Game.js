@@ -204,25 +204,13 @@ export class Game {
     this.distance = Math.max(this.distance, Math.floor(this.player.x / 10));
     this.score = this.distance * 10 + (this.player.score || 0);
 
-    // 4. Milestone Point Rewards (+10 PTS per 1000m)
-    const milestone = this.economy.checkDistanceMilestones(this.distance);
-    if (milestone) {
-      this.pointsEarnedInRun += milestone.pointsEarned;
-      if (this.ui) {
-        this.ui.showMilestoneNotification(milestone.pointsEarned, milestone.milestoneDistance);
-      }
-      if (this.audio) {
-        this.audio.playShurikenSound();
-      }
-    }
-
-    // 5. Update High Score in localStorage
+    // 4. Update High Score in localStorage
     if (this.score > this.highScore) {
       this.highScore = this.score;
       localStorage.setItem('devils_door_v2_highscore', String(this.highScore));
     }
 
-    // 6. Update HUD
+    // 5. Update HUD
     if (this.ui) {
       this.ui.updateEndlessHUD(
         this.distance,
@@ -234,9 +222,17 @@ export class Game {
       );
     }
 
-    // 7. Check Game Over
+    // 6. Check Game Over
     if (this.player.isDead && !this.isGameOver) {
       this.isGameOver = true;
+
+      // Distance Milestone Reward: Calculated & credited cleanly on run completion (+10 PTS per 1000m)
+      const thousandsSurvived = Math.floor(this.distance / 1000);
+      this.pointsEarnedInRun = thousandsSurvived * 10;
+      if (this.pointsEarnedInRun > 0) {
+        this.economy.addPoints(this.pointsEarnedInRun, `endless_run_${this.distance}m`);
+      }
+
       AnalyticsManager.track('endless_game_over', {
         distance: this.distance,
         score: this.score,

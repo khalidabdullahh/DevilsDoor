@@ -87,14 +87,18 @@ export class EndlessWorld {
       this._generateNextChunk();
     }
 
-    // Boss Spawning
+    // Boss Spawning (Every 1000m)
     const currentMeters = Math.floor(px / 10);
     if (currentMeters >= this.nextBossDistance) {
       this.nextBossDistance += 1000;
-      const boss = new OniBossEnemy(px + 900, 480);
-      this.enemies.push(boss);
-      if (audio) audio.playEnemyAlert();
-      if (camera) camera.addShake(0.8);
+      try {
+        const boss = new OniBossEnemy(px + 900, 480);
+        this.enemies.push(boss);
+        if (audio && typeof audio.playEnemyAlert === 'function') audio.playEnemyAlert();
+        if (camera && typeof camera.addShake === 'function') camera.addShake(0.8);
+      } catch (err) {
+        console.warn('[EndlessWorld] Boss spawn error:', err);
+      }
     }
 
     // Pendulum Axes
