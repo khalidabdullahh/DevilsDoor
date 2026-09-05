@@ -1,12 +1,46 @@
 import { Shuriken } from './Shuriken.js';
 
+// Pre-load Authentic Hand-Drawn Ninja Sketch Sprites
+const SKETCH_IMAGE_MAP = {
+  kage_ryu: '/src/assets/characters/sketch/hero_01_kage_ryu_sketch.png',
+  shadow_ninja: '/src/assets/characters/sketch/hero_01_kage_ryu_sketch.png',
+  ryujin: '/src/assets/characters/sketch/hero_02_ryujin_sketch.png',
+  oni_guard: '/src/assets/characters/sketch/hero_02_ryujin_sketch.png',
+  raijin: '/src/assets/characters/sketch/hero_03_raijin_sketch.png',
+  shadow_ronin: '/src/assets/characters/sketch/hero_03_raijin_sketch.png',
+  tsukuyomi: '/src/assets/characters/sketch/hero_04_tsukuyomi_sketch.png',
+  crimson_assassin: '/src/assets/characters/sketch/hero_04_tsukuyomi_sketch.png'
+};
+
+const loadedSketchImages = {};
+
+function getSketchImage(heroType) {
+  const key = heroType || 'kage_ryu';
+  if (loadedSketchImages[key]) {
+    return loadedSketchImages[key];
+  }
+  const src = SKETCH_IMAGE_MAP[key] || SKETCH_IMAGE_MAP.kage_ryu;
+  if (typeof Image !== 'undefined') {
+    const img = new Image();
+    img.src = src;
+    loadedSketchImages[key] = img;
+    return img;
+  }
+  return null;
+}
+
+// Eagerly pre-load all 4 hero sketches into memory
+if (typeof Image !== 'undefined') {
+  ['kage_ryu', 'ryujin', 'raijin', 'tsukuyomi'].forEach(id => getSketchImage(id));
+}
+
 /**
- * NinjaArashiPlayer — Authentic Ninja Arashi 2 Sketch & Silhouette Gameplay Engine.
- * Features high-definition hand-crafted ninja silhouettes for all 4 official heroes:
- * - 01 KAGE-RYU: Void Shadow Shinobi (Pointed Cowl, 16-Node Flowing Crimson Scarf, Dual Katana Sheaths, Piercing Red Eyes)
- * - 02 RYUJIN: Dragon-Flame Oni Ninja (Curved Demon Horns, Spiked Pauldrons, Magma Fissure Chestplate, Greatsword)
- * - 03 RAIJIN: Storm Lightning Ronin (Conical Woven Kasa Hat, Billowing Samurai Haori Coat, Dual Daisho, Cyan Eyes)
- * - 04 TSUKUYOMI: Crimson Kunoichi (High Collar, Split Mask, Dual Kama Sickles, Flowing Twin Ribbons, Ruby Eyes)
+ * NinjaArashiPlayer — Authentic Hand-Drawn Ninja Sketch & Silhouette Gameplay Engine.
+ * Features true concept-art ninja sketch rendering in 60 FPS gameplay:
+ * - 01 KAGE-RYU: Hand-Drawn Void Shadow Shinobi (Pointed Cowl, 16-Node Flowing Crimson Scarf, Dual Katana Scabbards, Piercing Red Eyes)
+ * - 02 RYUJIN: Hand-Drawn Oni Dragon Samurai (Curved Demon Horns, Spiked Pauldrons, Flame Greatsword, Glowing Magma Veins)
+ * - 03 RAIJIN: Hand-Drawn Lightning Ronin (Conical Woven Kasa Hat, Billowing Samurai Haori Coat, Dual Daisho, Electric Cyan Eyes)
+ * - 04 TSUKUYOMI: Hand-Drawn Crimson Kunoichi (High Collar, Split Mask, Dual Kama Sickles, Flowing Twin Ribbons, Ruby Eyes)
  */
 export class NinjaArashiPlayer {
   constructor(x = 120, y = 480, heroType = 'kage_ryu') {
@@ -15,9 +49,9 @@ export class NinjaArashiPlayer {
     this.vx = 0;
     this.vy = 0;
 
-    this.heroType = heroType;
-    this.width = 44;
-    this.height = 68;
+    this.heroType = heroType || 'kage_ryu';
+    this.width = 46;
+    this.height = 72;
     this.facing = 1;
 
     this.maxHealth = 3;
@@ -57,11 +91,11 @@ export class NinjaArashiPlayer {
     // Animation Timing
     this.animTime = 0;
 
-    // Verlet Multi-Node Cloth Simulation for Scarves, Robes & Ribbons
+    // Verlet Multi-Node Cloth Simulation for Flowing Scarves & Ribbons
     this.clothNodes = [];
     this._initClothNodes();
 
-    // Visual Particles (Sparks, Dust, Smoke)
+    // Visual Particles (Sparks, Speed Lines, Dust)
     this.wallSparks = [];
     this.footDust = [];
 
@@ -75,30 +109,30 @@ export class NinjaArashiPlayer {
   setHeroType(heroType) {
     this.heroType = heroType || 'kage_ryu';
     if (this.heroType === 'ryujin' || this.heroType === 'oni_guard') {
-      this.width = 48;
-      this.height = 72;
+      this.width = 50;
+      this.height = 76;
       this.maxHealth = 4;
       this.moveSpeed = 500;
       this.jumpForce = 540;
       this.dashSpeed = 1080;
     } else if (this.heroType === 'tsukuyomi' || this.heroType === 'crimson_assassin') {
-      this.width = 40;
-      this.height = 66;
+      this.width = 42;
+      this.height = 70;
       this.maxHealth = 3;
       this.moveSpeed = 570;
       this.jumpForce = 575;
       this.dashSpeed = 1220;
     } else if (this.heroType === 'raijin' || this.heroType === 'shadow_ronin') {
-      this.width = 44;
-      this.height = 68;
+      this.width = 46;
+      this.height = 72;
       this.maxHealth = 3;
       this.moveSpeed = 540;
       this.jumpForce = 560;
       this.dashSpeed = 1160;
     } else {
       // kage_ryu / shadow_ninja
-      this.width = 44;
-      this.height = 68;
+      this.width = 46;
+      this.height = 72;
       this.maxHealth = 3;
       this.moveSpeed = 550;
       this.jumpForce = 565;
@@ -106,6 +140,7 @@ export class NinjaArashiPlayer {
     }
     this.health = this.maxHealth;
     this._initClothNodes();
+    getSketchImage(this.heroType);
   }
 
   _initClothNodes() {
@@ -118,9 +153,9 @@ export class NinjaArashiPlayer {
       for (let i = 0; i < nodesPerRibbon; i++) {
         ribbon.push({
           x: this.x - i * 6,
-          y: this.y + 16 + r * 4,
+          y: this.y + 18 + r * 4,
           oldX: this.x - i * 6,
-          oldY: this.y + 16 + r * 4
+          oldY: this.y + 18 + r * 4
         });
       }
       this.clothNodes.push(ribbon);
@@ -203,8 +238,8 @@ export class NinjaArashiPlayer {
         x: this.x,
         y: this.y,
         facing: this.facing,
-        life: 0.2,
-        alpha: 0.8,
+        life: 0.22,
+        alpha: 0.85,
         color: ghostColor,
         heroType: this.heroType
       });
@@ -213,7 +248,7 @@ export class NinjaArashiPlayer {
         for (const enemy of level.enemies) {
           if (enemy.isDead) continue;
           const dist = Math.hypot(this.x - enemy.x, (this.y + 24) - (enemy.y + 24));
-          if (dist < 110) {
+          if (dist < 115) {
             enemy.takeDamage(2, this.facing, audio);
             if (camera) camera.addShake(0.45);
             this.score += 500;
@@ -316,7 +351,7 @@ export class NinjaArashiPlayer {
     for (let i = this.ghosts.length - 1; i >= 0; i--) {
       const g = this.ghosts[i];
       g.life -= dt;
-      g.alpha = g.life / 0.2;
+      g.alpha = g.life / 0.22;
       if (g.life <= 0) this.ghosts.splice(i, 1);
     }
 
@@ -447,9 +482,18 @@ export class NinjaArashiPlayer {
     // 1. Afterimages (Motion Blur on Dash)
     for (const g of this.ghosts) {
       ctx.save();
-      ctx.globalAlpha = g.alpha * 0.5;
-      ctx.fillStyle = g.color || '#a855f7';
-      ctx.fillRect((g.x - camX), (g.y - camY), this.width, this.height);
+      ctx.globalAlpha = g.alpha * 0.45;
+      const ghostImg = getSketchImage(g.heroType);
+      if (ghostImg && ghostImg.complete && ghostImg.naturalWidth > 0) {
+        ctx.translate((g.x - camX) + this.width / 2, (g.y - camY) + this.height / 2);
+        ctx.scale(g.facing, 1);
+        const drawH = this.height * 1.35;
+        const drawW = drawH * (ghostImg.naturalWidth / ghostImg.naturalHeight);
+        ctx.drawImage(ghostImg, -drawW * 0.48, -drawH * 0.52, drawW, drawH);
+      } else {
+        ctx.fillStyle = g.color || '#a855f7';
+        ctx.fillRect((g.x - camX), (g.y - camY), this.width, this.height);
+      }
       ctx.restore();
     }
 
@@ -467,7 +511,7 @@ export class NinjaArashiPlayer {
       ctx.restore();
     }
 
-    // 4. Multi-Node Dynamic Flowing Scarf / Cloth (Authentic Ninja Arashi Ribbon)
+    // 4. Multi-Node Dynamic Flowing Scarf / Cloth (Authentic Ninja Ribbon)
     if (this.clothNodes && this.clothNodes.length > 0) {
       ctx.save();
       const isKage = (this.heroType === 'kage_ryu' || this.heroType === 'shadow_ninja');
@@ -477,12 +521,12 @@ export class NinjaArashiPlayer {
 
       let col1 = '#991b1b';
       let col2 = '#ef4444';
-      let lineWidth = 5.5;
+      let lineWidth = 6.0;
 
       if (isRaijin) {
         col1 = '#0f172a';
         col2 = '#1e293b';
-        lineWidth = 6.5;
+        lineWidth = 7.0;
       } else if (isTsukuyomi) {
         col1 = '#881337';
         col2 = '#f43f5e';
@@ -490,13 +534,13 @@ export class NinjaArashiPlayer {
       } else if (isRyujin) {
         col1 = '#451a03';
         col2 = '#ea580c';
-        lineWidth = 6.0;
+        lineWidth = 6.5;
       }
 
       for (let r = 0; r < this.clothNodes.length; r++) {
         const ribbon = this.clothNodes[r];
         ctx.strokeStyle = r === 0 ? col1 : col2;
-        ctx.lineWidth = lineWidth - r * 1.2;
+        ctx.lineWidth = lineWidth - r * 1.4;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
@@ -512,7 +556,7 @@ export class NinjaArashiPlayer {
       ctx.restore();
     }
 
-    // 5. Draw Master Ninja Arashi Sketch Character
+    // 5. Draw Master Hand-Drawn Ninja Sketch Character
     ctx.save();
     ctx.translate(px + this.width / 2, py + this.height / 2);
     ctx.scale(this.facing, 1);
@@ -523,423 +567,105 @@ export class NinjaArashiPlayer {
 
     const isRunning = this.isGrounded && Math.abs(this.vx) > 20;
     const stride = isRunning ? Math.sin(this.animTime) : 0;
-    const strideCos = isRunning ? Math.cos(this.animTime) : 0;
-    const leanAngle = isRunning ? 0.32 : (this.isDashing ? 0.48 : 0);
+    const bobbing = isRunning ? Math.abs(Math.sin(this.animTime)) * 3 : 0;
+    const leanAngle = isRunning ? 0.30 : (this.isDashing ? 0.48 : 0);
+
+    ctx.translate(0, -bobbing);
     ctx.rotate(leanAngle);
 
-    // =========================================================================
-    // HERO 01: #01 KAGE-RYU (AUTHENTIC VOID SHADOW SHINOBI SKETCH)
-    // =========================================================================
-    if (this.heroType === 'kage_ryu' || this.heroType === 'shadow_ninja') {
-      // 1. Dual Katana Scabbards on Back
-      ctx.strokeStyle = '#18181b';
-      ctx.lineWidth = 5;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(-10, 8);
-      ctx.lineTo(-28, -8);
-      ctx.moveTo(-6, 12);
-      ctx.lineTo(-24, -4);
-      ctx.stroke();
+    const sketchImg = getSketchImage(this.heroType);
 
-      // Scabbard Gold Mounts & Tsuka Handles
-      ctx.fillStyle = '#a855f7';
-      ctx.fillRect(-30, -12, 5, 4);
-      ctx.fillRect(-26, -8, 5, 4);
+    if (sketchImg && sketchImg.complete && sketchImg.naturalWidth > 0) {
+      // Render the Authentic Hand-Drawn Ninja Sketch Sprite
+      const drawHeight = this.height * 1.38;
+      const aspectRatio = sketchImg.naturalWidth / sketchImg.naturalHeight;
+      const drawWidth = drawHeight * aspectRatio;
 
-      // 2. Back Leg (Running Striding)
-      ctx.fillStyle = '#09090b';
+      // Draw subtle shadow / ground ambient occlusion under feet
+      if (this.isGrounded) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(0, this.height * 0.48, this.width * 0.45, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Draw Sketch Character
+      ctx.drawImage(
+        sketchImg,
+        -drawWidth * 0.48,
+        -drawHeight * 0.52,
+        drawWidth,
+        drawHeight
+      );
+
+      // Dynamic Eye Glow Overlay
+      ctx.save();
+      if (this.heroType === 'kage_ryu' || this.heroType === 'shadow_ninja') {
+        ctx.fillStyle = '#ef4444';
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(8, -drawHeight * 0.26, 3, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (this.heroType === 'ryujin' || this.heroType === 'oni_guard') {
+        ctx.fillStyle = '#fbbf24';
+        ctx.shadowColor = '#f97316';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.arc(6, -drawHeight * 0.28, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (this.heroType === 'raijin' || this.heroType === 'shadow_ronin') {
+        ctx.fillStyle = '#38bdf8';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.arc(4, -drawHeight * 0.20, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (this.heroType === 'tsukuyomi' || this.heroType === 'crimson_assassin') {
+        ctx.fillStyle = '#f43f5e';
+        ctx.shadowColor = '#f43f5e';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(6, -drawHeight * 0.26, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Dash Katana Slash Crescent Effect
+      if (this.isDashing) {
+        ctx.save();
+        let slashColor = '#a855f7';
+        if (this.heroType === 'ryujin' || this.heroType === 'oni_guard') slashColor = '#f97316';
+        if (this.heroType === 'raijin' || this.heroType === 'shadow_ronin') slashColor = '#38bdf8';
+        if (this.heroType === 'tsukuyomi' || this.heroType === 'crimson_assassin') slashColor = '#f43f5e';
+
+        ctx.strokeStyle = slashColor;
+        ctx.shadowColor = slashColor;
+        ctx.shadowBlur = 18;
+        ctx.lineWidth = 4.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.arc(10, 4, 38, -Math.PI * 0.35, Math.PI * 0.35);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2.0;
+        ctx.beginPath();
+        ctx.arc(10, 4, 38, -Math.PI * 0.25, Math.PI * 0.25);
+        ctx.stroke();
+        ctx.restore();
+      }
+    } else {
+      // Fallback Silhouette rendering while sprite loads
+      ctx.fillStyle = '#111827';
       ctx.beginPath();
-      ctx.moveTo(-4, 12);
-      ctx.lineTo(-8 - stride * 18, 24);
-      ctx.lineTo(-12 - stride * 22, 34);
-      ctx.lineTo(-4 - stride * 22, 34);
-      ctx.closePath();
+      ctx.arc(0, -this.height * 0.32, 10, 0, Math.PI * 2);
       ctx.fill();
-
-      // Back Tabi Boot & Shin Wrap
-      ctx.strokeStyle = '#27272a';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(-9 - stride * 20, 26);
-      ctx.lineTo(-6 - stride * 20, 32);
-      ctx.stroke();
-
-      // 3. Torso, Shinobi Gi & Armor Plates
-      ctx.fillStyle = '#18181b';
-      ctx.beginPath();
-      ctx.moveTo(-13, -12);
-      ctx.lineTo(13, -12);
-      ctx.lineTo(10, 14);
-      ctx.lineTo(-10, 14);
-      ctx.closePath();
-      ctx.fill();
-
-      // Chest Cross-Harness & Kunai Holsters
-      ctx.strokeStyle = '#3f3f46';
-      ctx.lineWidth = 2.2;
-      ctx.beginPath();
-      ctx.moveTo(-11, -10);
-      ctx.lineTo(8, 14);
-      ctx.moveTo(11, -10);
-      ctx.lineTo(-8, 14);
-      ctx.stroke();
-
-      // Throwing Kunai on Chest
-      ctx.fillStyle = '#e4e4e7';
-      ctx.beginPath();
-      ctx.moveTo(0, -6);
-      ctx.lineTo(3, -2);
-      ctx.lineTo(-3, -2);
-      ctx.fill();
-
-      // Crimson Obi Sash & Void Gem
-      ctx.fillStyle = '#991b1b';
-      ctx.fillRect(-11, 4, 22, 6);
-      ctx.fillStyle = '#dc2626';
-      ctx.fillRect(-4, 4, 8, 6);
-      ctx.fillStyle = '#c084fc';
-      ctx.beginPath();
-      ctx.arc(0, 7, 3, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 4. Front Leg (Athletic Ninja Knee Flexion)
-      ctx.fillStyle = '#18181b';
-      ctx.beginPath();
-      ctx.moveTo(4, 12);
-      ctx.lineTo(10 + stride * 18, 22);
-      ctx.lineTo(14 + stride * 22, 34);
-      ctx.lineTo(20 + stride * 22, 34);
-      ctx.closePath();
-      ctx.fill();
-
-      // Front Knee Armor & Tabi Split-Toe
-      ctx.fillStyle = '#27272a';
-      ctx.beginPath();
-      ctx.arc(10 + stride * 18, 22, 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 5. Cowl Hood & Shadow Mask
-      ctx.fillStyle = '#09090b';
-      ctx.beginPath();
-      ctx.moveTo(4, -34); // Peak of cowl
-      ctx.lineTo(-12, -22);
-      ctx.lineTo(-11, -8);
-      ctx.lineTo(13, -8);
-      ctx.lineTo(14, -22);
-      ctx.closePath();
-      ctx.fill();
-
-      // Piercing Glowing Red Ninja Eyes
-      ctx.fillStyle = '#ef4444';
-      ctx.shadowColor = '#ef4444';
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.moveTo(4, -18);
-      ctx.lineTo(12, -18);
-      ctx.lineTo(10, -15);
-      ctx.lineTo(2, -15);
-      ctx.closePath();
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      // Crimson Neck Scarf Collar
-      ctx.fillStyle = '#dc2626';
-      ctx.beginPath();
-      ctx.ellipse(2, -8, 12, 5.5, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 6. Arms & Katana Combat Pose
-      ctx.fillStyle = '#18181b';
-      ctx.beginPath();
-      ctx.moveTo(8, -8);
-      ctx.lineTo(18, 2);
-      ctx.lineTo(14, 12);
-      ctx.fill();
-
-      // Silver Katana Blade
-      ctx.strokeStyle = '#f4f4f5';
-      ctx.lineWidth = 3.2;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(14, 8);
-      ctx.lineTo(34, 22);
-      ctx.stroke();
-
-      // Void Purple Energy Edge
-      ctx.strokeStyle = '#c084fc';
-      ctx.lineWidth = 1.4;
-      ctx.beginPath();
-      ctx.moveTo(14, 8);
-      ctx.lineTo(34, 22);
-      ctx.stroke();
-    }
-
-    // =========================================================================
-    // HERO 02: #02 RYUJIN (AUTHENTIC ONI DRAGON DEMON NINJA SKETCH)
-    // =========================================================================
-    else if (this.heroType === 'ryujin' || this.heroType === 'oni_guard') {
-      // 1. Massive Serrated Flame Greatsword on Back
-      ctx.strokeStyle = '#ea580c';
-      ctx.lineWidth = 8;
-      ctx.beginPath();
-      ctx.moveTo(-10, 14);
-      ctx.lineTo(-30, -18);
-      ctx.stroke();
-
-      ctx.strokeStyle = '#fde047';
-      ctx.lineWidth = 3.5;
-      ctx.beginPath();
-      ctx.moveTo(-10, 14);
-      ctx.lineTo(-30, -18);
-      ctx.stroke();
-
-      // 2. Heavy Spiked Iron Pauldrons (Shoulders)
-      ctx.fillStyle = '#27272a';
-      ctx.fillRect(-18, -16, 10, 14);
-      ctx.fillRect(8, -16, 10, 14);
-
-      // Pauldron Spikes
-      ctx.fillStyle = '#ea580c';
-      ctx.beginPath();
-      ctx.moveTo(-18, -16);
-      ctx.lineTo(-24, -22);
-      ctx.lineTo(-14, -16);
-      ctx.moveTo(14, -16);
-      ctx.lineTo(20, -22);
-      ctx.lineTo(10, -16);
-      ctx.fill();
-
-      // 3. Heavy Armored Torso with Magma Cracks
-      ctx.fillStyle = '#18181b';
-      ctx.beginPath();
-      ctx.moveTo(-15, -14);
-      ctx.lineTo(15, -14);
-      ctx.lineTo(12, 16);
-      ctx.lineTo(-12, 16);
-      ctx.closePath();
-      ctx.fill();
-
-      // Glowing Magma Fissures
-      ctx.strokeStyle = '#f97316';
-      ctx.lineWidth = 2.2;
-      ctx.shadowColor = '#f97316';
-      ctx.shadowBlur = 6;
-      ctx.beginPath();
-      ctx.moveTo(-8, -8);
-      ctx.lineTo(0, 0);
-      ctx.lineTo(-4, 8);
-      ctx.moveTo(6, -6);
-      ctx.lineTo(2, 6);
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-
-      // Braided Shimenawa Demon Rope Belt
-      ctx.fillStyle = '#71717a';
-      ctx.fillRect(-15, 6, 30, 8);
-      ctx.fillStyle = '#ea580c';
-      ctx.beginPath();
-      ctx.arc(0, 10, 4.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 4. Heavy Armored Legs
-      ctx.fillStyle = '#09090b';
-      ctx.fillRect(-12 - stride * 14, 16, 11, 18);
-      ctx.fillRect(3 + stride * 14, 16, 11, 18);
-
-      // Spiked Greaves
-      ctx.fillStyle = '#27272a';
-      ctx.fillRect(-12 - stride * 14, 26, 11, 8);
-      ctx.fillRect(3 + stride * 14, 26, 11, 8);
-
-      // 5. Horned Oni Kabuto Helmet
-      ctx.fillStyle = '#09090b';
-      ctx.beginPath();
-      ctx.arc(0, -22, 13, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Twin Curved Demon Horns
-      ctx.fillStyle = '#f97316';
-      ctx.beginPath();
-      ctx.moveTo(-7, -28);
-      ctx.quadraticCurveTo(-16, -42, -18, -46);
-      ctx.quadraticCurveTo(-11, -38, -2, -28);
-      ctx.moveTo(7, -28);
-      ctx.quadraticCurveTo(16, -42, 18, -46);
-      ctx.quadraticCurveTo(11, -38, 2, -28);
-      ctx.fill();
-
-      // Glowing Molten Demon Eye
-      ctx.fillStyle = '#fbbf24';
-      ctx.shadowColor = '#f97316';
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.arc(4, -20, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    // =========================================================================
-    // HERO 03: #03 RAIJIN (AUTHENTIC LIGHTNING RONIN SKETCH)
-    // =========================================================================
-    else if (this.heroType === 'raijin' || this.heroType === 'shadow_ronin') {
-      // 1. Dual Daisho Katanas at Waist
-      ctx.strokeStyle = '#27272a';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(-6, 2);
-      ctx.lineTo(-28, 12);
-      ctx.moveTo(-8, 7);
-      ctx.lineTo(-30, 17);
-      ctx.stroke();
-
-      // Silver Tsuba Handguards
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(-4, 0, 4, 6);
-      ctx.fillRect(-6, 5, 4, 6);
-
-      // 2. Billowing Samurai Haori Robe
-      ctx.fillStyle = '#09090b';
-      ctx.beginPath();
-      ctx.moveTo(-12, -10);
-      ctx.lineTo(12, -10);
-      ctx.lineTo(18, 26);
-      ctx.lineTo(-18, 26);
-      ctx.closePath();
-      ctx.fill();
-
-      // Electric Lightning Runes Across Robe
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 1.8;
-      ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 6;
-      ctx.beginPath();
-      ctx.moveTo(-8, -4);
-      ctx.lineTo(0, 8);
-      ctx.lineTo(-6, 20);
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-
-      // 3. Hakama Trousers & Straw Waraji
-      ctx.fillStyle = '#18181b';
-      ctx.fillRect(-10 - stride * 14, 26, 8, 8);
-      ctx.fillRect(4 + stride * 14, 26, 8, 8);
-
-      // 4. Conical Straw Kasa Hat (Detailed Woven Sketch)
-      ctx.fillStyle = '#1c1917';
-      ctx.beginPath();
-      ctx.moveTo(0, -32);
-      ctx.lineTo(-24, -14);
-      ctx.lineTo(24, -14);
-      ctx.closePath();
-      ctx.fill();
-
-      // Hat Weave Cross-Hatch Lines
-      ctx.strokeStyle = '#44403c';
-      ctx.lineWidth = 1.4;
-      ctx.beginPath();
-      ctx.moveTo(0, -32);
-      ctx.lineTo(-12, -14);
-      ctx.moveTo(0, -32);
-      ctx.lineTo(12, -14);
-      ctx.stroke();
-
-      // Piercing Cyan Storm Eyes Under Hat Brim
-      ctx.fillStyle = '#38bdf8';
-      ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.moveTo(2, -14);
-      ctx.lineTo(10, -14);
-      ctx.lineTo(8, -11);
-      ctx.lineTo(0, -11);
-      ctx.closePath();
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      // 5. Electric Ninjato Combat Stance
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 3.2;
-      ctx.beginPath();
-      ctx.moveTo(10, 0);
-      ctx.lineTo(30, 10);
-      ctx.stroke();
-    }
-
-    // =========================================================================
-    // HERO 04: #04 TSUKUYOMI (AUTHENTIC CRIMSON KUNOICHI SKETCH)
-    // =========================================================================
-    else {
-      // 1. Dual Curved Kama Sickle Blades on Hips
-      ctx.strokeStyle = '#f43f5e';
-      ctx.lineWidth = 3.2;
-      ctx.beginPath();
-      ctx.moveTo(6, 4);
-      ctx.lineTo(24, 14);
-      ctx.lineTo(28, 6);
-      ctx.moveTo(-4, 8);
-      ctx.lineTo(-20, 20);
-      ctx.lineTo(-24, 12);
-      ctx.stroke();
-
-      // 2. High-Collar Kunoichi Bodysuit
-      ctx.fillStyle = '#09090b';
-      ctx.beginPath();
-      ctx.moveTo(-10, -12);
-      ctx.lineTo(10, -12);
-      ctx.lineTo(7, 14);
-      ctx.lineTo(-7, 14);
-      ctx.closePath();
-      ctx.fill();
-
-      // Crimson Corset Piping & Sash
-      ctx.fillStyle = '#e11d48';
-      ctx.fillRect(-8, 2, 16, 5);
-
-      // 3. Athletic Ninja Legs & Bladed Greaves
-      ctx.fillStyle = '#09090b';
-      ctx.beginPath();
-      ctx.moveTo(-6, 14);
-      ctx.lineTo(-10 - stride * 16, 24);
-      ctx.lineTo(-12 - stride * 20, 34);
-      ctx.lineTo(-5 - stride * 20, 34);
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(4, 14);
-      ctx.lineTo(8 + stride * 16, 24);
-      ctx.lineTo(12 + stride * 20, 34);
-      ctx.lineTo(19 + stride * 20, 34);
-      ctx.fill();
-
-      // 4. Split Porcelain / Crimson Mask
-      ctx.fillStyle = '#e2e8f0'; // Porcelain White Half
-      ctx.beginPath();
-      ctx.arc(2, -20, 9, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#e11d48'; // Crimson Half
-      ctx.beginPath();
-      ctx.arc(2, -20, 9, Math.PI * 0.5, Math.PI * 1.5);
-      ctx.fill();
-
-      // Glowing Ruby Eye Slit
-      ctx.fillStyle = '#f43f5e';
-      ctx.shadowColor = '#f43f5e';
-      ctx.shadowBlur = 8;
-      ctx.fillRect(3, -21, 5, 2.5);
-      ctx.shadowBlur = 0;
-
-      // High Aerodynamic Popped Collar
-      ctx.fillStyle = '#881337';
-      ctx.beginPath();
-      ctx.moveTo(-8, -16);
-      ctx.lineTo(-14, -26);
-      ctx.lineTo(-4, -16);
-      ctx.moveTo(6, -16);
-      ctx.lineTo(12, -26);
-      ctx.lineTo(2, -16);
-      ctx.fill();
+      ctx.fillRect(-this.width * 0.35, -this.height * 0.2, this.width * 0.7, this.height * 0.5);
+      ctx.fillRect(-this.width * 0.3, this.height * 0.3, this.width * 0.25, this.height * 0.3);
+      ctx.fillRect(this.width * 0.05, this.height * 0.3, this.width * 0.25, this.height * 0.3);
     }
 
     ctx.restore();
