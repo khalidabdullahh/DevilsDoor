@@ -256,7 +256,13 @@ export class UIManager {
         sunset_torii: 'SUNSET SANCTUARY',
         moonlight_ruins: 'MOONLIGHT CITADEL',
         scythe_chasm: 'SHADOW SCYTHE GROVE',
-        crystal_abyss: 'RUBY CRYSTAL ABYSS'
+        crystal_abyss: 'RUBY CRYSTAL ABYSS',
+        bamboo_mist: 'SHADOW BAMBOO GROVE',
+        crimson_temple: 'CRIMSON PAGODA',
+        underworld_gate: "DEVIL'S GATE ABYSS",
+        celestial_ruins: 'CELESTIAL DRAGON RUINS',
+        shadow_peak: 'OBSIDIAN PEAK',
+        blood_moon: 'BLOOD MOON SANCTUARY'
       };
       deckRealm.textContent = `DEVIL'S DOOR ⚡ ${names[biome] || '4K REALM'}`;
     }

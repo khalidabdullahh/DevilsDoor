@@ -46,7 +46,8 @@ const requiredRootFiles = [
   'play/index.html',
   'robots.txt',
   'sitemap.xml',
-  'vercel.json'
+  'vercel.json',
+  'CNAME'
 ];
 
 console.log('📋 1. Verifying Root Governance Suite:');
@@ -119,7 +120,7 @@ import { EndlessWorld } from '../src/js/levels/EndlessWorld.js';
 const endlessInstance = new EndlessWorld('sunset_torii');
 assert(endlessInstance.id === 'endless_v2', 'EndlessWorld instantiates with correct v2 id');
 assert(endlessInstance.solids.length > 0, 'EndlessWorld contains initial platform chunks');
-assert(endlessInstance.BIOME_CYCLE.length === 4, 'EndlessWorld configured with 4 official 4K realms');
+assert(endlessInstance.BIOME_CYCLE.length === 10, 'EndlessWorld configured with 10 official 4K realms');
 assert(endlessInstance.BIOME_DURATION === Infinity, 'EndlessWorld locked to player-selected realm');
 
 // Check Initial Generation Distance
@@ -132,7 +133,7 @@ import { CHARACTER_ROSTER } from '../src/js/data/CharacterRoster.js';
 import { SCENE_ROSTER } from '../src/js/data/SceneRoster.js';
 
 assert(CHARACTER_ROSTER.length === 4, 'CharacterRoster contains 4 official heroes');
-assert(SCENE_ROSTER.length === 4, 'SceneRoster contains 4 official 4K realms');
+assert(SCENE_ROSTER.length === 10, 'SceneRoster contains 10 official 4K realms');
 
 // Test Mock Storage for EconomyManager
 const mockStorage = {};
@@ -144,7 +145,11 @@ global.localStorage = {
 const economy = new EconomyManager();
 assert(economy.getPoints() === 0, 'Initial points start at 0');
 assert(economy.isCharacterUnlocked('kage_ryu'), 'Kage-Ryu is unlocked by default');
-assert(!economy.isCharacterUnlocked('ryujin'), 'Ryujin starts locked');
+assert(economy.isCharacterUnlocked('ryujin'), 'Ryujin is unlocked (all free)');
+assert(economy.isCharacterUnlocked('raijin'), 'Raijin is unlocked (all free)');
+assert(economy.isCharacterUnlocked('tsukuyomi'), 'Tsukuyomi is unlocked (all free)');
+assert(economy.isSceneUnlocked('sunset_torii'), 'Sunset Sanctuary is unlocked by default');
+assert(economy.isSceneUnlocked('blood_moon'), 'Blood Moon Sanctuary is unlocked (all free)');
 
 // Test milestone reward (+10 pts per 1000m)
 const m1 = economy.checkDistanceMilestones(1000);
@@ -158,12 +163,11 @@ const m2 = economy.checkDistanceMilestones(2000);
 assert(m2 && m2.pointsEarned === 10, '2000m awards another 10 points');
 assert(economy.getPoints() === 20, 'Total points balance is 20');
 
-// Test character purchase
+// Test point deposit and spend operations
 economy.addPoints(500);
 assert(economy.getPoints() === 520, 'Points properly added');
-assert(economy.unlockCharacter('ryujin', 500) === true, 'Ryujin unlocked with 500 points');
-assert(economy.getPoints() === 20, 'Points deducted after purchase');
-assert(economy.isCharacterUnlocked('ryujin') === true, 'Ryujin is now unlocked');
+assert(economy.spendPoints(500, 'test_spend') === true, 'Points successfully spent');
+assert(economy.getPoints() === 20, 'Points properly deducted');
 
 console.log(`\n============================================================`);
 console.log(`🎉 Integrity Checks Finished: ${passedChecks}/${totalChecks} PASSED.`);

@@ -1,3 +1,6 @@
+import { CHARACTER_ROSTER } from '../data/CharacterRoster.js';
+import { SCENE_ROSTER } from '../data/SceneRoster.js';
+
 /**
  * EconomyManager — Centralized Point Economy, Progression & Unlocks Subsystem for Devil's Door v2.2.
  * Single source of truth for:
@@ -30,24 +33,28 @@ export class EconomyManager {
       localStorage.setItem(this.STORAGE_KEYS.POINTS, '0');
     }
 
-    // Ensure Default Unlocked Characters (Kage-Ryu is FREE)
+    // Ensure Default Unlocked Characters
     const unlockedChars = this.getUnlockedCharacters();
-    if (!unlockedChars.includes('kage_ryu')) {
-      unlockedChars.push('kage_ryu');
-      localStorage.setItem(this.STORAGE_KEYS.UNLOCKED_CHARS, JSON.stringify(unlockedChars));
-    }
+    CHARACTER_ROSTER.forEach((char) => {
+      if (char.isFree && !unlockedChars.includes(char.id)) {
+        unlockedChars.push(char.id);
+      }
+    });
+    localStorage.setItem(this.STORAGE_KEYS.UNLOCKED_CHARS, JSON.stringify(unlockedChars));
 
     // Ensure Default Selected Character
     if (!localStorage.getItem(this.STORAGE_KEYS.SELECTED_CHAR)) {
       localStorage.setItem(this.STORAGE_KEYS.SELECTED_CHAR, 'kage_ryu');
     }
 
-    // Ensure Default Unlocked Scenes (Sunset Sanctuary is FREE)
+    // Ensure Default Unlocked Scenes
     const unlockedScenes = this.getUnlockedScenes();
-    if (!unlockedScenes.includes('sunset_torii')) {
-      unlockedScenes.push('sunset_torii');
-      localStorage.setItem(this.STORAGE_KEYS.UNLOCKED_SCENES, JSON.stringify(unlockedScenes));
-    }
+    SCENE_ROSTER.forEach((scene) => {
+      if (scene.isFree && !unlockedScenes.includes(scene.id)) {
+        unlockedScenes.push(scene.id);
+      }
+    });
+    localStorage.setItem(this.STORAGE_KEYS.UNLOCKED_SCENES, JSON.stringify(unlockedScenes));
 
     // Ensure Default Selected Scene
     if (!localStorage.getItem(this.STORAGE_KEYS.SELECTED_SCENE)) {
@@ -98,19 +105,24 @@ export class EconomyManager {
    * Character Unlocks & Selection
    */
   getUnlockedCharacters() {
-    if (typeof localStorage === 'undefined') return ['kage_ryu'];
+    const defaultFree = CHARACTER_ROSTER.filter((c) => c.isFree).map((c) => c.id);
+    if (defaultFree.length === 0) defaultFree.push('kage_ryu');
+    if (typeof localStorage === 'undefined') return [...defaultFree];
     try {
       const raw = localStorage.getItem(this.STORAGE_KEYS.UNLOCKED_CHARS);
-      const list = raw ? JSON.parse(raw) : ['kage_ryu'];
-      if (!list.includes('kage_ryu')) list.push('kage_ryu');
+      const list = raw ? JSON.parse(raw) : [...defaultFree];
+      for (const id of defaultFree) {
+        if (!list.includes(id)) list.push(id);
+      }
       return list;
     } catch (_) {
-      return ['kage_ryu'];
+      return [...defaultFree];
     }
   }
 
   isCharacterUnlocked(id) {
-    if (id === 'kage_ryu') return true;
+    const char = CHARACTER_ROSTER.find((c) => c.id === id);
+    if (char && char.isFree) return true;
     const list = this.getUnlockedCharacters();
     return list.includes(id);
   }
@@ -149,19 +161,24 @@ export class EconomyManager {
    * Scene Unlocks & Selection
    */
   getUnlockedScenes() {
-    if (typeof localStorage === 'undefined') return ['sunset_torii'];
+    const defaultFree = SCENE_ROSTER.filter((s) => s.isFree).map((s) => s.id);
+    if (defaultFree.length === 0) defaultFree.push('sunset_torii');
+    if (typeof localStorage === 'undefined') return [...defaultFree];
     try {
       const raw = localStorage.getItem(this.STORAGE_KEYS.UNLOCKED_SCENES);
-      const list = raw ? JSON.parse(raw) : ['sunset_torii'];
-      if (!list.includes('sunset_torii')) list.push('sunset_torii');
+      const list = raw ? JSON.parse(raw) : [...defaultFree];
+      for (const id of defaultFree) {
+        if (!list.includes(id)) list.push(id);
+      }
       return list;
     } catch (_) {
-      return ['sunset_torii'];
+      return [...defaultFree];
     }
   }
 
   isSceneUnlocked(id) {
-    if (id === 'sunset_torii') return true;
+    const scene = SCENE_ROSTER.find((s) => s.id === id);
+    if (scene && scene.isFree) return true;
     const list = this.getUnlockedScenes();
     return list.includes(id);
   }

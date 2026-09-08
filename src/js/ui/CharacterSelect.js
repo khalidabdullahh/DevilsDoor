@@ -260,7 +260,10 @@ export class CharacterSelect {
     if (metaName) metaName.textContent = `${char.name} • ${char.title}`;
 
     if (metaPrice) {
-      if (isUnlocked) {
+      if (char.isFree) {
+        metaPrice.textContent = 'FREE';
+        metaPrice.className = 'meta-price unlocked';
+      } else if (isUnlocked) {
         metaPrice.textContent = 'UNLOCKED';
         metaPrice.className = 'meta-price unlocked';
       } else {

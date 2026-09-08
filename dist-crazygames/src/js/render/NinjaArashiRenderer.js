@@ -74,7 +74,13 @@ export class NinjaArashiRenderer {
       sunset_torii: '/src/assets/backgrounds/scene_01_sunset_torii.jpg',
       moonlight_ruins: '/src/assets/backgrounds/scene_02_moonlight_ruins.jpg',
       scythe_chasm: '/src/assets/backgrounds/scene_03_scythe_chasm.jpg',
-      crystal_abyss: '/src/assets/backgrounds/scene_04_crystal_abyss.jpg'
+      crystal_abyss: '/src/assets/backgrounds/scene_04_crystal_abyss.jpg',
+      bamboo_mist: '/src/assets/backgrounds/scene_05_bamboo_mist.png',
+      crimson_temple: '/src/assets/backgrounds/scene_06_crimson_temple.png',
+      underworld_gate: '/src/assets/backgrounds/scene_07_underworld_gate.png',
+      celestial_ruins: '/src/assets/backgrounds/scene_08_celestial_ruins.png',
+      shadow_peak: '/src/assets/backgrounds/scene_09_shadow_peak.png',
+      blood_moon: '/src/assets/backgrounds/scene_10_blood_moon.png'
     };
 
     if (typeof Image !== 'undefined') {
@@ -230,11 +236,23 @@ export class NinjaArashiRenderer {
     let imgKey = 'sunset_torii';
     if (this.bgImages[biome]) {
       imgKey = biome;
-    } else if (biome.includes('moonlight') || biome.includes('ruins')) {
+    } else if (biome.includes('moonlight') || biome.includes('citadel') || biome.includes('ruins')) {
       imgKey = 'moonlight_ruins';
-    } else if (biome.includes('scythe') || biome.includes('bamboo')) {
+    } else if (biome.includes('scythe')) {
       imgKey = 'scythe_chasm';
-    } else if (biome.includes('crystal') || biome.includes('thorns')) {
+    } else if (biome.includes('bamboo')) {
+      imgKey = 'bamboo_mist';
+    } else if (biome.includes('crimson') || biome.includes('pagoda') || biome.includes('temple')) {
+      imgKey = 'crimson_temple';
+    } else if (biome.includes('underworld') || biome.includes('gate')) {
+      imgKey = 'underworld_gate';
+    } else if (biome.includes('celestial') || biome.includes('dragon')) {
+      imgKey = 'celestial_ruins';
+    } else if (biome.includes('shadow') || biome.includes('peak') || biome.includes('obsidian')) {
+      imgKey = 'shadow_peak';
+    } else if (biome.includes('blood') || biome.includes('moon')) {
+      imgKey = 'blood_moon';
+    } else if (biome.includes('crystal') || biome.includes('thorns') || biome.includes('abyss')) {
       imgKey = 'crystal_abyss';
     }
 
@@ -317,8 +335,8 @@ export class NinjaArashiRenderer {
         ctx.fillRect(px - 14, baseY - 240, 28, 240);
         ctx.fillRect(px - 22, baseY - 200, 44, 12);
         ctx.fillRect(px - 18, baseY - 250, 36, 10);
-      } else if (biome === 'scythe_chasm') {
-        // Dense forest trees
+      } else if (biome === 'scythe_chasm' || biome === 'bamboo_mist') {
+        // Dense forest trees & tall bamboo stalks
         ctx.fillRect(px, baseY - 260, 16, 260);
         ctx.fillRect(px + 24, baseY - 220, 12, 220);
       } else if (biome === 'crystal_abyss') {
@@ -327,6 +345,26 @@ export class NinjaArashiRenderer {
         ctx.moveTo(px - 30, baseY);
         ctx.lineTo(px, baseY - 140);
         ctx.lineTo(px + 25, baseY);
+        ctx.fill();
+      } else if (biome === 'crimson_temple') {
+        // Grand Pagoda silhouettes
+        ctx.fillRect(px - 20, baseY - 280, 40, 280);
+        ctx.fillRect(px - 35, baseY - 240, 70, 14);
+        ctx.fillRect(px - 45, baseY - 160, 90, 16);
+      } else if (biome === 'underworld_gate') {
+        // Demon horns & Torii gate of hell
+        ctx.fillRect(px - 25, baseY - 220, 12, 220);
+        ctx.fillRect(px + 15, baseY - 220, 12, 220);
+        ctx.fillRect(px - 35, baseY - 210, 72, 16);
+      } else if (biome === 'celestial_ruins') {
+        // Floating celestial obelisks
+        ctx.fillRect(px - 12, baseY - 260, 24, 200);
+      } else if (biome === 'shadow_peak' || biome === 'blood_moon') {
+        // Jagged obsidian peaks
+        ctx.beginPath();
+        ctx.moveTo(px - 40, baseY);
+        ctx.lineTo(px, baseY - 200);
+        ctx.lineTo(px + 40, baseY);
         ctx.fill();
       } else {
         // Sunset Torii & Shrine rocks
@@ -357,6 +395,18 @@ export class NinjaArashiRenderer {
       ctx.fillStyle = 'rgba(16, 185, 129, 0.75)';
     } else if (biome === 'crystal_abyss') {
       ctx.fillStyle = 'rgba(244, 63, 94, 0.8)';
+    } else if (biome === 'bamboo_mist') {
+      ctx.fillStyle = 'rgba(52, 211, 153, 0.75)';
+    } else if (biome === 'crimson_temple') {
+      ctx.fillStyle = 'rgba(225, 29, 72, 0.8)';
+    } else if (biome === 'underworld_gate') {
+      ctx.fillStyle = 'rgba(168, 85, 247, 0.8)';
+    } else if (biome === 'celestial_ruins') {
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.8)';
+    } else if (biome === 'shadow_peak') {
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.8)';
+    } else if (biome === 'blood_moon') {
+      ctx.fillStyle = 'rgba(220, 38, 38, 0.85)';
     } else {
       // sunset_torii
       ctx.fillStyle = 'rgba(251, 146, 60, 0.8)';

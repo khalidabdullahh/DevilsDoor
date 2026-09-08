@@ -254,7 +254,10 @@ export class SceneSelect {
     if (metaName) metaName.textContent = scene.name;
 
     if (metaPrice) {
-      if (isUnlocked) {
+      if (scene.isFree) {
+        metaPrice.textContent = 'FREE';
+        metaPrice.className = 'meta-price unlocked';
+      } else if (isUnlocked) {
         metaPrice.textContent = 'UNLOCKED';
         metaPrice.className = 'meta-price unlocked';
       } else {

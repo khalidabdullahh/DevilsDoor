@@ -16,7 +16,18 @@ export class EndlessWorld {
     this.id = 'endless_v2';
 
     // Official 4K Realms - Locked to player's selection
-    this.BIOME_CYCLE = ['sunset_torii', 'moonlight_ruins', 'scythe_chasm', 'crystal_abyss'];
+    this.BIOME_CYCLE = [
+      'sunset_torii',
+      'moonlight_ruins',
+      'scythe_chasm',
+      'crystal_abyss',
+      'bamboo_mist',
+      'crimson_temple',
+      'underworld_gate',
+      'celestial_ruins',
+      'shadow_peak',
+      'blood_moon'
+    ];
     this.biomeIndex = Math.max(0, this.BIOME_CYCLE.indexOf(initialBiome));
     this.biome = this.BIOME_CYCLE[this.biomeIndex] || 'sunset_torii';
     this.biomeTimer = 0;
