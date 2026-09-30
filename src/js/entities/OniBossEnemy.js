@@ -80,7 +80,7 @@ export class OniBossEnemy {
       if (player && !player.isDead) {
         const d = Math.abs(player.x - sw.x);
         if (d < 35 && Math.abs(player.y - this.y) < 60) {
-          player.takeDamage(1, audio, camera);
+          player.takeDamage(1, audio, camera, null, { source: 'enemy', fromX: this.x + this.width / 2 });
         }
       }
 

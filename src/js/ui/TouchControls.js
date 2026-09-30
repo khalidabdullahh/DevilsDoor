@@ -11,6 +11,7 @@ export class TouchControls {
     this.btnJump = document.getElementById('touch-jump');
     this.btnAttack = document.getElementById('touch-attack');
     this.btnShuriken = document.getElementById('touch-shuriken');
+    this.btnDash = document.getElementById('touch-dash');
 
     this.touchContainer = document.getElementById('touch-controls');
 
@@ -49,6 +50,7 @@ export class TouchControls {
     attachActionButton(this.btnJump, 'jump');
     attachActionButton(this.btnAttack, 'attack');
     attachActionButton(this.btnShuriken, 'shuriken');
+    attachActionButton(this.btnDash, 'dash');
 
     // D-Pad smooth slide handling (allows player to slide thumb between Left and Right without lifting)
     const dpadContainer = this.btnLeft ? this.btnLeft.parentElement : null;

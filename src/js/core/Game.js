@@ -193,8 +193,19 @@ export class Game {
   }
 
   _update(dt) {
+    // Hit-stop: freeze the simulation for a few ms on impact so hits feel heavy.
+    // Rendering still runs, so the frame simply holds.
+    if (this.hitStop > 0) {
+      this.hitStop -= dt;
+      return;
+    }
+
     // 1. Update Player and Endless World
     this.player.update(dt, this.input, this.world, this.audio, this.camera);
+    if (this.player.pendingHitStop > 0) {
+      this.hitStop = Math.max(this.hitStop || 0, this.player.pendingHitStop);
+      this.player.pendingHitStop = 0;
+    }
     this.world.update(dt, this.player, this.audio, this.camera);
 
     // 2. Camera Tracking

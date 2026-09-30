@@ -2,13 +2,14 @@
   "name": "devils-door",
   "version": "2.2.0",
   "type": "module",
-  "description": "DEVIL'S DOOR v2.2 (vNext Master Edition) — Endless 2.5D Dark-Fantasy Action Game with 3D-Rendered Shinobi Roster, 4K Realms, Centralized Point Economy, and Cross-Platform Handheld Console UX. Created by Khalid Abdullah.",
+  "description": "DEVIL'S DOOR v2.2 (vNext Master Edition) \u2014 Endless 2.5D Dark-Fantasy Action Game with 3D-Rendered Shinobi Roster, 4K Realms, Centralized Point Economy, and Cross-Platform Handheld Console UX. Created by Khalid Abdullah.",
   "main": "src/index.html",
   "scripts": {
     "dev": "python3 -m http.server 8080",
     "serve": "python3 -m http.server 8080",
     "test": "node scripts/test-integrity.js && node scripts/test-production-server.js",
-    "lint": "echo 'All modules verified.'"
+    "lint": "echo 'All modules verified.'",
+    "test:gameplay": "node scripts/test-combat-movement.mjs"
   },
   "keywords": [
     "devils-door",
