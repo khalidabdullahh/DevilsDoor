@@ -9,7 +9,8 @@
     "serve": "python3 -m http.server 8080",
     "test": "node scripts/test-integrity.js && node scripts/test-production-server.js",
     "lint": "echo 'All modules verified.'",
-    "test:gameplay": "node scripts/test-combat-movement.mjs"
+    "test:gameplay": "node scripts/test-combat-movement.mjs",
+    "test:world": "node scripts/test-world-generation.mjs"
   },
   "keywords": [
     "devils-door",

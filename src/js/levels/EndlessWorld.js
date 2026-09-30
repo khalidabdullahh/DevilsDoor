@@ -11,7 +11,15 @@ import { OniBossEnemy } from '../entities/OniBossEnemy.js';
  * - Oni Stone Pillars holding platforms, dead trees, embedded weapons
  */
 export class EndlessWorld {
-  constructor(initialBiome = 'sunset_torii') {
+  // rng: any function returning [0,1). Defaults to Math.random; tests pass a seeded one
+  // so the same seed always builds the same world.
+  constructor(initialBiome = 'sunset_torii', rng = Math.random) {
+    this._rng = rng;
+    this.time = 0; // world clock in seconds: advances only while the game runs (pause / hit-stop safe)
+    this.lastChunkType = -1;
+    this.hardStreak = 0;
+    this._safeSpot = null;
+
     this.title = "Devil's Endless Descent";
     this.id = 'endless_v2';
 
@@ -50,6 +58,8 @@ export class EndlessWorld {
     this.deadTrees = [];
     this.embeddedWeapons = [];
     this.diamonds = [];
+    this.healthOrbs = [];
+    this.DIAMOND_SCORE = 50;
 
     // State
     this.generatedDistance = 0;
@@ -90,6 +100,8 @@ export class EndlessWorld {
   }
 
   update(dt, player, audio, camera) {
+    this.time += dt;
+
     // Biome stays locked to player selection
     const px = player ? player.x : 0;
     const py = player ? player.y : 0;
@@ -114,12 +126,13 @@ export class EndlessWorld {
 
     // Pendulum Axes
     for (const axe of this.pendulumAxes) {
-      axe.angle = Math.sin(performance.now() * 0.0018 * axe.speed + axe.phase) * axe.maxAngle;
+      axe.angle = Math.sin(this.time * 1000 * 0.0018 * axe.speed + axe.phase) * axe.maxAngle;
       axe.bladeX = axe.pivotX + Math.sin(axe.angle) * axe.length;
       axe.bladeY = axe.pivotY + Math.cos(axe.angle) * axe.length;
 
       if (player && !player.isDead) {
-        const d = Math.hypot(player.x - axe.bladeX, (player.y + 20) - axe.bladeY);
+        // measure from the body center (was the left edge: unfair on one side)
+        const d = Math.hypot((player.x + (player.width || 0) / 2) - axe.bladeX, (player.y + 20) - axe.bladeY);
         if (d < 46) {
           player.takeDamage(1, audio, camera);
         }
@@ -130,10 +143,10 @@ export class EndlessWorld {
     for (const saw of this.skullSawWheels) {
       saw.rotation += dt * saw.rotSpeed;
       if (saw.moves) {
-        saw.y = saw.baseY + Math.sin(performance.now() * 0.002 * saw.moveSpeed) * saw.moveRange;
+        saw.y = saw.baseY + Math.sin(this.time * 1000 * 0.002 * saw.moveSpeed + (saw.phase || 0)) * saw.moveRange;
       }
       if (player && !player.isDead) {
-        const d = Math.hypot(player.x - saw.x, (player.y + 20) - saw.y);
+        const d = Math.hypot((player.x + (player.width || 0) / 2) - saw.x, (player.y + 20) - saw.y);
         if (d < saw.radius + 14) {
           player.takeDamage(1, audio, camera);
         }
@@ -152,7 +165,7 @@ export class EndlessWorld {
                          Math.abs(player.y + 50 - plank.y) < 16 && player.isGrounded);
         if (onPlank) {
           plank.touchTimer = (plank.touchTimer || 0) + dt;
-          if (plank.touchTimer > 0.18) {
+          if (plank.touchTimer > (plank.fallDelay || 0.18)) {
             plank.isFalling = true;
             if (audio) audio.playStoneCollapse();
             if (camera) camera.addShake(0.3);
@@ -161,15 +174,25 @@ export class EndlessWorld {
       }
     }
 
-    // Diamonds
-    for (const d of this.diamonds) {
-      if (!d.collected && player) {
-        const dist = Math.hypot(player.x - d.x, (player.y + 20) - d.y);
-        if (dist < 38) {
+    // Diamonds (score only; 50 each) and Life Orbs (+1 health, only picked up when hurt)
+    if (player && !player.isDead) {
+      const pcx = player.x + (player.width || 0) / 2;
+      const pcy = player.y + 20;
+      for (const d of this.diamonds) {
+        if (d.collected) continue;
+        if (Math.hypot(pcx - d.x, pcy - d.y) < 44) {
           d.collected = true;
           player.diamonds = (player.diamonds || 0) + 1;
-          player.score = (player.score || 0) + 250;
+          player.score = (player.score || 0) + this.DIAMOND_SCORE;
           if (audio) audio.playFootstep();
+        }
+      }
+      for (const o of this.healthOrbs) {
+        if (o.collected || player.health >= player.maxHealth) continue;
+        if (Math.hypot(pcx - o.x, pcy - o.y) < 44) {
+          o.collected = true;
+          player.health = Math.min(player.maxHealth, player.health + 1);
+          if (audio) audio.playDoubleJump();
         }
       }
     }
@@ -192,51 +215,129 @@ export class EndlessWorld {
     this.pendulumAxes = this.pendulumAxes.filter(a => a.pivotX > despawnThreshold);
     this.skullSawWheels = this.skullSawWheels.filter(s => s.x > despawnThreshold);
     this.diamonds = this.diamonds.filter(d => d.x > despawnThreshold && !d.collected);
+    this.healthOrbs = this.healthOrbs.filter(o => o.x > despawnThreshold && !o.collected);
     this.campfires = this.campfires.filter(c => c.x > despawnThreshold);
     this.oniPillars = this.oniPillars.filter(p => p.x > despawnThreshold);
     this.deadTrees = this.deadTrees.filter(t => t.x > despawnThreshold);
     this.embeddedWeapons = this.embeddedWeapons.filter(w => w.x > despawnThreshold);
   }
 
+  // ---------------------------------------------------------------------------
+  // Chunk generation: difficulty ramp + fairness rules
+  // Measured with the real player physics: max gap 480px (single jump) / 790px (double),
+  // max step-up 120px (single) / 220px (double). Every transition below stays well inside that.
+  // ---------------------------------------------------------------------------
+  _rand() { return this._rng(); }
+
+  // 0 at the start -> 1 at ~2500m. Measured at the chunk's own x, because chunks are
+  // generated ~2800px ahead of the player.
+  _difficultyAt(x) {
+    const meters = Math.max(0, (x - 900) / 10);
+    return Math.min(1, meters / 2500);
+  }
+
+  _pickWeighted(weights) {
+    let total = 0;
+    for (const w of weights) total += w;
+    let r = this._rand() * total;
+    for (let i = 0; i < weights.length; i++) {
+      r -= weights[i];
+      if (r < 0) return i;
+    }
+    return 0;
+  }
+
+  // 0 ground, 1 bridge, 2 cliff, 3 pendulum, 4 saw, 5 arena
+  _pickChunkType(d) {
+    const w = [
+      Math.max(0.8, 3.0 - 1.6 * d),
+      1.2 + 0.2 * d,
+      0.8 + 0.6 * d,
+      d < 0.08 ? 0 : 0.3 + 1.6 * d, // no saws / axes in the first ~200m
+      d < 0.08 ? 0 : 0.3 + 1.6 * d,
+      0.6 + 1.0 * d
+    ];
+    // Breather: never more than 2 hard chunks (axe / saw / arena) in a row
+    if (this.hardStreak >= 2) w[3] = w[4] = w[5] = 0;
+    // Never the same special chunk twice in a row (plain ground may repeat)
+    if (this.lastChunkType > 0) w[this.lastChunkType] = 0;
+    return this._pickWeighted(w);
+  }
+
   _generateNextChunk() {
     const startX = this.generatedDistance;
-    const chunkType = Math.floor(Math.random() * 6);
+    const d = this._difficultyAt(startX);
+    const chunkType = this._pickChunkType(d);
     this.chunkIndex++;
+    this.hardStreak = (chunkType >= 3) ? this.hardStreak + 1 : 0;
+    this.lastChunkType = chunkType;
 
+    // Gap to the next chunk widens slowly (80 -> 150px); the jump envelope allows 480px
+    const gap = Math.round(80 + 70 * d);
+
+    this._safeSpot = null;
     switch (chunkType) {
-      case 0:
-        this._buildStandardGroundChunk(startX);
-        break;
-      case 1:
-        this._buildCollapsingBridgeChunk(startX);
-        break;
-      case 2:
-        this._buildHighLedgeWallJumpChunk(startX);
-        break;
-      case 3:
-        this._buildPendulumAxeHazardChunk(startX);
-        break;
-      case 4:
-        this._buildSpinningSkullSawChunk(startX);
-        break;
+      case 0: this._buildStandardGroundChunk(startX, d, gap); break;
+      case 1: this._buildCollapsingBridgeChunk(startX, d, gap); break;
+      case 2: this._buildHighLedgeWallJumpChunk(startX, d, gap); break;
+      case 3: this._buildPendulumAxeHazardChunk(startX, d, gap); break;
+      case 4: this._buildSpinningSkullSawChunk(startX, d, gap); break;
       case 5:
-      default:
-        this._buildTacticalCombatArenaChunk(startX);
-        break;
+      default: this._buildTacticalCombatArenaChunk(startX, d, gap); break;
+    }
+
+    // A Life Orb roughly every 7th chunk, always on hazard-free ground
+    if (this._safeSpot && d > 0.05 && this.chunkIndex % 7 === 0) {
+      this.healthOrbs.push({ x: this._safeSpot.x, y: this._safeSpot.y - 52, collected: false });
     }
   }
 
-  _getRandomEnemyType() {
-    const r = Math.random();
-    if (r < 0.3) return 'ronin'; // #02 Shadow Ronin
-    if (r < 0.55) return 'oni'; // #03 Oni Guard
-    if (r < 0.8) return 'assassin'; // #05 Crimson Assassin
-    return 'monk'; // #04 Cursed Monk
+  // Enemy roster grows with difficulty: ronin first, then assassins, then oni (>300m), monks (>750m)
+  _pickEnemyType(d) {
+    const types = ['ronin', 'assassin', 'oni', 'monk'];
+    return types[this._pickWeighted([
+      1.0,
+      0.35 + 0.65 * d,
+      Math.max(0, d - 0.12) * 1.3,
+      Math.max(0, d - 0.3) * 1.1
+    ])];
   }
 
-  _buildStandardGroundChunk(startX) {
-    const width = 800 + Math.floor(Math.random() * 400);
-    const groundY = 560 + (Math.random() > 0.5 ? -40 : 20);
+  _getRandomEnemyType() {
+    return this._pickEnemyType(0.5);
+  }
+
+  _spawnEnemy(x, y, patrolMin, patrolMax, d, forcedType = null) {
+    const enemy = new ShadowNinjaEnemy(x, y, patrolMin, patrolMax, forcedType || this._pickEnemyType(d));
+    const speedScale = 1 + 0.3 * d; // up to 30% faster at max difficulty
+    enemy.patrolSpeed *= speedScale;
+    enemy.chaseSpeed *= speedScale;
+    this.enemies.push(enemy);
+    return enemy;
+  }
+
+  // ---- pickups ----
+  _addDiamond(x, y) {
+    this.diamonds.push({ x, y, collected: false, phase: this._rand() * Math.PI * 2 });
+  }
+
+  _diamondLine(x0, x1, y, n) {
+    for (let i = 0; i < n; i++) {
+      this._addDiamond(x0 + (x1 - x0) * (n === 1 ? 0.5 : i / (n - 1)), y);
+    }
+  }
+
+  // Parabola: low at both ends, `height` px higher in the middle (a jump arc)
+  _diamondArc(cx, baseY, halfWidth, height, n) {
+    for (let i = 0; i < n; i++) {
+      const t = n === 1 ? 0 : -1 + (2 * i) / (n - 1);
+      this._addDiamond(cx + t * halfWidth, baseY - height * (1 - t * t));
+    }
+  }
+
+  _buildStandardGroundChunk(startX, d, gap) {
+    const width = 800 + Math.floor(this._rand() * 400);
+    const groundY = 560 + (this._rand() > 0.5 ? -40 : 20);
 
     this.solids.push({
       x: startX,
@@ -247,11 +348,11 @@ export class EndlessWorld {
       active: true
     });
 
-    if (Math.random() > 0.3) {
+    if (this._rand() > 0.3) {
       this.deadTrees.push({ x: startX + width * 0.75, y: groundY });
     }
 
-    if (Math.random() > 0.4) {
+    if (this._rand() > 0.4) {
       this.embeddedWeapons.push({ x: startX + width * 0.82, y: groundY, type: 'spear' });
       this.embeddedWeapons.push({ x: startX + width * 0.85, y: groundY, type: 'katana' });
     }
@@ -259,28 +360,34 @@ export class EndlessWorld {
     this.lanterns.push({ x: startX + 180, y: groundY - 40 });
     this.lanterns.push({ x: startX + width - 180, y: groundY - 40 });
 
-    if (Math.random() > 0.4) {
-      this.hazards.push({
-        x: startX + width * 0.45,
-        y: groundY - 16,
-        width: 80,
-        height: 24,
-        tag: 'ground_spikes',
-        active: true
-      });
+    // Spikes: rare early, common later (was a flat 60% from meter 0)
+    const spikeX = startX + width * 0.45;
+    if (this._rand() < 0.25 + 0.5 * d) {
+      this.hazards.push({ x: spikeX, y: groundY - 16, width: 80, height: 24, tag: 'ground_spikes', active: true });
+      // reward for jumping over them
+      this._diamondArc(spikeX + 40, groundY - 56, 90, 90, 5);
+    } else {
+      this._diamondLine(startX + width * 0.3, startX + width * 0.55, groundY - 56, 4);
     }
 
-    const enemyType = this._getRandomEnemyType();
-    const enemy = new ShadowNinjaEnemy(startX + width * 0.6, groundY - 56, startX + 200, startX + width - 80, enemyType);
-    this.enemies.push(enemy);
+    // Late game: a second spike patch near the end of wide chunks (never near the landing zone)
+    if (d > 0.55 && width >= 1000 && this._rand() < 0.6) {
+      this.hazards.push({ x: startX + width * 0.72, y: groundY - 16, width: 60, height: 24, tag: 'ground_spikes', active: true });
+    }
 
+    this._spawnEnemy(startX + width * 0.6, groundY - 56, startX + 200, startX + width - 80, d);
+    if (d > 0.5 && this._rand() < 0.5) {
+      this._spawnEnemy(startX + width * 0.3, groundY - 56, startX + 120, startX + width * 0.5, d);
+    }
+
+    this._safeSpot = { x: startX + 120, y: groundY };
     this.lastGroundY = groundY;
-    this.generatedDistance = startX + width + 90;
+    this.generatedDistance = startX + width + gap;
   }
 
-  _buildCollapsingBridgeChunk(startX) {
+  _buildCollapsingBridgeChunk(startX, d, gap) {
     const bridgeStartX = startX;
-    const plankCount = 7 + Math.floor(Math.random() * 4);
+    const plankCount = 7 + Math.floor(this._rand() * 4) + Math.floor(4 * d);
     const groundY = 560;
 
     for (let i = 0; i < plankCount; i++) {
@@ -294,7 +401,8 @@ export class EndlessWorld {
         tag: 'collapsing_plank',
         active: true,
         isFalling: false,
-        rot: 0
+        rot: 0,
+        fallDelay: 0.22 - 0.10 * d // planks give way faster later in the run
       };
       this.solids.push(plank);
       this.bridgePlanks.push(plank);
@@ -309,10 +417,13 @@ export class EndlessWorld {
       active: true
     });
 
-    this.generatedDistance = bridgeStartX + plankCount * 52 + 80;
+    // A trail of diamonds along the bridge: running is fast enough to grab them all
+    this._diamondLine(bridgeStartX + 52, bridgeStartX + (plankCount - 1) * 52, groundY - 56, 6);
+
+    this.generatedDistance = bridgeStartX + plankCount * 52 + gap;
   }
 
-  _buildHighLedgeWallJumpChunk(startX) {
+  _buildHighLedgeWallJumpChunk(startX, d, gap) {
     const groundY = 560;
 
     this.solids.push({
@@ -349,14 +460,16 @@ export class EndlessWorld {
       active: true
     });
 
-    const enemyType = this._getRandomEnemyType();
-    const enemy = new ShadowNinjaEnemy(startX + 680, groundY - 56, startX + 580, startX + 1000, enemyType);
-    this.enemies.push(enemy);
+    // Reward for the climb
+    this._diamondLine(startX + 90, startX + 420, 340 - 52, 5);
 
-    this.generatedDistance = startX + 1080;
+    this._spawnEnemy(startX + 680, groundY - 56, startX + 580, startX + 1000, d);
+
+    this._safeSpot = { x: startX + 600, y: groundY };
+    this.generatedDistance = startX + 1060 + gap;
   }
 
-  _buildPendulumAxeHazardChunk(startX) {
+  _buildPendulumAxeHazardChunk(startX, d, gap) {
     const width = 850;
     const groundY = 560;
 
@@ -369,28 +482,32 @@ export class EndlessWorld {
       active: true
     });
 
+    // Early: the blade passes above a standing player. Late: it is longer, lower and faster,
+    // so you have to time it (jump, dash through, or wait).
     this.pendulumAxes.push({
       pivotX: startX + width * 0.48,
       pivotY: 160,
-      length: 290,
+      length: 270 + 70 * d,
       angle: 0,
-      maxAngle: 1.15,
-      speed: 1.4,
-      phase: Math.random() * Math.PI,
+      maxAngle: 1.0 + 0.25 * d,
+      speed: 1.2 + 0.8 * d,
+      phase: this._rand() * Math.PI,
       bladeX: startX + width * 0.48,
       bladeY: 450
     });
 
     this.hokoraShrines.push({ x: startX + 160, y: groundY });
 
-    const enemyType = this._getRandomEnemyType();
-    const enemy = new ShadowNinjaEnemy(startX + width * 0.75, groundY - 56, startX + width * 0.55, startX + width - 60, enemyType);
-    this.enemies.push(enemy);
+    // Risk / reward: diamonds directly under the blade
+    this._diamondLine(startX + width * 0.48 - 100, startX + width * 0.48 + 100, groundY - 56, 5);
 
-    this.generatedDistance = startX + width + 80;
+    this._spawnEnemy(startX + width * 0.75, groundY - 56, startX + width * 0.55, startX + width - 60, d);
+
+    this._safeSpot = { x: startX + 100, y: groundY };
+    this.generatedDistance = startX + width + gap;
   }
 
-  _buildSpinningSkullSawChunk(startX) {
+  _buildSpinningSkullSawChunk(startX, d, gap) {
     const width = 900;
     const groundY = 560;
 
@@ -403,6 +520,7 @@ export class EndlessWorld {
       active: true
     });
 
+    const moveRange = 60 + 30 * d;
     this.skullSawWheels.push({
       x: startX + 380,
       y: 440,
@@ -412,15 +530,36 @@ export class EndlessWorld {
       rotSpeed: 3.2,
       moves: true,
       moveSpeed: 1.6,
-      moveRange: 60
+      moveRange,
+      phase: 0
     });
+
+    // Late game: a second saw 300px later, moving in the opposite phase
+    if (d > 0.5) {
+      this.skullSawWheels.push({
+        x: startX + 680,
+        y: 440,
+        baseY: 440,
+        radius: 46,
+        rotation: 0,
+        rotSpeed: 3.2,
+        moves: true,
+        moveSpeed: 1.6,
+        moveRange,
+        phase: Math.PI
+      });
+    }
 
     this.demonClaws.push({ x: startX + 680, y: groundY });
 
-    this.generatedDistance = startX + width + 90;
+    // Diamonds on the jump arc over the first saw
+    this._diamondArc(startX + 380, groundY - 56, 110, 100, 5);
+
+    this._safeSpot = { x: startX + 100, y: groundY };
+    this.generatedDistance = startX + width + gap;
   }
 
-  _buildTacticalCombatArenaChunk(startX) {
+  _buildTacticalCombatArenaChunk(startX, d, gap) {
     const width = 1000;
     const groundY = 560;
 
@@ -442,12 +581,18 @@ export class EndlessWorld {
       active: true
     });
 
-    const enemy1 = new ShadowNinjaEnemy(startX + 240, groundY - 56, startX + 80, startX + 360, 'assassin');
-    const enemy2 = new ShadowNinjaEnemy(startX + 780, groundY - 56, startX + 640, startX + 940, 'oni');
-    this.enemies.push(enemy1);
-    this.enemies.push(enemy2);
+    // Diamonds on the pagoda platform reward using the high ground
+    this._diamondLine(startX + 360, startX + 560, 400 - 52, 4);
 
-    this.generatedDistance = startX + width + 100;
+    // Was hard-coded assassin + oni from meter 0; now scales with difficulty
+    this._spawnEnemy(startX + 240, groundY - 56, startX + 80, startX + 360, d);
+    this._spawnEnemy(startX + 780, groundY - 56, startX + 640, startX + 940, d);
+    if (d > 0.6) {
+      this._spawnEnemy(startX + 520, groundY - 56, startX + 400, startX + 640, d);
+    }
+
+    this._safeSpot = { x: startX + 60, y: groundY };
+    this.generatedDistance = startX + width + gap;
   }
 
   checkHazardCollision(x, y, w, h) {
@@ -744,6 +889,64 @@ export class EndlessWorld {
       ctx.arc(-8, -4, 4, 0, Math.PI * 2);
       ctx.arc(8, -4, 4, 0, Math.PI * 2);
       ctx.fill();
+      ctx.restore();
+    }
+
+    this._drawPickups(ctx, camX, camY, time);
+  }
+
+  _drawPickups(ctx, camX, camY, time) {
+    // Diamonds: bobbing, glowing crystals
+    for (const dm of this.diamonds) {
+      if (dm.collected) continue;
+      const sx = dm.x - camX;
+      if (sx < -40 || sx > 2200) continue;
+      const sy = dm.y - camY + Math.sin(time * 3 + dm.phase) * 4;
+
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 14;
+      ctx.fillStyle = '#7dd3fc';
+      ctx.beginPath();
+      ctx.moveTo(0, -12);
+      ctx.lineTo(9, 0);
+      ctx.lineTo(0, 12);
+      ctx.lineTo(-9, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.beginPath();
+      ctx.moveTo(0, -12);
+      ctx.lineTo(9, 0);
+      ctx.lineTo(0, -1);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Life Orbs: pulsing red orb with a white cross
+    for (const o of this.healthOrbs) {
+      if (o.collected) continue;
+      const sx = o.x - camX;
+      if (sx < -40 || sx > 2200) continue;
+      const sy = o.y - camY + Math.sin(time * 2.4) * 5;
+      const pulse = 1 + Math.sin(time * 5) * 0.08;
+
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.scale(pulse, pulse);
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = 20;
+      ctx.fillStyle = '#dc2626';
+      ctx.beginPath();
+      ctx.arc(0, 0, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-2.5, -8, 5, 16);
+      ctx.fillRect(-8, -2.5, 16, 5);
       ctx.restore();
     }
   }

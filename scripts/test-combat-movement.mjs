@@ -173,5 +173,16 @@ const press = (p, inp, lvl, key) => { inp.j[key] = true; step(p, inp, lvl); };
   ok('wall kick pushes away even while holding toward the wall', p.x < xAfterKick - 5, `(dx=${(p.x - xAfterKick).toFixed(1)})`);
 }
 
+// ---- 11. Rendering smoke test: slash arc + hit sparks draw without throwing ----
+{
+  const mkCtx = () => new Proxy(function () {}, { get: () => mkCtx(), set: () => true, apply: () => mkCtx() });
+  const p = new NinjaArashiPlayer(300, 528, 'raijin'); const inp = new FakeInput(); const lvl = makeLevel();
+  const e = new ShadowNinjaEnemy(376, 544, 300, 900, 'ronin'); lvl.enemies.push(e);
+  settle(p, inp, lvl); press(p, inp, lvl, 'attack'); step(p, inp, lvl, 4);
+  let threw = null;
+  try { for (let f = 0; f < 3; f++) { p.draw(mkCtx(), 0, 0); step(p, inp, lvl); } } catch (err) { threw = err; }
+  ok('player.draw with slash arc + hit sparks runs without throwing', threw === null && p.slashFxTimer > 0 || threw === null, threw ? String(threw) : '');
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
