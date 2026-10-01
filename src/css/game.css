@@ -1314,6 +1314,67 @@ body.portrait-mode .touch-floating-audio-btn:active {
   pointer-events: auto;
 }
 
+/* Diamonds / shuriken ammo / dash-ready pill next to the hearts */
+.hud-left { gap: 8px; }
+
+.hud-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(12, 17, 29, 0.88);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 22px;
+  padding: 6px 12px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+}
+
+.hud-stat { display: inline-flex; align-items: center; gap: 4px; }
+.hud-stat-icon { color: #7dd3fc; text-shadow: 0 0 8px rgba(56, 189, 248, 0.8); }
+.hud-ammo { display: inline-flex; align-items: center; gap: 4px; }
+
+.ammo-pip {
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg);
+  background: rgba(148, 163, 184, 0.22);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.ammo-pip.on {
+  background: #e2e8f0;
+  border-color: #ffffff;
+  box-shadow: 0 0 6px rgba(226, 232, 240, 0.8);
+}
+
+.hud-dash-pip {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.hud-dash-pip.ready {
+  background: #38bdf8;
+  border-color: #bae6fd;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.9);
+}
+
+.deck-left-cluster .hud-stats {
+  padding: 3px 8px;
+  gap: 7px;
+  font-size: 0.68rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+}
+
 .hud-health-bar {
   display: flex;
   align-items: center;

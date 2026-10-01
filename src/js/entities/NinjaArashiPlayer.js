@@ -74,6 +74,12 @@ export class NinjaArashiPlayer {
     this.hitSparks = [];
     this.pendingHitStop = 0; // read + cleared by Game each frame
 
+    // Shuriken ammo: 5 stars, one comes back every 1.6s (shown as pips in the HUD)
+    this.shurikenMaxAmmo = 5;
+    this.shurikenAmmo = 5;
+    this.shurikenRegenTime = 1.6;
+    this.shurikenRegenTimer = 0;
+
     // Movement forgiveness (makes controls feel tight)
     this.coyoteTime = 0.10;      // can still jump 0.10s after leaving a ledge
     this.coyoteTimer = 0;
@@ -189,6 +195,8 @@ export class NinjaArashiPlayer {
     this.inputLockTimer = 0;
     this.pendingHitStop = 0;
     this.hitSparks = [];
+    this.shurikenAmmo = this.shurikenMaxAmmo;
+    this.shurikenRegenTimer = 0;
     this.dashHitSet.clear();
     this.isFlipping = false;
     this.flipAngle = 0;
@@ -293,6 +301,17 @@ export class NinjaArashiPlayer {
       if (this.comboTimer <= 0) this.comboStep = 0; // combo window expired
     }
 
+    // Shuriken ammo regenerates one star at a time
+    if (this.shurikenAmmo < this.shurikenMaxAmmo) {
+      this.shurikenRegenTimer += dt;
+      if (this.shurikenRegenTimer >= this.shurikenRegenTime) {
+        this.shurikenRegenTimer = 0;
+        this.shurikenAmmo++;
+      }
+    } else {
+      this.shurikenRegenTimer = 0;
+    }
+
     // Coyote time: while on the ground the timer is refilled; in the air it drains.
     // Standing on ground also re-arms the air jump, so walking off a ledge still gives one jump.
     if (this.isGrounded) {
@@ -394,8 +413,9 @@ export class NinjaArashiPlayer {
       }
 
       // 6. Shuriken Trigger
-      if (input.isShurikenJustPressed() && this.shurikenCooldown <= 0) {
+      if (input.isShurikenJustPressed() && this.shurikenCooldown <= 0 && this.shurikenAmmo > 0) {
         this.shurikenCooldown = 0.26;
+        this.shurikenAmmo--;
         const starX = this.x + (this.facing > 0 ? this.width + 8 : -8);
         const starY = this.y + 28;
         const star = new Shuriken(starX, starY, this.facing * 1100, 0);
