@@ -1,3 +1,11 @@
+/*
+ * ==============================================================================
+ * Project: Devil's Door (Ninja Arashi style action game)
+ * File: src/js/core/Game.js
+ * Description: Master Game Coordinator orchestrating state transitions,
+ *              game loop, character/scene rendering, physics, and rewards.
+ * ==============================================================================
+ */
 import { NinjaArashiRenderer } from '../render/NinjaArashiRenderer.js';
 import { Camera2D } from './Camera2D.js';
 import { NinjaArashiPlayer } from '../entities/NinjaArashiPlayer.js';
