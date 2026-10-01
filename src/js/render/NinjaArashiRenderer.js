@@ -70,7 +70,7 @@ export class NinjaArashiRenderer {
   }
 
   _loadBackgroundAssets() {
-    const bgList = {
+    this.bgSources = {
       sunset_torii: '/src/assets/backgrounds/scene_01_sunset_torii.jpg',
       moonlight_ruins: '/src/assets/backgrounds/scene_02_moonlight_ruins.jpg',
       scythe_chasm: '/src/assets/backgrounds/scene_03_scythe_chasm.jpg',
@@ -82,15 +82,41 @@ export class NinjaArashiRenderer {
       shadow_peak: '/src/assets/backgrounds/scene_09_shadow_peak.png',
       blood_moon: '/src/assets/backgrounds/scene_10_blood_moon.png'
     };
+    this.bgLoading = {};
 
-    if (typeof Image !== 'undefined') {
-      for (const [key, src] of Object.entries(bgList)) {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => {
-          this.bgImages[key] = this._createMipLevels(img);
-        };
-      }
+    // Only the default realm is loaded up-front. The others load on demand (loadBackground)
+    // when picked. Before, all 10 images were decoded AND mip-mapped at startup (~170MB of memory).
+    this.loadBackground('sunset_torii');
+  }
+
+  // Returns a Promise that resolves when the realm's background is ready (or failed).
+  loadBackground(key) {
+    if (!this.bgSources || !this.bgSources[key]) return Promise.resolve();
+    if (this.bgImages[key]) return Promise.resolve();
+    if (this.bgLoading[key]) return this.bgLoading[key];
+    if (typeof Image === 'undefined') return Promise.resolve();
+
+    this.bgLoading[key] = new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        this.bgImages[key] = this._createMipLevels(img);
+        this._evictBackgroundsExcept(key);
+        delete this.bgLoading[key];
+        resolve();
+      };
+      img.onerror = () => {
+        delete this.bgLoading[key];
+        resolve();
+      };
+      img.src = this.bgSources[key];
+    });
+    return this.bgLoading[key];
+  }
+
+  // Keep memory flat: only the current realm + the default realm stay decoded
+  _evictBackgroundsExcept(keep) {
+    for (const k of Object.keys(this.bgImages)) {
+      if (k !== keep && k !== 'sunset_torii') delete this.bgImages[k];
     }
   }
 
@@ -256,7 +282,10 @@ export class NinjaArashiRenderer {
       imgKey = 'crystal_abyss';
     }
 
-    const mips = this.bgImages[imgKey] || this.bgImages.sunset_torii;
+    // Fetch the realm we actually need if it is not decoded yet. Until it arrives we draw
+    // nothing (dark base) instead of flashing the wrong realm's artwork.
+    if (!this.bgImages[imgKey]) this.loadBackground(imgKey);
+    const mips = this.bgImages[imgKey];
     if (!mips) return;
 
     // Select the optimal pre-filtered mip level based on physical render height

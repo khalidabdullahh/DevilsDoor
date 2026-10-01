@@ -1,4 +1,5 @@
 import { SCENE_ROSTER } from '../data/SceneRoster.js';
+import { loadWindow } from './selectLayout.js';
 
 /**
  * SceneSelect — vNext Cinematic Scene Selection Screen for Devil's Door v2.2.
@@ -29,6 +30,7 @@ export class SceneSelect {
 
     this._initDOM();
     this._attachEventListeners();
+    this._watchViewport();
     this.render();
 
     if (this.economy) {
@@ -48,6 +50,11 @@ export class SceneSelect {
   _initDOM() {
     if (!this.container) return;
     this.container.innerHTML = `
+      <!-- Full-bleed blurred artwork of the highlighted realm (two layers, cross-faded) -->
+      <div class="vnext-scene-bgs" aria-hidden="true">
+        <img class="vnext-scene-bg" alt="" decoding="async" />
+        <img class="vnext-scene-bg" alt="" decoding="async" />
+      </div>
       <div class="vnext-select-backdrop"></div>
 
       <!-- Header: Back Button & Step Indicator & Points Wallet -->
@@ -179,6 +186,13 @@ export class SceneSelect {
     }
   }
 
+  _watchViewport() {
+    const vp = this.container && this.container.querySelector('#scene-gallery-viewport');
+    if (vp && typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(() => this._positionTrack(true)).observe(vp);
+    }
+  }
+
   prev() {
     if (this.selectedIndex > 0) {
       this.selectedIndex--;
@@ -208,37 +222,26 @@ export class SceneSelect {
     this._updateWallet();
     this._updateRewardButton();
 
+    // Cards are built once; render() only slides the track and restyles them, so the
+    // selected/unselected transitions animate (they used to be destroyed on every swipe).
     const track = this.container.querySelector('#scene-gallery-track');
     if (track) {
-      // Gallery calculation: main item in center, next scene partially visible on right edge
-      const itemWidthPercent = 82; // Main card width
-      const offsetPercent = -this.selectedIndex * (itemWidthPercent + 3);
+      if (!this._cards || this._cards.length !== this.roster.length) this._buildCards();
 
-      track.style.transform = `translateX(${offsetPercent}%)`;
+      this._positionTrack();
 
-      track.innerHTML = this.roster.map((item, idx) => {
-        const isSelected = idx === this.selectedIndex;
+      this._cards.forEach((card, idx) => {
+        const item = this.roster[idx];
         const isUnlocked = this.economy ? this.economy.isSceneUnlocked(item.id) : item.isFree;
-
-        return `
-          <div class="vnext-scene-card ${isSelected ? 'selected' : ''} ${isUnlocked ? 'unlocked' : 'locked'}"
-               data-index="${idx}">
-            <div class="vnext-scene-frame">
-              <img src="${item.image}" alt="${item.name}" class="vnext-scene-img" />
-              ${!isUnlocked ? '<div class="vnext-lock-overlay"><span class="lock-icon">🔒</span><span class="lock-price">' + item.price + ' PTS</span></div>' : ''}
-              <div class="vnext-scene-gradient"></div>
-              <div class="vnext-scene-card-label">${item.name}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      track.querySelectorAll('.vnext-scene-card').forEach((card) => {
-        card.addEventListener('click', () => {
-          const idx = parseInt(card.getAttribute('data-index'), 10);
-          this.selectIndex(idx);
-        });
+        card.classList.toggle('selected', idx === this.selectedIndex);
+        card.classList.toggle('unlocked', isUnlocked);
+        card.classList.toggle('locked', !isUnlocked);
+        const lock = card.querySelector('.vnext-lock-overlay');
+        if (lock) lock.style.display = isUnlocked ? 'none' : 'flex';
       });
+
+      this._loadVisibleImages();
+      this._setBackdrop(scene);
     }
 
     // Update Meta Information (Minimal Information Rule)
@@ -283,6 +286,62 @@ export class SceneSelect {
     const btnNext = this.container.querySelector('#btn-scene-next');
     if (btnPrev) btnPrev.style.visibility = this.selectedIndex > 0 ? 'visible' : 'hidden';
     if (btnNext) btnNext.style.visibility = this.selectedIndex < this.roster.length - 1 ? 'visible' : 'hidden';
+  }
+
+  // Slide the track so the selected card sits at the track's left padding (the next card peeks in).
+  // Uses the card's real layout position in px. The old code used a fixed % step that ignored the
+  // track padding, so the selected card drifted ~8% of the width further off with every realm.
+  _positionTrack(instant = false) {
+    const track = this.container && this.container.querySelector('#scene-gallery-track');
+    const card = this._cards && this._cards[this.selectedIndex];
+    if (!track || !card) return;
+    const padLeft = parseFloat(getComputedStyle(track).paddingLeft) || 0;
+    if (instant) track.style.transition = 'none';
+    track.style.transform = `translateX(${-(card.offsetLeft - padLeft)}px)`;
+    if (instant) {
+      void track.offsetWidth; // flush so the jump is not animated
+      track.style.transition = '';
+    }
+  }
+
+  _buildCards() {
+    const track = this.container.querySelector('#scene-gallery-track');
+    if (!track) return;
+    // Images get their src later (_loadVisibleImages): only the highlighted realm and its
+    // neighbours load. Before, all 10 artworks (~9MB) were requested at once.
+    track.innerHTML = this.roster.map((item, idx) => `
+      <div class="vnext-scene-card" data-index="${idx}" style="--card-accent: ${item.accentColor};">
+        <div class="vnext-scene-frame">
+          <img data-src="${item.image}" alt="${item.name}" class="vnext-scene-img" decoding="async" draggable="false" />
+          <div class="vnext-lock-overlay" style="display: none;"><span class="lock-icon">🔒</span><span class="lock-price">${item.price} PTS</span></div>
+          <div class="vnext-scene-gradient"></div>
+          <div class="vnext-scene-card-label">${item.name}</div>
+        </div>
+      </div>
+    `).join('');
+    this._cards = Array.from(track.querySelectorAll('.vnext-scene-card'));
+    this._cards.forEach((card, idx) => card.addEventListener('click', () => this.selectIndex(idx)));
+  }
+
+  _loadVisibleImages() {
+    for (const i of loadWindow(this.selectedIndex, this.roster.length, 2)) {
+      const img = this._cards[i].querySelector('.vnext-scene-img');
+      if (img && !img.getAttribute('src')) img.setAttribute('src', img.dataset.src);
+    }
+  }
+
+  // Cross-fade the blurred full-screen backdrop to the highlighted realm
+  _setBackdrop(scene) {
+    const layers = this.container.querySelectorAll('.vnext-scene-bg');
+    this.container.style.setProperty('--sel-glow', scene.glowColor);
+    if (layers.length < 2 || this._backdropSrc === scene.image) return;
+    this._backdropSrc = scene.image;
+    this._backdropFlip = !this._backdropFlip;
+    const next = layers[this._backdropFlip ? 1 : 0];
+    const prev = layers[this._backdropFlip ? 0 : 1];
+    next.setAttribute('src', scene.image);
+    next.classList.add('show');
+    prev.classList.remove('show');
   }
 
   _updateWallet() {

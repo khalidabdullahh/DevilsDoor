@@ -1949,3 +1949,114 @@ body.portrait-mode .dash-btn {
 .hidden {
   display: none !important;
 }
+
+/* ==========================================================================
+   Batch 4: Shinobi / Realm select polish
+   ========================================================================== */
+
+/* Soft glow behind the stage, tinted by the highlighted hero / realm (--sel-glow is set by JS) */
+.vnext-select-backdrop::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: min(90vw, 760px);
+  height: min(70vh, 560px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background-color: var(--sel-glow, rgba(168, 85, 247, 0.6));
+  filter: blur(90px);
+  opacity: 0.3;
+  transition: background-color 0.6s ease;
+}
+
+/* Glowing floor ring under the centered hero */
+.vnext-char-card::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 2%;
+  width: 92%;
+  height: 14%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--card-accent, #a855f7) 0%, transparent 70%);
+  filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.vnext-char-card.selected::after { opacity: 0.75; }
+
+/* Mouse-driven 3D tilt on the centered hero (--tx / --ty are set by JS, -1..1) */
+.vnext-char-card.selected .vnext-char-img-wrapper {
+  transform: rotateY(calc(var(--tx, 0) * 12deg)) rotateX(calc(var(--ty, 0) * -8deg));
+  transform-style: preserve-3d;
+  transition: transform 0.18s ease-out;
+}
+
+/* Name on one line, epithet underneath (it used to wrap into two heavy lines) */
+.vnext-meta-row .meta-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  line-height: 1.12;
+  min-width: 0;
+}
+.meta-name-main { font-size: clamp(1.15rem, 3vw, 1.6rem); }
+.meta-name-title {
+  font-size: 0.62rem;
+  letter-spacing: 0.26em;
+  font-weight: 800;
+  color: var(--accent-gold, #fbbf24);
+  opacity: 0.9;
+}
+
+/* Realm screen: blurred full-bleed artwork of the highlighted realm, cross-faded */
+.vnext-scene-bgs {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.vnext-scene-bg {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  filter: blur(18px) brightness(0.4) saturate(1.2);
+}
+.vnext-scene-bg.show { opacity: 1; }
+
+/* Bigger gallery on large screens, realm-colored selection */
+.vnext-gallery-viewport {
+  max-width: min(94vw, 880px);
+  height: clamp(190px, 52vh, 440px);
+}
+.vnext-scene-card.selected {
+  border-color: var(--card-accent, var(--accent-cyan));
+  box-shadow: 0 0 26px -2px var(--card-accent, #38bdf8), 0 10px 36px rgba(0, 0, 0, 0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vnext-char-card.selected .vnext-char-img { animation: none; }
+  .vnext-char-card, .vnext-scene-card, .vnext-gallery-track { transition-duration: 0.01s; }
+  .vnext-scene-bg, .vnext-select-backdrop::after { transition: none; }
+}
+
+/* Meta row: badges never wrap, long realm names get the remaining space */
+.vnext-action-deck { max-width: 640px; }
+.meta-serial, .meta-price { white-space: nowrap; flex-shrink: 0; }
+.vnext-meta-row .meta-name { flex: 1 1 auto; letter-spacing: 0.06em; }
+
+/* Narrow phones: the realm header (back + step + points + wallet) overflowed by ~30px */
+@media (max-width: 480px) {
+  .vnext-header-left { gap: 6px; }
+  .vnext-header-left .step-label { display: none; }
+  .vnext-header-left .vnext-back-btn { padding-left: 10px; padding-right: 10px; }
+}

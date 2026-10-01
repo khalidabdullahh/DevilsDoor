@@ -12,7 +12,8 @@
     "test:gameplay": "node scripts/test-combat-movement.mjs",
     "test:world": "node scripts/test-world-generation.mjs",
     "test:hud": "node scripts/test-hud-and-realms.mjs",
-    "test:all": "npm test && npm run test:gameplay && npm run test:world && npm run test:hud"
+    "test:all": "npm test && npm run test:gameplay && npm run test:world && npm run test:hud && npm run test:landing",
+    "test:landing": "node scripts/test-landing-and-select.mjs"
   },
   "keywords": [
     "devils-door",

@@ -55,6 +55,16 @@ for (const seed of [1, 2, 3, 4, 5]) {
     ok(`seed ${seed}: no saws/axes before 200m, no oni/monk before 300m`, sawsOrAxes === 0 && heavies === 0, `(saws+axes=${sawsOrAxes}, heavy=${heavies})`);
 }
 
+// ---- 3b. Gentle opening: no cliffs / arenas in the first 100m (x < 1900) ----
+{
+  let early = 0;
+  for (const seed of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+    const w = new EndlessWorld('sunset_torii', seeded(seed));
+    early += w.solids.filter(s => (s.tag === 'high_cliff' || s.tag === 'arena_floor') && s.x < 1900).length;
+  }
+  ok('first 100m has no wall-climb cliff or arena (10 seeds)', early === 0, `(found ${early})`);
+}
+
 // ---- 4. Per-seed fairness over ~6000m of world ----
 const SEEDS = [11, 22, 33, 44, 55, 66, 77, 88];
 let totalChunks = 0, worstGap = 0, worstStep = 0, worstStreak = 0;
