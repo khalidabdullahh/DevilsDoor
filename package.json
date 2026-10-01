@@ -10,7 +10,9 @@
     "test": "node scripts/test-integrity.js && node scripts/test-production-server.js",
     "lint": "echo 'All modules verified.'",
     "test:gameplay": "node scripts/test-combat-movement.mjs",
-    "test:world": "node scripts/test-world-generation.mjs"
+    "test:world": "node scripts/test-world-generation.mjs",
+    "test:hud": "node scripts/test-hud-and-realms.mjs",
+    "test:all": "npm test && npm run test:gameplay && npm run test:world && npm run test:hud"
   },
   "keywords": [
     "devils-door",

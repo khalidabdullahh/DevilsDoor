@@ -159,7 +159,8 @@ export class Game {
         this.highScore,
         this.player.health,
         this.player.maxHealth,
-        this.world.biome
+        this.world.biome,
+        this._hudExtras()
       );
     }
   }
@@ -190,6 +191,17 @@ export class Game {
     }
 
     requestAnimationFrame((t) => this._loop(t));
+  }
+
+  // Small stats shown next to the hearts: diamonds, shuriken ammo, dash ready
+  _hudExtras() {
+    const p = this.player;
+    return {
+      diamonds: p.diamonds || 0,
+      ammo: p.shurikenAmmo,
+      maxAmmo: p.shurikenMaxAmmo,
+      dashReady: p.dashCooldown <= 0
+    };
   }
 
   _update(dt) {
@@ -229,7 +241,8 @@ export class Game {
         this.highScore,
         this.player.health,
         this.player.maxHealth,
-        this.world.biome
+        this.world.biome,
+        this._hudExtras()
       );
     }
 
