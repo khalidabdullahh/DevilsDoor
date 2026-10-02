@@ -201,3 +201,10 @@ html.scene-ready .section-title { text-shadow: 0 2px 22px rgba(0, 0, 0, 0.9); }
   .hero-stats span { font-size: 0.58rem; letter-spacing: 0.1em; }
   .hero-stats b { font-size: 1.25rem; }
 }
+
+/* Hero logo lives inside the page's <h1> (so the page has a real heading) */
+.hero-logo-h1 { margin: 0 0 6px; line-height: 0; }
+/* a square logo is tall: keep the hero on one screen on laptop-height viewports */
+@media (min-width: 900px) and (max-height: 820px) {
+  .hero-logo-img { max-width: 250px; }
+}

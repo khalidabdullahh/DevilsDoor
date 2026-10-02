@@ -47,7 +47,8 @@ const requiredRootFiles = [
   'robots.txt',
   'sitemap.xml',
   'vercel.json',
-  'CNAME'
+  '_redirects',
+  '_headers'
 ];
 
 console.log('📋 1. Verifying Root Governance Suite:');

@@ -8,6 +8,11 @@
   <meta name="keywords" content="Devil's Door, A Shadow Assassin's Journey, ninja game, endless runner, action platformer, dark fantasy, html5 game, 2.5D game, Khalid Abdullah, play online, mobile game" />
   <meta name="author" content="Khalid Abdullah" />
   <meta name="theme-color" content="#060810" />
+  <!-- Favicon & Touch Icons -->
+  <link rel="icon" type="image/png" sizes="64x64" href="/src/assets/branding/favicon.png" />
+  <link rel="icon" type="image/x-icon" href="/src/assets/branding/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="192x192" href="/src/assets/branding/favicon-192x192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/branding/favicon-512x512.png" />
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://devilsdoor.js.org/" />
@@ -96,7 +101,8 @@
   <header class="site-header">
     <nav class="nav-container">
       <a href="/" class="brand-link" aria-label="Devil's Door Home">
-        <img src="/src/assets/branding/logo_banner.jpg" alt="DEVIL'S DOOR — A Shadow Assassin's Journey" class="brand-logo-banner" />
+        <img src="/src/assets/web/logo-96.webp" alt="DEVIL'S DOOR" class="brand-logo-icon" width="96" height="96" decoding="async" />
+        <span class="brand-text"><span class="brand-devil">DEVIL'S</span> <span class="brand-door">DOOR</span></span>
       </a>
       <ul class="nav-links">
         <li><a href="#domain">Domain</a></li>
@@ -120,7 +126,12 @@
         <!-- Left Column: Hero Typography & CTA -->
         <div class="hero-text-col">
           <div class="hero-badge">VERSION 2.2 • OFFICIAL MASTER EDITION</div>
-          <h1 class="hero-title" aria-label="Devil's Door"><span class="ht-line">Devil's</span><span class="ht-line">Door</span></h1>
+          <h1 class="hero-logo-h1">
+            <picture>
+              <source srcset="/src/assets/web/logo-760.webp" type="image/webp" />
+              <img src="/src/assets/branding/logo.png" alt="Devil's Door: A Shadow Assassin's Journey" class="hero-logo-img" width="1024" height="1024" fetchpriority="high" decoding="async" />
+            </picture>
+          </h1>
           <p class="hero-tagline">A SHADOW ASSASSIN'S JOURNEY</p>
           <p class="hero-description">
             Enter an infinite dark fantasy domain. Master 4 legendary shinobi, survive 10 atmospheric realms, dodge swinging blades, and cut through the shadows. Reach the door. Trust nothing.
@@ -477,7 +488,10 @@
   <footer class="site-footer">
     <div class="footer-container">
       <div class="footer-brand">
-        <img src="/src/assets/branding/logo_banner.jpg" alt="DEVIL'S DOOR" class="brand-logo-banner" style="margin-bottom: 8px;" />
+        <a href="/" class="brand-link" style="margin-bottom: 12px;">
+          <img src="/src/assets/web/logo-96.webp" alt="DEVIL'S DOOR" class="brand-logo-icon" width="96" height="96" decoding="async" />
+          <span class="brand-text" style="font-size: 1.35rem;"><span class="brand-devil">DEVIL'S</span> <span class="brand-door">DOOR</span></span>
+        </a>
         <p class="footer-tagline">DEVIL'S DOOR: A Shadow Assassin's Journey • Endless Dark-Fantasy Action Game</p>
       </div>
 

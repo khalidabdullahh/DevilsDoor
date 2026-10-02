@@ -1,0 +1,11 @@
+/src/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/src/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  Access-Control-Allow-Origin: *
+
+/*
+  Access-Control-Allow-Origin: *
+  X-Content-Type-Options: nosniff
