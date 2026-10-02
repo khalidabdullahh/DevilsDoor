@@ -71,9 +71,12 @@ const ok = (name, cond, extra = '') => { (cond ? pass++ : fail++); console.log(`
   ok(`all ${new Set(refs).size} local assets referenced by index.html exist`, missing.length === 0, missing.join(', '));
 
   // weight: the page used to load ~11MB of PNG/JPG
-  const imgs = [...new Set(refs.filter(r => /\.(webp|png|jpe?g)$/i.test(r)))];
-  const fallbackJpg = '/src/assets/branding/master_cover.jpg'; // only fetched if WebP is unsupported
-  const loaded = imgs.filter(r => r !== fallbackJpg);
+  // only <img> / <source> are fetched when the page renders (favicon / touch-icon <link>s are not)
+  const rendered = [...html.matchAll(/<(?:img|source)\b[^>]*?\b(?:src|srcset)="(\/[^"]+)"/g)].map(m => m[1]);
+  const imgs = [...new Set(rendered.filter(r => /\.(webp|png|jpe?g)$/i.test(r)))];
+  // PNG/JPG next to a WebP <source> are fallbacks for browsers without WebP: never fetched otherwise
+  const fallbacks = ['/src/assets/branding/master_cover.jpg', '/src/assets/branding/logo.png'];
+  const loaded = imgs.filter(r => !fallbacks.includes(r));
   const kb = Math.round(loaded.reduce((a, r) => a + size('.' + r), 0) / 1024);
   ok('images the page loads total < 1.3MB (was ~11MB)', kb < 1300, `(${kb} KB)`);
   ok('no multi-MB sketch / background originals referenced', !/characters\/sketch\/|backgrounds\/scene_/.test(html));
