@@ -1,11 +1,15 @@
-/src/assets/*
-  Cache-Control: public, max-age=31536000, immutable
-  Access-Control-Allow-Origin: *
+# Cloudflare joins a header's values with a comma when SEVERAL rules match the same URL.
+# The old file matched /src/assets/* three times, which produced two conflicting Cache-Control
+# values (1 year immutable + 24h) and an invalid "Access-Control-Allow-Origin: *, *, *".
+# So: one rule per concern, and no overlaps.
 
-/src/*
-  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
-  Access-Control-Allow-Origin: *
-
+# Every file
 /*
   Access-Control-Allow-Origin: *
   X-Content-Type-Options: nosniff
+
+# Art, audio and fonts get a NEW file name whenever they change, so they can be cached for a year.
+# (JS and CSS are not listed on purpose: Cloudflare's default is "revalidate every time", which
+#  is cheap thanks to ETag/304 and means a deploy can never serve a mix of old and new game files.)
+/src/assets/*
+  Cache-Control: public, max-age=31536000, immutable

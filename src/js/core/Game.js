@@ -146,6 +146,7 @@ export class Game {
     this.selectedCharacter = CHARACTER_ROSTER.find(c => c.id === activeCharId) || CHARACTER_ROSTER[0];
 
     this.isInSelectionFlow = false;
+    if (this.renderer && this.selectedScene) this.renderer.loadBackground(this.selectedScene.id);
     this.world = new EndlessWorld(this.selectedScene ? this.selectedScene.id : 'sunset_torii');
     this.player.setCharacter(this.selectedCharacter ? this.selectedCharacter.id : 'kage_ryu');
     this.player.reset(this.world.playerStartX, this.world.playerStartY);

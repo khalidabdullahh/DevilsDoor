@@ -1,0 +1,210 @@
+/* ==========================================================================
+   Landing page: 3D scroll scene, reveal animations, hero + realm strip.
+   Loaded AFTER website.css. Everything that changes the existing look is gated on
+   html.scene-ready (3D is running) or html.js (script is running), so without
+   JS / WebGL the page looks exactly like before.
+   ========================================================================== */
+
+:root { --accent-live: #ef4444; }
+
+html { background: #06080e; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* The 3D canvas sits behind everything */
+#scene3d {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+html.scene-ready #scene3d { opacity: 1; }
+html.no-webgl #scene3d { display: none; }
+
+/* Let the canvas show through the page, keep text readable with soft panels */
+html.scene-ready body { background: transparent; }
+html.scene-ready .hero-section {
+  background:
+    linear-gradient(90deg, rgba(6, 8, 14, 0.62) 0%, rgba(6, 8, 14, 0.3) 52%, rgba(6, 8, 14, 0.05) 100%);
+}
+html.scene-ready .hero-background-art { display: none; }
+html.scene-ready .section {
+  background: linear-gradient(180deg, rgba(6, 8, 14, 0) 0%, rgba(6, 8, 14, 0.5) 14%, rgba(6, 8, 14, 0.5) 86%, rgba(6, 8, 14, 0) 100%);
+}
+html.scene-ready .site-footer { background: rgba(6, 8, 14, 0.82); }
+
+/* ---- skip link (keyboard / screen reader users) ---- */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 1000;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #fbbf24;
+  color: #06080e;
+  font-weight: 800;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+.skip-link:focus { top: 12px; }
+
+/* ---- header ---- */
+.site-header { transition: background 0.3s, box-shadow 0.3s; }
+.site-header.scrolled { background: rgba(6, 8, 14, 0.88); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55); }
+html .nav-links a.active { color: #fff; box-shadow: inset 0 -2px 0 var(--accent-live); }
+
+/* ---- scroll reveal (only when JS runs) ---- */
+.js .reveal {
+  opacity: 0;
+  transform: translate3d(0, 30px, 0);
+  transition: opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--d, 0ms);
+  will-change: opacity, transform;
+}
+.js .reveal.in { opacity: 1; transform: none; }
+
+/* ---- hero ---- */
+html .hero-title {
+  margin: 0 0 6px;
+  font-family: 'Cinzel', Georgia, 'Times New Roman', serif;
+  font-weight: 900;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #f4e9dc;
+  text-shadow: 0 0 34px rgba(239, 68, 68, 0.55), 0 4px 0 #3b0a0a;
+}
+.hero-title .ht-line { display: block; }
+.js .hero-title .ht-line { animation: htRise 1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.js .hero-title .ht-line:nth-child(2) { animation-delay: 0.14s; color: #ef4444; }
+@keyframes htRise { from { opacity: 0; transform: translate3d(0, 44px, 0); } }
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 30px;
+  margin: 18px 0 2px;
+  padding: 0;
+  list-style: none;
+}
+.hero-stats li { display: flex; flex-direction: column; gap: 2px; }
+.hero-stats b {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: #fbbf24;
+  text-shadow: 0 0 18px rgba(251, 191, 36, 0.35);
+}
+.hero-stats span { font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: #94a3b8; font-weight: 700; }
+
+.scroll-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 700;
+}
+.scroll-cue i {
+  width: 18px;
+  height: 28px;
+  border: 1.5px solid rgba(148, 163, 184, 0.6);
+  border-radius: 10px;
+  position: relative;
+}
+.scroll-cue i::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  width: 3px;
+  height: 6px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--accent-live);
+  animation: cueDot 1.8s ease-in-out infinite;
+}
+@keyframes cueDot { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(10px); } }
+
+/* ---- shinobi cards: smooth tilt ---- */
+.hero-showcase-card { transform-style: preserve-3d; will-change: transform; }
+
+/* ---- realm strip: all 10 realms, swipeable ---- */
+.realm-strip {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  padding: 8px 4px 24px;
+  margin: 0 -4px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+  -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent 100%);
+  mask-image: linear-gradient(90deg, #000 92%, transparent 100%);
+}
+.realm-strip:focus-visible { outline: 2px solid var(--accent-live); outline-offset: 4px; border-radius: 12px; }
+.realm-tile {
+  flex: 0 0 min(78vw, 340px);
+  scroll-snap-align: start;
+  position: relative;
+  margin: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0b0f19;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.realm-tile::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 3px;
+  background: var(--rt, #ef4444);
+  box-shadow: 0 0 14px var(--rt, #ef4444);
+  z-index: 2;
+}
+.realm-tile:hover { transform: translateY(-6px); border-color: var(--rt, #ef4444); box-shadow: 0 18px 46px rgba(0, 0, 0, 0.7), 0 0 26px -6px var(--rt, #ef4444); }
+.realm-tile img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: #0b0f19; }
+.realm-tile .rt-body { padding: 14px 16px 18px; }
+.realm-tile .rt-num { font: 700 0.68rem 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.14em; color: var(--rt, #ef4444); }
+.realm-tile h3 { margin: 4px 0 6px; font-family: 'Cinzel', Georgia, serif; font-size: 1.05rem; letter-spacing: 0.04em; color: #f8fafc; }
+.realm-tile p { margin: 0; font-size: 0.85rem; line-height: 1.5; color: #94a3b8; }
+
+@media (max-width: 640px) {
+  .hero-stats { gap: 10px 22px; }
+  .hero-stats b { font-size: 1.4rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal { transition: none; opacity: 1; transform: none; }
+  .js .hero-title .ht-line { animation: none; }
+  .scroll-cue i::after { animation: none; opacity: 1; }
+  #scene3d { transition: none; }
+}
+
+/* Keep text readable over the bright parts of the scene */
+html.scene-ready .section-subtitle { color: #b4c0d3; text-shadow: 0 1px 14px rgba(0, 0, 0, 0.95); }
+html.scene-ready .section-title { text-shadow: 0 2px 22px rgba(0, 0, 0, 0.9); }
+
+@media (max-width: 640px) {
+  .hero-stats { justify-content: center; gap: 10px 16px; }
+  .hero-stats span { font-size: 0.58rem; letter-spacing: 0.1em; }
+  .hero-stats b { font-size: 1.25rem; }
+}
+
+/* Hero logo lives inside the page's <h1> (so the page has a real heading) */
+.hero-logo-h1 { margin: 0 0 6px; line-height: 0; }
+/* a square logo is tall: keep the hero on one screen on laptop-height viewports */
+@media (min-width: 900px) and (max-height: 820px) {
+  .hero-logo-img { max-width: 250px; }
+}

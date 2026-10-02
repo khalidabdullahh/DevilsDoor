@@ -1,4 +1,5 @@
 import { CHARACTER_ROSTER } from '../data/CharacterRoster.js';
+import { characterCardLayout } from './selectLayout.js';
 
 /**
  * CharacterSelect — vNext 3D Focus-Animated Character Selection Screen.
@@ -165,6 +166,26 @@ export class CharacterSelect {
         }
       }, { passive: true });
     }
+
+    // Desktop: the centered hero tilts toward the mouse (3D parallax). Skipped for reduced motion.
+    const stage = this.container.querySelector('.vnext-char-stage');
+    const reduceMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (stage && !reduceMotion) {
+      let raf = 0;
+      stage.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const r = stage.getBoundingClientRect();
+          this.container.style.setProperty('--tx', (((e.clientX - r.left) / r.width) * 2 - 1).toFixed(3));
+          this.container.style.setProperty('--ty', (((e.clientY - r.top) / r.height) * 2 - 1).toFixed(3));
+        });
+      });
+      stage.addEventListener('pointerleave', () => {
+        this.container.style.setProperty('--tx', '0');
+        this.container.style.setProperty('--ty', '0');
+      });
+    }
   }
 
   prev() {
@@ -196,55 +217,11 @@ export class CharacterSelect {
     this._updateWallet();
     this._updateRewardButton();
 
-    const track = this.container.querySelector('#char-cards-track');
-    if (track) {
-      track.innerHTML = this.roster.map((item, idx) => {
-        const offset = idx - this.selectedIndex;
-        const isSelected = offset === 0;
-        const isUnlocked = this.economy ? this.economy.isCharacterUnlocked(item.id) : item.isFree;
-
-        let transformStyle = '';
-        let opacityStyle = 0.35;
-        let zIndexStyle = 10 - Math.abs(offset);
-
-        if (offset === 0) {
-          transformStyle = 'translateX(0px) scale(1.22) translateZ(60px)';
-          opacityStyle = 1.0;
-        } else if (offset === -1) {
-          transformStyle = 'translateX(-160px) scale(0.78) rotateY(18deg) translateZ(0px)';
-          opacityStyle = 0.55;
-        } else if (offset === 1) {
-          transformStyle = 'translateX(160px) scale(0.78) rotateY(-18deg) translateZ(0px)';
-          opacityStyle = 0.55;
-        } else if (offset < -1) {
-          transformStyle = `translateX(${offset * 140}px) scale(0.6) rotateY(25deg) translateZ(-40px)`;
-          opacityStyle = 0.2;
-        } else {
-          transformStyle = `translateX(${offset * 140}px) scale(0.6) rotateY(-25deg) translateZ(-40px)`;
-          opacityStyle = 0.2;
-        }
-
-        return `
-          <div class="vnext-char-card ${isSelected ? 'selected' : ''} ${isUnlocked ? 'unlocked' : 'locked'}"
-               style="transform: ${transformStyle}; opacity: ${opacityStyle}; z-index: ${zIndexStyle};"
-               data-index="${idx}">
-            <div class="vnext-char-aura" style="background: radial-gradient(circle at 50% 50%, ${item.glowColor} 0%, transparent 70%);"></div>
-            <div class="vnext-char-img-wrapper">
-              <img src="${item.image}" alt="${item.name}" class="vnext-char-img" />
-              ${!isUnlocked ? '<div class="vnext-lock-overlay"><span class="lock-icon">🔒</span></div>' : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      // Bind click on cards to jump to selection
-      track.querySelectorAll('.vnext-char-card').forEach((card) => {
-        card.addEventListener('click', () => {
-          const idx = parseInt(card.getAttribute('data-index'), 10);
-          this.selectIndex(idx);
-        });
-      });
-    }
+    // Cards are built ONCE and only restyled afterwards. (Before, render() destroyed and rebuilt
+    // every card on each swipe, so the CSS transitions and the idle bob could never animate.)
+    if (!this._cards || this._cards.length !== this.roster.length) this._buildCards();
+    this._applyLayout();
+    this.container.style.setProperty('--sel-glow', char.glowColor);
 
     // Update Meta Info (Minimal Information Rule)
     const metaSerial = this.container.querySelector('#char-meta-serial');
@@ -257,7 +234,7 @@ export class CharacterSelect {
     const isSelected = this.economy ? this.economy.getSelectedCharacter() === char.id : (this.selectedIndex === 0);
 
     if (metaSerial) metaSerial.textContent = char.serial;
-    if (metaName) metaName.textContent = `${char.name} • ${char.title}`;
+    if (metaName) metaName.innerHTML = `<span class="meta-name-main">${char.name}</span><span class="meta-name-title">${char.title}</span>`;
 
     if (metaPrice) {
       if (char.isFree) {
@@ -289,6 +266,41 @@ export class CharacterSelect {
     const btnNext = this.container.querySelector('#btn-char-next');
     if (btnPrev) btnPrev.style.visibility = this.selectedIndex > 0 ? 'visible' : 'hidden';
     if (btnNext) btnNext.style.visibility = this.selectedIndex < this.roster.length - 1 ? 'visible' : 'hidden';
+  }
+
+  _buildCards() {
+    const track = this.container.querySelector('#char-cards-track');
+    if (!track) return;
+    track.innerHTML = this.roster.map((item, idx) => `
+      <div class="vnext-char-card" data-index="${idx}" style="--card-accent: ${item.accentColor};">
+        <div class="vnext-char-aura" style="background: radial-gradient(circle at 50% 50%, ${item.glowColor} 0%, transparent 70%);"></div>
+        <div class="vnext-char-img-wrapper">
+          <img src="${item.image}" alt="${item.name}" class="vnext-char-img" decoding="async" draggable="false" />
+          <div class="vnext-lock-overlay" style="display: none;"><span class="lock-icon">🔒</span></div>
+        </div>
+      </div>
+    `).join('');
+    this._cards = Array.from(track.querySelectorAll('.vnext-char-card'));
+    this._cards.forEach((card, idx) => card.addEventListener('click', () => this.selectIndex(idx)));
+  }
+
+  _applyLayout() {
+    this._cards.forEach((card, idx) => {
+      const item = this.roster[idx];
+      const offset = idx - this.selectedIndex;
+      const layout = characterCardLayout(offset);
+      const isUnlocked = this.economy ? this.economy.isCharacterUnlocked(item.id) : item.isFree;
+
+      card.style.transform = layout.transform;
+      card.style.opacity = layout.opacity;
+      card.style.zIndex = layout.zIndex;
+      card.classList.toggle('selected', offset === 0);
+      card.classList.toggle('unlocked', isUnlocked);
+      card.classList.toggle('locked', !isUnlocked);
+
+      const lock = card.querySelector('.vnext-lock-overlay');
+      if (lock) lock.style.display = isUnlocked ? 'none' : 'flex';
+    });
   }
 
   _updateWallet() {

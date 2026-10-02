@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>DEVIL'S DOOR — Official Dark Fantasy Endless 2.5D Action Game</title>
-  <meta name="description" content="Devil's Door v2.2 (A Shadow Assassin's Journey) is an endless dark-fantasy 2.5D action game. Master 4 legendary 3D-rendered shinobis, survive dynamic 4K atmospheric realms, dodge swinging pendulums, and unlock new content with gameplay points." />
+  <meta name="description" content="Devil's Door v2.2 (A Shadow Assassin's Journey) is an endless dark-fantasy 2.5D action game. Master 4 legendary shinobi, survive dynamic 4K atmospheric realms, dodge swinging pendulums, and unlock new content with gameplay points." />
   <meta name="keywords" content="Devil's Door, A Shadow Assassin's Journey, ninja game, endless runner, action platformer, dark fantasy, html5 game, 2.5D game, Khalid Abdullah, play online, mobile game" />
   <meta name="author" content="Khalid Abdullah" />
+  <meta name="theme-color" content="#060810" />
   <!-- Favicon & Touch Icons -->
   <link rel="icon" type="image/png" sizes="64x64" href="/src/assets/branding/favicon.png" />
   <link rel="icon" type="image/x-icon" href="/src/assets/branding/favicon.ico" />
@@ -20,7 +21,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://devilsdoor.js.org/" />
   <meta property="og:title" content="DEVIL'S DOOR — A Shadow Assassin's Journey" />
-  <meta property="og:description" content="Enter the endless dark fantasy domain. 4 legendary 3D-rendered shinobis, 4K atmospheric realms, real-time points economy, and zero-blur cross-device gameplay." />
+  <meta property="og:description" content="Enter the endless dark fantasy domain. 4 legendary shinobi, 4K atmospheric realms, real-time points economy, and zero-blur cross-device gameplay." />
   <meta property="og:image" content="https://devilsdoor.js.org/src/assets/branding/master_cover.jpg" />
 
   <!-- Twitter Card -->
@@ -52,7 +53,7 @@
         "@id": "https://devilsdoor.js.org/#game",
         "name": "Devil's Door — A Shadow Assassin's Journey",
         "url": "https://devilsdoor.js.org/game",
-        "description": "An endless dark-fantasy 2.5D action-platformer featuring procedural chunk generation, 3D-rendered shinobi heroes, and 4K atmospheric realms.",
+        "description": "An endless dark-fantasy 2.5D action-platformer featuring procedural chunk generation, four distinct shinobi heroes, and ten 4K atmospheric realms.",
         "genre": ["Action", "Platformer", "Endless Runner", "Dark Fantasy"],
         "gamePlatform": ["Web Browser", "Mobile Phone", "Tablet", "Desktop"],
         "operatingSystem": "Any HTML5 compatible browser",
@@ -87,15 +88,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet" />
   
+  <script>document.documentElement.classList.add('js')</script>
+  <link rel="preload" as="image" href="/src/assets/web/master-cover.webp" type="image/webp" fetchpriority="high" />
   <link rel="stylesheet" href="/website/css/theme.css" />
   <link rel="stylesheet" href="/website/css/website.css" />
+  <link rel="stylesheet" href="/website/css/landing3d.css" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <canvas id="scene3d" aria-hidden="true"></canvas>
   <!-- Header Navigation -->
   <header class="site-header">
     <nav class="nav-container">
       <a href="/" class="brand-link" aria-label="Devil's Door Home">
-        <img src="/src/assets/branding/logo.png" alt="DEVIL'S DOOR" class="brand-logo-icon" />
+        <img src="/src/assets/web/logo-96.webp" alt="DEVIL'S DOOR" class="brand-logo-icon" width="96" height="96" decoding="async" />
         <span class="brand-text"><span class="brand-devil">DEVIL'S</span> <span class="brand-door">DOOR</span></span>
       </a>
       <ul class="nav-links">
@@ -112,7 +118,7 @@
     </nav>
   </header>
 
-  <main>
+  <main id="main">
     <!-- 1. Hero Section with Master Artwork Showcase -->
     <section class="hero-section" id="hero">
       <div class="hero-background-art"></div>
@@ -120,10 +126,15 @@
         <!-- Left Column: Hero Typography & CTA -->
         <div class="hero-text-col">
           <div class="hero-badge">VERSION 2.2 • OFFICIAL MASTER EDITION</div>
-          <img src="/src/assets/branding/logo.png" alt="DEVIL'S DOOR — Official Game Logo" class="hero-logo-img" />
+          <h1 class="hero-logo-h1">
+            <picture>
+              <source srcset="/src/assets/web/logo-760.webp" type="image/webp" />
+              <img src="/src/assets/branding/logo.png" alt="Devil's Door: A Shadow Assassin's Journey" class="hero-logo-img" width="1024" height="1024" fetchpriority="high" decoding="async" />
+            </picture>
+          </h1>
           <p class="hero-tagline">A SHADOW ASSASSIN'S JOURNEY</p>
           <p class="hero-description">
-            Enter an infinite dark fantasy domain. Master 4 legendary 3D-rendered shinobis, survive dynamic 4K atmospheric realms, dodge swinging scythes, and cleave through the shadows. Reach the door. Trust nothing.
+            Enter an infinite dark fantasy domain. Master 4 legendary shinobi, survive 10 atmospheric realms, dodge swinging blades, and cut through the shadows. Reach the door. Trust nothing.
           </p>
 
           <div class="hero-cta-group">
@@ -141,12 +152,22 @@
             <span class="pill-dot">●</span>
             <span>AVAILABLE ON MOBILE PORTRAIT • TABLET • DESKTOP (ZERO BLUR 4K)</span>
           </div>
+          <ul class="hero-stats" aria-label="Game at a glance">
+            <li><b data-count="4">4</b><span>Shinobi</span></li>
+            <li><b data-count="10">10</b><span>Realms</span></li>
+            <li><b>&infin;</b><span>Endless run</span></li>
+            <li><b>Free</b><span>In your browser</span></li>
+          </ul>
+          <div class="scroll-cue" aria-hidden="true"><i></i><span>Scroll to open the door</span></div>
         </div>
 
         <!-- Right Column: Epic Master Artwork Card -->
         <div class="hero-visual-col">
           <div class="hero-artwork-card">
-            <img src="/src/assets/branding/master_cover.jpg" alt="Devil's Door Master Shadow Assassin" class="hero-master-img" />
+            <picture>
+              <source srcset="/src/assets/web/master-cover.webp" type="image/webp" />
+              <img src="/src/assets/branding/master_cover.jpg" alt="Devil's Door Master Shadow Assassin" class="hero-master-img" width="682" height="1024" fetchpriority="high" decoding="async" />
+            </picture>
             <div class="hero-artwork-badge">
               <span class="artwork-badge-title">DEVIL'S DOOR</span>
               <span class="artwork-badge-tag">OFFICIAL MASTER ART</span>
@@ -167,7 +188,7 @@
           </p>
         </div>
 
-        <div class="domain-cards-grid">
+        <div class="domain-cards-grid" data-stagger>
           <article class="domain-card">
             <span class="domain-icon">⛩️</span>
             <h3 class="domain-card-title">The Gateway of Shadows</h3>
@@ -180,7 +201,7 @@
             <span class="domain-icon">🩸</span>
             <h3 class="domain-card-title">The Price of Descent</h3>
             <p class="domain-card-text">
-              Every 1,000 meters conquered earns valuable gameplay Points. Master acrobatic double-jumps and devastating dash-slashes to push deeper into the void.
+              Every 1,000 meters conquered earns valuable gameplay Points. Master wall-kicks, double jumps and a 3-hit katana combo to push deeper into the void.
             </p>
           </article>
 
@@ -188,8 +209,7 @@
             <span class="domain-icon">👁️</span>
             <h3 class="domain-card-title">Trust Nothing</h3>
             <p class="domain-card-text">
-              Swinging chain-scythes, falling stalactites, crumbling pagoda bridges, and ruthless shadow guards await any shinobi whose blade hesitates.
-            </p>
+              Swinging blades, spinning skull-saws, crumbling bridges, and ruthless shadow guards. Every step deeper is harder.</p>
           </article>
         </div>
       </div>
@@ -206,7 +226,7 @@
           </p>
         </div>
 
-        <div class="gameplay-grid">
+        <div class="gameplay-grid" data-stagger>
           <div class="gameplay-feature-card">
             <div class="feature-badge">INFINITE CHUNKS</div>
             <h3 class="feature-title">Procedural Terrain Generation</h3>
@@ -216,18 +236,17 @@
           </div>
 
           <div class="gameplay-feature-card">
-            <div class="feature-badge">DYNAMIC BIOMES</div>
-            <h3 class="feature-title">3-Minute Atmospheric Cycles</h3>
+            <div class="feature-badge">10 REALMS</div>
+            <h3 class="feature-title">10 Atmospheric Realms</h3>
             <p class="feature-desc">
-              Every 180 seconds of survival seamlessly morphs the skybox, parallax mountains, weather lighting, and hazard palettes in real time.
-            </p>
+              Pick your realm. Each one has its own 4K backdrop, rim-lit terrain and mood, from sunset shrines to blood-moon temples.</p>
           </div>
 
           <div class="gameplay-feature-card">
             <div class="feature-badge">COMBAT & AGILITY</div>
-            <h3 class="feature-title">Dash-Slash & Shuriken Flurry</h3>
+            <h3 class="feature-title">Katana Combo, Dash &amp; Shuriken</h3>
             <p class="feature-desc">
-              Cleave through patrolling shadow ronin sentries with supersonic katana dashes and pick off distant threats with rapid shuriken volleys.
+              Chain a 3-hit katana combo, dash through danger with brief invincibility, and pick off distant threats with a limited stock of shuriken.
             </p>
           </div>
 
@@ -235,7 +254,7 @@
             <div class="feature-badge">LETHAL HAZARDS</div>
             <h3 class="feature-title">Pendulum Blades & Spike Pits</h3>
             <p class="feature-desc">
-              Time your acrobatics past giant swinging crescent scythes, spinning skull-saw wheels, and volcanic flame plumes.
+              Time your acrobatics past giant swinging crescent scythes, spinning skull-saw wheels, and collapsing bridges.
             </p>
           </div>
         </div>
@@ -253,11 +272,11 @@
           </p>
         </div>
 
-        <div class="roster-grid">
+        <div class="roster-grid" data-stagger>
           <!-- Character 01 -->
           <article class="hero-showcase-card">
             <div class="hero-card-img-box">
-              <img src="/src/assets/characters/sketch/hero_01_kage_ryu_sketch.png" alt="01 Kage-Ryu Shadow Shinobi Sketch" loading="lazy" class="hero-card-img" />
+              <img src="/src/assets/web/hero-01-kage-ryu.webp" width="637" height="640" decoding="async" alt="01 Kage-Ryu Shadow Shinobi Sketch" loading="lazy" class="hero-card-img" />
               <div class="hero-card-aura aura-purple"></div>
             </div>
             <div class="hero-card-body">
@@ -271,11 +290,11 @@
           <!-- Character 02 -->
           <article class="hero-showcase-card">
             <div class="hero-card-img-box">
-              <img src="/src/assets/characters/sketch/hero_02_ryujin_sketch.png" alt="02 Ryujin Dragon Ninja Sketch" loading="lazy" class="hero-card-img" />
+              <img src="/src/assets/web/hero-02-ryujin.webp" width="640" height="640" decoding="async" alt="02 Ryujin Dragon Ninja Sketch" loading="lazy" class="hero-card-img" />
               <div class="hero-card-aura aura-orange"></div>
             </div>
             <div class="hero-card-body">
-              <span class="hero-serial">02 • 500 PTS</span>
+              <span class="hero-serial">02 • UNLOCKED</span>
               <h3 class="hero-name">RYUJIN</h3>
               <p class="hero-title-tag">DRAGON-FLAME NINJA</p>
               <p class="hero-bio">A heavy juggernaut in demonic horned Oni armor, cleaving foes with a molten flame greatsword.</p>
@@ -285,11 +304,11 @@
           <!-- Character 03 -->
           <article class="hero-showcase-card">
             <div class="hero-card-img-box">
-              <img src="/src/assets/characters/sketch/hero_03_raijin_sketch.png" alt="03 Raijin Lightning Ronin Sketch" loading="lazy" class="hero-card-img" />
+              <img src="/src/assets/web/hero-03-raijin.webp" width="640" height="640" decoding="async" alt="03 Raijin Lightning Ronin Sketch" loading="lazy" class="hero-card-img" />
               <div class="hero-card-aura aura-cyan"></div>
             </div>
             <div class="hero-card-body">
-              <span class="hero-serial">03 • 700 PTS</span>
+              <span class="hero-serial">03 • UNLOCKED</span>
               <h3 class="hero-name">RAIJIN</h3>
               <p class="hero-title-tag">STORM LIGHTNING RONIN</p>
               <p class="hero-bio">Wandering thunder warrior beneath a straw Kasa hat, wielding twin electric shock blades.</p>
@@ -299,11 +318,11 @@
           <!-- Character 04 -->
           <article class="hero-showcase-card">
             <div class="hero-card-img-box">
-              <img src="/src/assets/characters/sketch/hero_04_tsukuyomi_sketch.png" alt="04 Tsukuyomi Crimson Kunoichi Sketch" loading="lazy" class="hero-card-img" />
+              <img src="/src/assets/web/hero-04-tsukuyomi.webp" width="626" height="640" decoding="async" alt="04 Tsukuyomi Crimson Kunoichi Sketch" loading="lazy" class="hero-card-img" />
               <div class="hero-card-aura aura-crimson"></div>
             </div>
             <div class="hero-card-body">
-              <span class="hero-serial">04 • 1000 PTS</span>
+              <span class="hero-serial">04 • UNLOCKED</span>
               <h3 class="hero-name">TSUKUYOMI</h3>
               <p class="hero-title-tag">CRIMSON KUNOICHI</p>
               <p class="hero-bio">Porcelain-masked acrobatic reaper slicing through the shadows with dual crescent Kama sickles.</p>
@@ -317,60 +336,52 @@
     <section id="realms" class="section realms-section">
       <div class="section-container">
         <div class="section-header">
-          <span class="section-tag">04 / 4K ATMOSPHERIC REALMS</span>
+          <span class="section-tag">04 / 10 ATMOSPHERIC REALMS</span>
           <h2 class="section-title">Explore the Scenes</h2>
           <p class="section-subtitle">
-            Hand-crafted 4K parallax backgrounds rendered with zero quality drop and zero blur on every device.
+            Ten hand-crafted 4K backdrops, each with its own rim-lit terrain. Swipe or scroll sideways to tour them all.
           </p>
         </div>
-
-        <div class="realms-grid">
-          <!-- Realm 01 -->
-          <article class="realm-card">
-            <div class="realm-img-frame">
-              <img src="/src/assets/backgrounds/scene_01_sunset_torii.jpg" alt="Sunset Sanctuary 4K Realm" loading="lazy" class="realm-img" />
-              <div class="realm-tag">REALM 01 • FREE</div>
-            </div>
-            <div class="realm-body">
-              <h3 class="realm-title">Sunset Sanctuary</h3>
-              <p class="realm-desc">Sacred Torii gates and ancient pagoda shrines silhouetted against glowing amber-crimson twilight.</p>
-            </div>
+        <div class="realm-strip" tabindex="0" role="region" aria-label="The ten realms (scroll sideways)">
+          <article class="realm-tile" style="--rt:#ef4444">
+            <img src="/src/assets/web/realm-01.webp" alt="Sunset Sanctuary realm artwork" width="720" height="402" loading="lazy" decoding="async" />
+            <div class="rt-body"><span class="rt-num">REALM 01</span><h3>SUNSET SANCTUARY</h3><p>A crimson sky burns over a still lake and a lone torii gate.</p></div>
           </article>
-
-          <!-- Realm 02 -->
-          <article class="realm-card">
-            <div class="realm-img-frame">
-              <img src="/src/assets/backgrounds/scene_02_moonlight_ruins.jpg" alt="Moonlight Citadel 4K Realm" loading="lazy" class="realm-img" />
-              <div class="realm-tag">REALM 02 • 500 PTS</div>
-            </div>
-            <div class="realm-body">
-              <h3 class="realm-title">Moonlight Citadel</h3>
-              <p class="realm-desc">Nocturnal temple arches enveloped in spectral cyan mist under a colossal glowing crescent moon.</p>
-            </div>
+          <article class="realm-tile" style="--rt:#06b6d4">
+            <img src="/src/assets/web/realm-02.webp" alt="Moonlight Citadel realm artwork" width="720" height="402" loading="lazy" decoding="async" />
+            <div class="rt-body"><span class="rt-num">REALM 02</span><h3>MOONLIGHT CITADEL</h3><p>Moonlit pagodas and broken bridges above dark water.</p></div>
           </article>
-
-          <!-- Realm 03 -->
-          <article class="realm-card">
-            <div class="realm-img-frame">
-              <img src="/src/assets/backgrounds/scene_03_scythe_chasm.jpg" alt="Shadow Scythe Grove 4K Realm" loading="lazy" class="realm-img" />
-              <div class="realm-tag">REALM 03 • 700 PTS</div>
-            </div>
-            <div class="realm-body">
-              <h3 class="realm-title">Shadow Scythe Grove</h3>
-              <p class="realm-desc">Ominous emerald mist forest crisscrossed by giant swinging guillotine blades over abyssal crags.</p>
-            </div>
+          <article class="realm-tile" style="--rt:#10b981">
+            <img src="/src/assets/web/realm-03.webp" alt="Shadow Scythe Grove realm artwork" width="720" height="402" loading="lazy" decoding="async" />
+            <div class="rt-body"><span class="rt-num">REALM 03</span><h3>SHADOW SCYTHE GROVE</h3><p>Chained scythes swing through a mist-choked forest.</p></div>
           </article>
-
-          <!-- Realm 04 -->
-          <article class="realm-card">
-            <div class="realm-img-frame">
-              <img src="/src/assets/backgrounds/scene_04_crystal_abyss.jpg" alt="Ruby Crystal Abyss 4K Realm" loading="lazy" class="realm-img" />
-              <div class="realm-tag">REALM 04 • 1000 PTS</div>
-            </div>
-            <div class="realm-body">
-              <h3 class="realm-title">Ruby Crystal Abyss</h3>
-              <p class="realm-desc">Vertical dark obsidian cliffs studded with glowing blood-red ruby crystal clusters and smoke vents.</p>
-            </div>
+          <article class="realm-tile" style="--rt:#f43f5e">
+            <img src="/src/assets/web/realm-04.webp" alt="Ruby Crystal Abyss realm artwork" width="720" height="402" loading="lazy" decoding="async" />
+            <div class="rt-body"><span class="rt-num">REALM 04</span><h3>RUBY CRYSTAL ABYSS</h3><p>Blood-red crystals cling to the walls of a lightless chasm.</p></div>
+          </article>
+          <article class="realm-tile" style="--rt:#84cc16">
+            <img src="/src/assets/web/realm-05.webp" alt="Shadow Bamboo Grove realm artwork" width="720" height="402" loading="lazy" decoding="async" />
+            <div class="rt-body"><span class="rt-num">REALM 05</span><h3>SHADOW BAMBOO GROVE</h3><p>A rope bridge sways under a sunset sky as a giant whale drifts by.</p></div>
+          </article>
+          <article class="realm-tile" style="--rt:#fbbf24">
+            <img src="/src/assets/web/realm-06.webp" alt="Crimson Pagoda realm artwork" width="720" height="402" loading="lazy" decoding="async" />
+            <div class="rt-body"><span class="rt-num">REALM 06</span><h3>CRIMSON PAGODA</h3><p>A fire-breathing dragon guards a burning fortress wall.</p></div>
+          </article>
+          <article class="realm-tile" style="--rt:#a855f7">
+            <img src="/src/assets/web/realm-07.webp" alt="Devil's Gate Abyss realm artwork" width="720" height="402" loading="lazy" decoding="async" />
+            <div class="rt-body"><span class="rt-num">REALM 07</span><h3>DEVIL&#39;S GATE ABYSS</h3><p>A giant skeleton rises over a moonlit graveyard.</p></div>
+          </article>
+          <article class="realm-tile" style="--rt:#fde68a">
+            <img src="/src/assets/web/realm-08.webp" alt="Celestial Dragon Ruins realm artwork" width="720" height="402" loading="lazy" decoding="async" />
+            <div class="rt-body"><span class="rt-num">REALM 08</span><h3>CELESTIAL DRAGON RUINS</h3><p>A lone shinobi faces the sunrise from a mountain-peak torii.</p></div>
+          </article>
+          <article class="realm-tile" style="--rt:#cbd5e1">
+            <img src="/src/assets/web/realm-09.webp" alt="Obsidian Peak realm artwork" width="720" height="402" loading="lazy" decoding="async" />
+            <div class="rt-body"><span class="rt-num">REALM 09</span><h3>OBSIDIAN PEAK</h3><p>A huge spider waits in a crystal-veined, web-choked cave.</p></div>
+          </article>
+          <article class="realm-tile" style="--rt:#b91c1c">
+            <img src="/src/assets/web/realm-10.webp" alt="Blood Moon Sanctuary realm artwork" width="720" height="402" loading="lazy" decoding="async" />
+            <div class="rt-body"><span class="rt-num">REALM 10</span><h3>BLOOD MOON SANCTUARY</h3><p>A silhouette duel inside a blood-red temple.</p></div>
           </article>
         </div>
       </div>
@@ -380,10 +391,10 @@
     <section id="progression" class="section progression-section">
       <div class="section-container">
         <div class="section-header">
-          <span class="section-tag">05 / PERSISTENT ECONOMY</span>
-          <h2 class="section-title">Progress & Unlock</h2>
+          <span class="section-tag">05 / PROGRESSION</span>
+          <h2 class="section-title">Progress &amp; Points</h2>
           <p class="section-subtitle">
-            Pure gameplay progression. Survive the endless descent to accumulate Points and unlock your arsenal.
+            Survive the endless descent to bank Points in your persistent wallet. Every shinobi and realm is open from your very first run.
           </p>
         </div>
 
@@ -411,8 +422,8 @@
 
           <div class="flow-step">
             <div class="step-circle">4</div>
-            <h3 class="step-heading">UNLOCK HEROES</h3>
-            <p class="step-text">Unlock Ryujin, Raijin, Tsukuyomi, and new 4K realms forever.</p>
+            <h3 class="step-heading">GO DEEPER</h3>
+            <p class="step-text">Pick any of the 4 shinobi and 10 realms. The deeper you go, the harder it gets.</p>
           </div>
         </div>
       </div>
@@ -429,7 +440,7 @@
           </p>
         </div>
 
-        <div class="crossplay-grid">
+        <div class="crossplay-grid" data-stagger>
           <div class="crossplay-card">
             <span class="crossplay-icon">📱</span>
             <h3 class="crossplay-title">Mobile Portrait Gamepad</h3>
@@ -478,7 +489,7 @@
     <div class="footer-container">
       <div class="footer-brand">
         <a href="/" class="brand-link" style="margin-bottom: 12px;">
-          <img src="/src/assets/branding/logo.png" alt="DEVIL'S DOOR" class="brand-logo-icon" />
+          <img src="/src/assets/web/logo-96.webp" alt="DEVIL'S DOOR" class="brand-logo-icon" width="96" height="96" decoding="async" />
           <span class="brand-text" style="font-size: 1.35rem;"><span class="brand-devil">DEVIL'S</span> <span class="brand-door">DOOR</span></span>
         </a>
         <p class="footer-tagline">DEVIL'S DOOR: A Shadow Assassin's Journey • Endless Dark-Fantasy Action Game</p>
@@ -518,5 +529,6 @@
   </footer>
 
   <script src="/website/js/website.js"></script>
+  <script src="/website/js/landing.js" defer></script>
 </body>
 </html>

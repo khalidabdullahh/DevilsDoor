@@ -273,6 +273,8 @@ export class EndlessWorld {
       d < 0.08 ? 0 : 0.3 + 1.6 * d,
       0.6 + 1.0 * d
     ];
+    // Gentle opening: the first ~100m is plain ground and bridges only (no wall-climb cliff, no arena)
+    if (d < 0.04) { w[2] = 0; w[5] = 0; }
     // Breather: never more than 2 hard chunks (axe / saw / arena) in a row
     if (this.hardStreak >= 2) w[3] = w[4] = w[5] = 0;
     // Never the same special chunk twice in a row (plain ground may repeat)
