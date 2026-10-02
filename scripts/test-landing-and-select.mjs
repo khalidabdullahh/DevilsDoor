@@ -52,5 +52,48 @@ const ok = (name, cond, extra = '') => { (cond ? pass++ : fail++); console.log(`
   ok('unknown realm id is ignored safely', (await r.loadBackground('nope')) === undefined);
 }
 
+// ---- 4. Landing page integrity (static checks on the HTML + assets) ----
+{
+  const { readFileSync, existsSync, statSync } = await import('node:fs');
+  const { Script } = await import('node:vm');
+  const root = new URL('../', import.meta.url);
+  const read = (p) => readFileSync(new URL(p, root), 'utf8');
+  const size = (p) => statSync(new URL(p, root)).size;
+  const html = read('index.html');
+
+  ok('website/index.html is an exact copy of index.html', html === read('website/index.html'));
+  ok('exactly one <h1> (there was none)', (html.match(/<h1[\s>]/g) || []).length === 1);
+  ok('has <main id="main">, skip link and an aria-hidden 3D canvas', /<main id="main">/.test(html) && /class="skip-link"/.test(html) && /<canvas id="scene3d" aria-hidden="true">/.test(html));
+
+  // every local file the page references must exist
+  const refs = [...html.matchAll(/(?:src|href|srcset)="(\/[^"#?]+\.[a-z0-9]+)"/gi)].map(m => m[1]);
+  const missing = [...new Set(refs)].filter(r => !existsSync(new URL('.' + r, root)));
+  ok(`all ${new Set(refs).size} local assets referenced by index.html exist`, missing.length === 0, missing.join(', '));
+
+  // weight: the page used to load ~11MB of PNG/JPG
+  const imgs = [...new Set(refs.filter(r => /\.(webp|png|jpe?g)$/i.test(r)))];
+  const fallbackJpg = '/src/assets/branding/master_cover.jpg'; // only fetched if WebP is unsupported
+  const loaded = imgs.filter(r => r !== fallbackJpg);
+  const kb = Math.round(loaded.reduce((a, r) => a + size('.' + r), 0) / 1024);
+  ok('images the page loads total < 1.3MB (was ~11MB)', kb < 1300, `(${kb} KB)`);
+  ok('no multi-MB sketch / background originals referenced', !/characters\/sketch\/|backgrounds\/scene_/.test(html));
+  ok('10 realm tiles, each with its own WebP', (html.match(/class="realm-tile"/g) || []).length === 10 && Array.from({ length: 10 }, (_, i) => `/src/assets/web/realm-${String(i + 1).padStart(2, '0')}.webp`).every(r => html.includes(r)));
+
+  // copy must match the game as it is now (all heroes / realms unlocked, 10 realms, no 3-min cycle)
+  const stale = ['500 PTS', '700 PTS', '1000 PTS', '3D-rendered', 'Every 180 seconds', 'volcanic', 'supersonic', 'PERSISTENT ECONOMY'].filter(t => html.includes(t));
+  ok('no stale claims (prices, 3-minute cycles, 3D-rendered, ...)', stale.length === 0, stale.join(', '));
+
+  // robustness: content must never depend on JS to be visible
+  ok('reveal classes are added by JS, not hard-coded (no-JS visitors see everything)', !/class="[^"]*\breveal\b/.test(html));
+  const css = read('website/css/landing3d.css'), js3d = read('website/js/scene3d.js'), jsL = read('website/js/landing.js');
+  ok('reveal hiding is scoped to html.js', /\.js \.reveal\s*\{[^}]*opacity:\s*0/.test(css) && !/(^|\n)\.reveal\s*\{[^}]*opacity:\s*0/.test(css));
+  ok('3D / reveal respect prefers-reduced-motion', /prefers-reduced-motion/.test(css) && /prefers-reduced-motion/.test(js3d) && /prefers-reduced-motion/.test(jsL));
+  ok('no-WebGL / data-saver fallback exists', /no-webgl/.test(js3d) && /saveData/.test(jsL) && /html\.no-webgl #scene3d/.test(css));
+  ok('Three.js is vendored (no CDN) with its MIT license', existsSync(new URL('website/js/vendor/three.min.js', root)) && existsSync(new URL('website/js/vendor/three.LICENSE.txt', root)) && !/cdnjs|unpkg|jsdelivr/.test(html + jsL));
+  ok('Three.js is lazy-loaded (not a <script> in the HTML)', !/three\.min\.js/.test(html) && /three\.min\.js/.test(jsL));
+  let parsed = true; try { new Script(js3d); new Script(jsL); } catch (e) { parsed = false; }
+  ok('landing.js and scene3d.js parse', parsed);
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
