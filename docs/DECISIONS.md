@@ -62,3 +62,14 @@
 - **Context**: The game requires a premium 3D dark fantasy visual benchmark (inspired by Ninja Arashi 2 / Shadow Blade), true perspective depth, volumetric fog, dynamic lighting/shadows, and stylized 3D ninja character mesh with katana combat.
 - **Decision**: Migrate the rendering architecture to **Babylon.js** (supporting WebGPU with automatic WebGL fallback) with a side-focused cinematic 3D camera.
 - **Consequences**: Delivers high-fidelity 3D graphics, procedural particle VFX, dynamic katana combat, and seamless cross-platform performance across desktop and mobile.
+
+---
+
+## ADR-007: Cinematic, Dark-Only, Scroll-Driven Landing Page (supersedes ADR-005 for `/` only)
+
+- **Date**: 2026-10-02
+- **Status**: PROPOSED (needs founder confirmation: it reverses part of a LOCKED decision)
+- **Context**: The founder asked for the landing page to be completely rebuilt as a premium, cinematic "scroll = journey" experience (see `docs/LANDING_BRIEF.md`). ADR-005 required a system-aware light/dark theme with a 3-way toggle for the marketing website.
+- **Decision**: The landing page (`/`) is dark-only: its identity is a night scene lit by a red moon, and a light theme would contradict it. The game and any future content pages are unaffected. The page is built with vendored Three.js r128 + native ES modules (no build step), independent of the game engine (ADR-006 / Babylon.js), and is never loaded by the game. Without JS/WebGL/with reduced motion it degrades to a plain, readable, dark page.
+- **Consequences**: No light theme or toggle on `/` (accessibility is covered by contrast, semantic HTML, keyboard access and the static fallback). Two 3D libraries exist in the repo (Babylon.js for the game, Three.js for the landing); they never load together. If the founder wants a light theme back, build it for the static layout only.
+

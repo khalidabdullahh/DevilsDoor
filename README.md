@@ -178,3 +178,23 @@ npx serve .
 - **Founder, Creator & Lead Engineer**: [Khalid Abdullah](https://github.com/khalidabdullahh)
 - **Engine Architecture**: Devil's Door 2.5D Canvas Engine
 - **License**: [Dual-Licensed (MIT Engine + Proprietary IP & Assets)](LICENSE)
+
+---
+
+## 🌌 Landing page: the cinematic journey
+
+The home page (`/`) is a scroll-driven, mostly-WebGL experience: **scroll = walk through the world**: a red moon behind a giant torii, a tunnel of gates, the four shinobi, the ten realms, and finally the Devil's Door. It is plain HTML/CSS/ES modules + a vendored Three.js (no build step) and falls back to a normal readable page without JS, without WebGL, with reduced motion, or with data-saver.
+
+- How it is built, how to test it and the Cloudflare gotchas: [`AGENTS.md`](AGENTS.md#5-landing-page-cinematic-indexhtml-read-this-before-touching-it)
+- What is done and what is left, phase by phase: [`docs/LANDING_ROADMAP.md`](docs/LANDING_ROADMAP.md)
+- The creative brief: [`docs/LANDING_BRIEF.md`](docs/LANDING_BRIEF.md)
+
+```bash
+npm run serve          # local server that behaves like Cloudflare Pages (/game -> game.html), http://localhost:8080
+npm run test:all       # integrity + gameplay + world + HUD + landing/select checks
+```
+
+## ☁️ Deploying to Cloudflare Pages
+
+Static site, no build command, output directory = repo root. There is no `_redirects` file on purpose: do **not** add `/game /game.html 200` style rewrites (infinite redirect: Pages already serves `game.html` at `/game`). Keep `_headers` rules non-overlapping. Per-file limit 25 MiB.
+
