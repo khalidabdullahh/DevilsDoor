@@ -13,24 +13,20 @@
   <link rel="icon" type="image/x-icon" href="/src/assets/branding/favicon.ico" />
   <link rel="apple-touch-icon" sizes="192x192" href="/src/assets/branding/favicon-192x192.png" />
   <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/branding/favicon-512x512.png" />
-
   <!-- Canonical URL -->
   <link rel="canonical" href="https://devilsdoor.js.org/" />
-
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://devilsdoor.js.org/" />
   <meta property="og:title" content="DEVIL'S DOOR — A Shadow Assassin's Journey" />
   <meta property="og:description" content="Enter the endless dark fantasy domain. 4 legendary shinobi, 4K atmospheric realms, real-time points economy, and zero-blur cross-device gameplay." />
   <meta property="og:image" content="https://devilsdoor.js.org/src/assets/branding/master_cover.jpg" />
-
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:url" content="https://devilsdoor.js.org/" />
   <meta name="twitter:title" content="DEVIL'S DOOR — A Shadow Assassin's Journey" />
   <meta name="twitter:description" content="Run, jump, dash-slash, and survive through continuous procedural chunks in Devil's Door v2.2." />
   <meta name="twitter:image" content="https://devilsdoor.js.org/src/assets/branding/master_cover.jpg" />
-
   <!-- Schema.org JSON-LD Structured Data -->
   <script type="application/ld+json">
   {
@@ -82,453 +78,270 @@
     ]
   }
   </script>
-
   <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet" />
-  
   <script>document.documentElement.classList.add('js')</script>
-  <link rel="preload" as="image" href="/src/assets/web/master-cover.webp" type="image/webp" fetchpriority="high" />
-  <link rel="stylesheet" href="/website/css/theme.css" />
-  <link rel="stylesheet" href="/website/css/website.css" />
-  <link rel="stylesheet" href="/website/css/landing3d.css" />
+  <link rel="preload" href="/website/fonts/cinzel-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/website/fonts/barlow-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/website/css/cinema.css" />
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <canvas id="scene3d" aria-hidden="true"></canvas>
-  <!-- Header Navigation -->
-  <header class="site-header">
-    <nav class="nav-container">
-      <a href="/" class="brand-link" aria-label="Devil's Door Home">
-        <img src="/src/assets/web/logo-96.webp" alt="DEVIL'S DOOR" class="brand-logo-icon" width="96" height="96" decoding="async" />
-        <span class="brand-text"><span class="brand-devil">DEVIL'S</span> <span class="brand-door">DOOR</span></span>
-      </a>
-      <ul class="nav-links">
-        <li><a href="#domain">Domain</a></li>
-        <li><a href="#gameplay">Gameplay</a></li>
-        <li><a href="#shinobi">Shinobi</a></li>
-        <li><a href="#realms">Realms</a></li>
-        <li><a href="#progression">Progression</a></li>
-        <li><a href="#crossplay">Platforms</a></li>
-      </ul>
-      <div class="nav-actions">
-        <a href="/game" class="nav-cta-btn">⚔️ PLAY GAME</a>
-      </div>
-    </nav>
+  <a class="skip-link" href="#entry">Skip to the end</a>
+
+  <!-- the whole world is drawn here: one fixed WebGL canvas, scrolled through by the camera -->
+  <canvas id="world" aria-hidden="true"></canvas>
+  <div class="veil" id="veil" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor-glow" id="cursor" aria-hidden="true"></div>
+
+  <!-- Minimal HUD -->
+  <header class="hud-top">
+    <a class="hud-logo" href="/" aria-label="Devil&#39;s Door home">
+      <img src="/src/assets/web/logo-96.webp" alt="" width="40" height="40" decoding="async" />
+      <span>DEVIL&#39;S DOOR</span>
+    </a>
+    <a class="btn btn-play hud-play" href="/game">PLAY GAME<span class="arr" aria-hidden="true">&rarr;</span></a>
   </header>
 
+  <nav class="hud-rail" id="rail" aria-label="Chapters">
+    <ol>
+      <li><a href="#gate" data-ch="0"><b>01</b><span>THE VOID</span></a></li>
+      <li><a href="#gate" data-ch="1" data-at="0.16"><b>02</b><span>THE GATE</span></a></li>
+      <li><a href="#shadow" data-ch="2"><b>03</b><span>ENTER THE SHADOW</span></a></li>
+      <li><a href="#shinobi" data-ch="3"><b>04</b><span>CHOOSE YOUR SHADOW</span></a></li>
+      <li><a href="#realms" data-ch="4"><b>05</b><span>THE TEN REALMS</span></a></li>
+      <li><a href="#realms" data-ch="5" data-at="0.1"><b>06</b><span>REALM JOURNEY</span></a></li>
+      <li><a href="#door" data-ch="6"><b>07</b><span>THE DOOR</span></a></li>
+      <li><a href="#entry" data-ch="7"><b>08</b><span>FINAL ENTRY</span></a></li>
+    </ol>
+  </nav>
+  <div class="hud-progress" id="progress" aria-hidden="true"><i></i></div>
+
   <main id="main">
-    <!-- 1. Hero Section with Master Artwork Showcase -->
-    <section class="hero-section" id="hero">
-      <div class="hero-background-art"></div>
-      <div class="hero-content-wrapper">
-        <!-- Left Column: Hero Typography & CTA -->
-        <div class="hero-text-col">
-          <div class="hero-badge">VERSION 2.2 • OFFICIAL MASTER EDITION</div>
-          <h1 class="hero-logo-h1">
-            <picture>
-              <source srcset="/src/assets/web/logo-760.webp" type="image/webp" />
-              <img src="/src/assets/branding/logo.png" alt="Devil's Door: A Shadow Assassin's Journey" class="hero-logo-img" width="1024" height="1024" fetchpriority="high" decoding="async" />
-            </picture>
-          </h1>
-          <p class="hero-tagline">A SHADOW ASSASSIN'S JOURNEY</p>
-          <p class="hero-description">
-            Enter an infinite dark fantasy domain. Master 4 legendary shinobi, survive 10 atmospheric realms, dodge swinging blades, and cut through the shadows. Reach the door. Trust nothing.
-          </p>
 
-          <div class="hero-cta-group">
-            <a href="/game" class="btn-cta-primary" id="hero-play-btn">
-              <span class="cta-icon">⚔️</span>
-              <span class="cta-text">PLAY GAME NOW</span>
-              <span class="cta-arrow">➔</span>
-            </a>
-            <a href="#domain" class="btn-cta-secondary">
-              <span>⚡ EXPLORE REALMS</span>
-            </a>
-          </div>
-
-          <div class="hero-platform-pill">
-            <span class="pill-dot">●</span>
-            <span>AVAILABLE ON MOBILE PORTRAIT • TABLET • DESKTOP (ZERO BLUR 4K)</span>
-          </div>
-          <ul class="hero-stats" aria-label="Game at a glance">
-            <li><b data-count="4">4</b><span>Shinobi</span></li>
-            <li><b data-count="10">10</b><span>Realms</span></li>
-            <li><b>&infin;</b><span>Endless run</span></li>
-            <li><b>Free</b><span>In your browser</span></li>
-          </ul>
-          <div class="scroll-cue" aria-hidden="true"><i></i><span>Scroll to open the door</span></div>
-        </div>
-
-        <!-- Right Column: Epic Master Artwork Card -->
-        <div class="hero-visual-col">
-          <div class="hero-artwork-card">
-            <picture>
-              <source srcset="/src/assets/web/master-cover.webp" type="image/webp" />
-              <img src="/src/assets/branding/master_cover.jpg" alt="Devil's Door Master Shadow Assassin" class="hero-master-img" width="682" height="1024" fetchpriority="high" decoding="async" />
-            </picture>
-            <div class="hero-artwork-badge">
-              <span class="artwork-badge-title">DEVIL'S DOOR</span>
-              <span class="artwork-badge-tag">OFFICIAL MASTER ART</span>
-            </div>
+    <!-- 01 THE VOID + 02 THE GATE -->
+    <section class="scene" id="gate" data-scene="gate" style="--len:2.7" aria-labelledby="title">
+      <div class="stage">
+        <p class="void-line" id="void-line">THE DOOR REMEMBERS.</p>
+        <div class="gate-copy" id="gate-copy">
+          <h1 class="mega" id="title"><span class="mega-1">DEVIL&#39;S</span><span class="mega-2">DOOR</span></h1>
+          <p class="sub">A SHADOW ASSASSIN&#39;S JOURNEY</p>
+          <div class="cta">
+            <a class="btn btn-play" href="#shadow" data-go="shadow">ENTER THE DOOR<span class="arr" aria-hidden="true">&rarr;</span></a>
+            <a class="btn btn-ghost" href="/game">PLAY GAME</a>
           </div>
         </div>
+        <p class="scroll-cue" id="scroll-cue" aria-hidden="true"><i></i><span>SCROLL</span></p>
       </div>
     </section>
 
-    <!-- 2. Enter the Domain -->
-    <section id="domain" class="section domain-section">
-      <div class="section-container">
-        <div class="section-header">
-          <span class="section-tag">01 / THE SHADOW REALM</span>
-          <h2 class="section-title">Enter the Domain</h2>
-          <p class="section-subtitle">
-            An endless void forged from charcoal stone, spectral cyan mist, and blood-red twilight. Survival is earned with every blade stroke.
-          </p>
-        </div>
-
-        <div class="domain-cards-grid" data-stagger>
-          <article class="domain-card">
-            <span class="domain-icon">⛩️</span>
-            <h3 class="domain-card-title">The Gateway of Shadows</h3>
-            <p class="domain-card-text">
-              Step through the burning Torii threshold into an ever-expanding labyrinth where terrain continuously shifts ahead of your sprint.
-            </p>
-          </article>
-
-          <article class="domain-card">
-            <span class="domain-icon">🩸</span>
-            <h3 class="domain-card-title">The Price of Descent</h3>
-            <p class="domain-card-text">
-              Every 1,000 meters conquered earns valuable gameplay Points. Master wall-kicks, double jumps and a 3-hit katana combo to push deeper into the void.
-            </p>
-          </article>
-
-          <article class="domain-card">
-            <span class="domain-icon">👁️</span>
-            <h3 class="domain-card-title">Trust Nothing</h3>
-            <p class="domain-card-text">
-              Swinging blades, spinning skull-saws, crumbling bridges, and ruthless shadow guards. Every step deeper is harder.</p>
-          </article>
-        </div>
+    <!-- 03 ENTER THE SHADOW -->
+    <section class="scene" id="shadow" data-scene="shadow" style="--len:2.6" aria-label="Enter the shadow">
+      <div class="stage">
+        <p class="line" data-in="0.06" data-out="0.30">AN ENDLESS ROAD.</p>
+        <p class="line" data-in="0.34" data-out="0.58">BLADES IN THE DARK.</p>
+        <p class="line" data-in="0.62" data-out="0.86">TRUST NOTHING.</p>
+        <p class="facts" data-in="0.80" data-out="1.2"><b>4</b> SHINOBI <i></i> <b>10</b> REALMS <i></i> ONE ENDLESS DESCENT</p>
       </div>
     </section>
 
-    <!-- 3. Gameplay Experience -->
-    <section id="gameplay" class="section gameplay-section">
-      <div class="section-container">
-        <div class="section-header">
-          <span class="section-tag">02 / CORE MECHANICS</span>
-          <h2 class="section-title">Master the Endless Descent</h2>
-          <p class="section-subtitle">
-            Engineered with 60 FPS sub-pixel physics, multi-touch responsive controls, and high-octane shadow combat.
-          </p>
+    <!-- 04 CHOOSE YOUR SHADOW -->
+    <section class="scene" id="shinobi" data-scene="shinobi" style="--len:4.4" aria-labelledby="h-shinobi">
+      <div class="stage">
+        <div class="section-head" data-in="0.0" data-out="1.2">
+          <p class="eyebrow">04 <span>/ 08</span></p>
+          <h2 id="h-shinobi">CHOOSE YOUR SHADOW</h2>
         </div>
-
-        <div class="gameplay-grid" data-stagger>
-          <div class="gameplay-feature-card">
-            <div class="feature-badge">INFINITE CHUNKS</div>
-            <h3 class="feature-title">Procedural Terrain Generation</h3>
-            <p class="feature-desc">
-              High ledges, wall-sliding shafts, perilous spike pits, and floating stone platforms spawn dynamically ahead of you with zero stutter.
-            </p>
-          </div>
-
-          <div class="gameplay-feature-card">
-            <div class="feature-badge">10 REALMS</div>
-            <h3 class="feature-title">10 Atmospheric Realms</h3>
-            <p class="feature-desc">
-              Pick your realm. Each one has its own 4K backdrop, rim-lit terrain and mood, from sunset shrines to blood-moon temples.</p>
-          </div>
-
-          <div class="gameplay-feature-card">
-            <div class="feature-badge">COMBAT & AGILITY</div>
-            <h3 class="feature-title">Katana Combo, Dash &amp; Shuriken</h3>
-            <p class="feature-desc">
-              Chain a 3-hit katana combo, dash through danger with brief invincibility, and pick off distant threats with a limited stock of shuriken.
-            </p>
-          </div>
-
-          <div class="gameplay-feature-card">
-            <div class="feature-badge">LETHAL HAZARDS</div>
-            <h3 class="feature-title">Pendulum Blades & Spike Pits</h3>
-            <p class="feature-desc">
-              Time your acrobatics past giant swinging crescent scythes, spinning skull-saw wheels, and collapsing bridges.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. Choose Your Shinobi (Character Roster Showcase) -->
-    <section id="shinobi" class="section shinobi-section">
-      <div class="section-container">
-        <div class="section-header">
-          <span class="section-tag">03 / HAND-DRAWN NINJA SKETCH HEROES</span>
-          <h2 class="section-title">Choose Your Shinobi</h2>
-          <p class="section-subtitle">
-            Authentic hand-drawn dark fantasy ninja sketches featuring bespoke silhouettes, dynamic flowing cloth physics, and distinct combat attributes.
-          </p>
-        </div>
-
-        <div class="roster-grid" data-stagger>
-          <!-- Character 01 -->
-          <article class="hero-showcase-card">
-            <div class="hero-card-img-box">
-              <img src="/src/assets/web/hero-01-kage-ryu.webp" width="637" height="640" decoding="async" alt="01 Kage-Ryu Shadow Shinobi Sketch" loading="lazy" class="hero-card-img" />
-              <div class="hero-card-aura aura-purple"></div>
-            </div>
-            <div class="hero-card-body">
-              <span class="hero-serial">01 • FREE</span>
+        <ol class="hero-list" id="hero-list">
+          <li class="hero-item" data-i="0" data-hero="kage_ryu" data-accent="#a855f7" data-speed="550" data-jump="565" data-hearts="3" style="--accent:#a855f7">
+            <figure class="hero-fallback"><img src="/src/assets/web/char-01.webp" alt="KAGE-RYU, Shadow Shinobi: Clad in matte-black cowl armor with flowing crimson ribbons, striking from the void with dual swift katanas." width="1024" height="1024" loading="lazy" decoding="async" /></figure>
+            <div class="hero-info">
+              <p class="hero-serial">01<span> / 04</span></p>
               <h3 class="hero-name">KAGE-RYU</h3>
-              <p class="hero-title-tag">VOID SHADOW SHINOBI</p>
+              <p class="hero-title">SHADOW SHINOBI</p>
               <p class="hero-bio">Clad in matte-black cowl armor with flowing crimson ribbons, striking from the void with dual swift katanas.</p>
+              <dl class="hero-stats">
+                <div><dt>Weapon</dt><dd>DUAL KATANAS</dd></div>
+                <div class="bar" style="--v:67%"><dt>Speed</dt><dd>550</dd></div>
+                <div class="bar" style="--v:77%"><dt>Jump</dt><dd>565</dd></div>
+                <div class="pips"><dt>Vitality</dt><dd><i class="on"></i><i class="on"></i><i class="on"></i><i></i><span class="sr">3 hearts</span></dd></div>
+              </dl>
             </div>
-          </article>
-
-          <!-- Character 02 -->
-          <article class="hero-showcase-card">
-            <div class="hero-card-img-box">
-              <img src="/src/assets/web/hero-02-ryujin.webp" width="640" height="640" decoding="async" alt="02 Ryujin Dragon Ninja Sketch" loading="lazy" class="hero-card-img" />
-              <div class="hero-card-aura aura-orange"></div>
-            </div>
-            <div class="hero-card-body">
-              <span class="hero-serial">02 • UNLOCKED</span>
+          </li>
+          <li class="hero-item" data-i="1" data-hero="ryujin" data-accent="#f97316" data-speed="500" data-jump="540" data-hearts="4" style="--accent:#f97316">
+            <figure class="hero-fallback"><img src="/src/assets/web/char-02.webp" alt="RYUJIN, Dragon Ninja: A heavy juggernaut in demonic horned Oni armor, cleaving foes with a molten flame greatsword." width="1024" height="1024" loading="lazy" decoding="async" /></figure>
+            <div class="hero-info">
+              <p class="hero-serial">02<span> / 04</span></p>
               <h3 class="hero-name">RYUJIN</h3>
-              <p class="hero-title-tag">DRAGON-FLAME NINJA</p>
+              <p class="hero-title">DRAGON NINJA</p>
               <p class="hero-bio">A heavy juggernaut in demonic horned Oni armor, cleaving foes with a molten flame greatsword.</p>
+              <dl class="hero-stats">
+                <div><dt>Weapon</dt><dd>FLAME GREATSWORD</dd></div>
+                <div class="bar" style="--v:33%"><dt>Speed</dt><dd>500</dd></div>
+                <div class="bar" style="--v:60%"><dt>Jump</dt><dd>540</dd></div>
+                <div class="pips"><dt>Vitality</dt><dd><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><span class="sr">4 hearts</span></dd></div>
+              </dl>
             </div>
-          </article>
-
-          <!-- Character 03 -->
-          <article class="hero-showcase-card">
-            <div class="hero-card-img-box">
-              <img src="/src/assets/web/hero-03-raijin.webp" width="640" height="640" decoding="async" alt="03 Raijin Lightning Ronin Sketch" loading="lazy" class="hero-card-img" />
-              <div class="hero-card-aura aura-cyan"></div>
-            </div>
-            <div class="hero-card-body">
-              <span class="hero-serial">03 • UNLOCKED</span>
+          </li>
+          <li class="hero-item" data-i="2" data-hero="raijin" data-accent="#38bdf8" data-speed="540" data-jump="560" data-hearts="3" style="--accent:#38bdf8">
+            <figure class="hero-fallback"><img src="/src/assets/web/char-03.webp" alt="RAIJIN, Lightning Ronin: Wandering thunder warrior beneath a straw Kasa hat, wielding twin electric shock blades." width="1024" height="1024" loading="lazy" decoding="async" /></figure>
+            <div class="hero-info">
+              <p class="hero-serial">03<span> / 04</span></p>
               <h3 class="hero-name">RAIJIN</h3>
-              <p class="hero-title-tag">STORM LIGHTNING RONIN</p>
+              <p class="hero-title">LIGHTNING RONIN</p>
               <p class="hero-bio">Wandering thunder warrior beneath a straw Kasa hat, wielding twin electric shock blades.</p>
+              <dl class="hero-stats">
+                <div><dt>Weapon</dt><dd>TWIN SHOCK BLADES</dd></div>
+                <div class="bar" style="--v:60%"><dt>Speed</dt><dd>540</dd></div>
+                <div class="bar" style="--v:73%"><dt>Jump</dt><dd>560</dd></div>
+                <div class="pips"><dt>Vitality</dt><dd><i class="on"></i><i class="on"></i><i class="on"></i><i></i><span class="sr">3 hearts</span></dd></div>
+              </dl>
             </div>
-          </article>
-
-          <!-- Character 04 -->
-          <article class="hero-showcase-card">
-            <div class="hero-card-img-box">
-              <img src="/src/assets/web/hero-04-tsukuyomi.webp" width="626" height="640" decoding="async" alt="04 Tsukuyomi Crimson Kunoichi Sketch" loading="lazy" class="hero-card-img" />
-              <div class="hero-card-aura aura-crimson"></div>
-            </div>
-            <div class="hero-card-body">
-              <span class="hero-serial">04 • UNLOCKED</span>
+          </li>
+          <li class="hero-item" data-i="3" data-hero="tsukuyomi" data-accent="#f43f5e" data-speed="570" data-jump="575" data-hearts="3" style="--accent:#f43f5e">
+            <figure class="hero-fallback"><img src="/src/assets/web/char-04.webp" alt="TSUKUYOMI, Crimson Kunoichi: Porcelain-masked acrobatic reaper slicing through the shadows with dual crescent Kama sickles." width="1024" height="1024" loading="lazy" decoding="async" /></figure>
+            <div class="hero-info">
+              <p class="hero-serial">04<span> / 04</span></p>
               <h3 class="hero-name">TSUKUYOMI</h3>
-              <p class="hero-title-tag">CRIMSON KUNOICHI</p>
+              <p class="hero-title">CRIMSON KUNOICHI</p>
               <p class="hero-bio">Porcelain-masked acrobatic reaper slicing through the shadows with dual crescent Kama sickles.</p>
+              <dl class="hero-stats">
+                <div><dt>Weapon</dt><dd>DUAL KAMA SICKLES</dd></div>
+                <div class="bar" style="--v:80%"><dt>Speed</dt><dd>570</dd></div>
+                <div class="bar" style="--v:83%"><dt>Jump</dt><dd>575</dd></div>
+                <div class="pips"><dt>Vitality</dt><dd><i class="on"></i><i class="on"></i><i class="on"></i><i></i><span class="sr">3 hearts</span></dd></div>
+              </dl>
             </div>
-          </article>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 05 THE TEN REALMS + 06 REALM JOURNEY -->
+    <section class="scene" id="realms" data-scene="realms" style="--len:11" aria-labelledby="h-realms">
+      <div class="stage">
+        <div class="realms-title" id="realms-title">
+          <p class="eyebrow">05 <span>/ 08</span></p>
+          <h2 id="h-realms">THE TEN REALMS</h2>
+        </div>
+        <ol class="realm-list" id="realm-list">
+          <li class="realm-item" data-i="0" data-accent="#ef4444" style="--accent:#ef4444">
+            <figure class="realm-fallback"><img src="/src/assets/web/realm-01.webp" alt="Sunset Sanctuary: A crimson sky burns over a still lake and a lone torii gate." width="720" height="402" loading="lazy" decoding="async" /></figure>
+            <div class="realm-info">
+              <p class="realm-tag">REALM 01 <span>/ UNLOCKED</span></p>
+              <h3 class="realm-name">SUNSET SANCTUARY</h3>
+              <p class="realm-line">A crimson sky burns over a still lake and a lone torii gate.</p>
+            </div>
+          </li>
+          <li class="realm-item" data-i="1" data-accent="#06b6d4" style="--accent:#06b6d4">
+            <figure class="realm-fallback"><img src="/src/assets/web/realm-02.webp" alt="Moonlight Citadel: Moonlit pagodas and broken bridges above dark water." width="720" height="402" loading="lazy" decoding="async" /></figure>
+            <div class="realm-info">
+              <p class="realm-tag">REALM 02 <span>/ UNLOCKED</span></p>
+              <h3 class="realm-name">MOONLIGHT CITADEL</h3>
+              <p class="realm-line">Moonlit pagodas and broken bridges above dark water.</p>
+            </div>
+          </li>
+          <li class="realm-item" data-i="2" data-accent="#10b981" style="--accent:#10b981">
+            <figure class="realm-fallback"><img src="/src/assets/web/realm-03.webp" alt="Shadow Scythe Grove: Chained scythes swing through a mist-choked forest." width="720" height="402" loading="lazy" decoding="async" /></figure>
+            <div class="realm-info">
+              <p class="realm-tag">REALM 03 <span>/ UNLOCKED</span></p>
+              <h3 class="realm-name">SHADOW SCYTHE GROVE</h3>
+              <p class="realm-line">Chained scythes swing through a mist-choked forest.</p>
+            </div>
+          </li>
+          <li class="realm-item" data-i="3" data-accent="#f43f5e" style="--accent:#f43f5e">
+            <figure class="realm-fallback"><img src="/src/assets/web/realm-04.webp" alt="Ruby Crystal Abyss: Blood-red crystals cling to the walls of a lightless chasm." width="720" height="402" loading="lazy" decoding="async" /></figure>
+            <div class="realm-info">
+              <p class="realm-tag">REALM 04 <span>/ UNLOCKED</span></p>
+              <h3 class="realm-name">RUBY CRYSTAL ABYSS</h3>
+              <p class="realm-line">Blood-red crystals cling to the walls of a lightless chasm.</p>
+            </div>
+          </li>
+          <li class="realm-item" data-i="4" data-accent="#10b981" style="--accent:#10b981">
+            <figure class="realm-fallback"><img src="/src/assets/web/realm-05.webp" alt="Shadow Bamboo Grove: A rope bridge sways under a sunset sky as a giant whale drifts by." width="720" height="402" loading="lazy" decoding="async" /></figure>
+            <div class="realm-info">
+              <p class="realm-tag">REALM 05 <span>/ UNLOCKED</span></p>
+              <h3 class="realm-name">SHADOW BAMBOO GROVE</h3>
+              <p class="realm-line">A rope bridge sways under a sunset sky as a giant whale drifts by.</p>
+            </div>
+          </li>
+          <li class="realm-item" data-i="5" data-accent="#e11d48" style="--accent:#e11d48">
+            <figure class="realm-fallback"><img src="/src/assets/web/realm-06.webp" alt="Crimson Pagoda: A fire-breathing dragon guards a burning fortress wall." width="720" height="402" loading="lazy" decoding="async" /></figure>
+            <div class="realm-info">
+              <p class="realm-tag">REALM 06 <span>/ UNLOCKED</span></p>
+              <h3 class="realm-name">CRIMSON PAGODA</h3>
+              <p class="realm-line">A fire-breathing dragon guards a burning fortress wall.</p>
+            </div>
+          </li>
+          <li class="realm-item" data-i="6" data-accent="#8b5cf6" style="--accent:#8b5cf6">
+            <figure class="realm-fallback"><img src="/src/assets/web/realm-07.webp" alt="Devil&#39;S Gate Abyss: A giant skeleton rises over a moonlit graveyard." width="720" height="402" loading="lazy" decoding="async" /></figure>
+            <div class="realm-info">
+              <p class="realm-tag">REALM 07 <span>/ UNLOCKED</span></p>
+              <h3 class="realm-name">DEVIL&#39;S GATE ABYSS</h3>
+              <p class="realm-line">A giant skeleton rises over a moonlit graveyard.</p>
+            </div>
+          </li>
+          <li class="realm-item" data-i="7" data-accent="#38bdf8" style="--accent:#38bdf8">
+            <figure class="realm-fallback"><img src="/src/assets/web/realm-08.webp" alt="Celestial Dragon Ruins: A lone shinobi faces the sunrise from a mountain-peak torii." width="720" height="402" loading="lazy" decoding="async" /></figure>
+            <div class="realm-info">
+              <p class="realm-tag">REALM 08 <span>/ UNLOCKED</span></p>
+              <h3 class="realm-name">CELESTIAL DRAGON RUINS</h3>
+              <p class="realm-line">A lone shinobi faces the sunrise from a mountain-peak torii.</p>
+            </div>
+          </li>
+          <li class="realm-item" data-i="8" data-accent="#f59e0b" style="--accent:#f59e0b">
+            <figure class="realm-fallback"><img src="/src/assets/web/realm-09.webp" alt="Obsidian Peak: A huge spider waits in a crystal-veined, web-choked cave." width="720" height="402" loading="lazy" decoding="async" /></figure>
+            <div class="realm-info">
+              <p class="realm-tag">REALM 09 <span>/ UNLOCKED</span></p>
+              <h3 class="realm-name">OBSIDIAN PEAK</h3>
+              <p class="realm-line">A huge spider waits in a crystal-veined, web-choked cave.</p>
+            </div>
+          </li>
+          <li class="realm-item" data-i="9" data-accent="#dc2626" style="--accent:#dc2626">
+            <figure class="realm-fallback"><img src="/src/assets/web/realm-10.webp" alt="Blood Moon Sanctuary: A silhouette duel inside a blood-red temple." width="720" height="402" loading="lazy" decoding="async" /></figure>
+            <div class="realm-info">
+              <p class="realm-tag">REALM 10 <span>/ UNLOCKED</span></p>
+              <h3 class="realm-name">BLOOD MOON SANCTUARY</h3>
+              <p class="realm-line">A silhouette duel inside a blood-red temple.</p>
+            </div>
+          </li>
+        </ol>
+        <div class="realm-pips" id="realm-pips" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </section>
+
+    <!-- 07 THE DOOR -->
+    <section class="scene" id="door" data-scene="door" style="--len:4" aria-labelledby="h-door">
+      <div class="stage">
+        <p class="eyebrow door-eyebrow" data-in="0.02" data-out="1.2">07 <span>/ 08</span></p>
+        <h2 class="mega small" id="h-door" data-in="0.04" data-out="0.34">THE DOOR</h2>
+        <p class="line big" data-in="0.30" data-out="0.62">EVERY SHADOW LEADS HERE.</p>
+      </div>
+    </section>
+
+    <!-- 08 FINAL ENTRY -->
+    <section class="scene" id="entry" data-scene="entry" style="--len:2.2" aria-labelledby="h-entry">
+      <div class="stage">
+        <p class="line big" id="h-entry" data-in="0.02" data-out="0.40">WELCOME TO THE OTHER SIDE.</p>
+        <div class="final" data-in="0.46" data-out="2">
+          <p class="eyebrow">08 <span>/ 08</span></p>
+          <p class="mega" aria-hidden="true"><span class="mega-1">DEVIL&#39;S</span><span class="mega-2">DOOR</span></p>
+          <div class="cta">
+            <a class="btn btn-play" href="/game">ENTER THE GAME<span class="arr" aria-hidden="true">&rarr;</span></a>
+            <a class="btn btn-ghost" href="#realms" data-go="realms">EXPLORE THE REALMS</a>
+          </div>
+          <footer class="foot">
+            <span>&copy; 2026 Khalid Abdullah &middot; Devil&#39;s Door v2.2 &middot; Commercial rights reserved &middot; PEGI 12 compliant</span>
+            <span><a href="https://github.com/khalidabdullahh/DevilsDoor">GitHub</a> &middot; <a href="https://github.com/khalidabdullahh/DevilsDoor/releases">Releases</a> &middot; <a href="https://developer.crazygames.com">CrazyGames</a></span>
+          </footer>
         </div>
       </div>
     </section>
 
-    <!-- 5. Explore the Scenes (4K Realm Showcase) -->
-    <section id="realms" class="section realms-section">
-      <div class="section-container">
-        <div class="section-header">
-          <span class="section-tag">04 / 10 ATMOSPHERIC REALMS</span>
-          <h2 class="section-title">Explore the Scenes</h2>
-          <p class="section-subtitle">
-            Ten hand-crafted 4K backdrops, each with its own rim-lit terrain. Swipe or scroll sideways to tour them all.
-          </p>
-        </div>
-        <div class="realm-strip" tabindex="0" role="region" aria-label="The ten realms (scroll sideways)">
-          <article class="realm-tile" style="--rt:#ef4444">
-            <img src="/src/assets/web/realm-01.webp" alt="Sunset Sanctuary realm artwork" width="720" height="402" loading="lazy" decoding="async" />
-            <div class="rt-body"><span class="rt-num">REALM 01</span><h3>SUNSET SANCTUARY</h3><p>A crimson sky burns over a still lake and a lone torii gate.</p></div>
-          </article>
-          <article class="realm-tile" style="--rt:#06b6d4">
-            <img src="/src/assets/web/realm-02.webp" alt="Moonlight Citadel realm artwork" width="720" height="402" loading="lazy" decoding="async" />
-            <div class="rt-body"><span class="rt-num">REALM 02</span><h3>MOONLIGHT CITADEL</h3><p>Moonlit pagodas and broken bridges above dark water.</p></div>
-          </article>
-          <article class="realm-tile" style="--rt:#10b981">
-            <img src="/src/assets/web/realm-03.webp" alt="Shadow Scythe Grove realm artwork" width="720" height="402" loading="lazy" decoding="async" />
-            <div class="rt-body"><span class="rt-num">REALM 03</span><h3>SHADOW SCYTHE GROVE</h3><p>Chained scythes swing through a mist-choked forest.</p></div>
-          </article>
-          <article class="realm-tile" style="--rt:#f43f5e">
-            <img src="/src/assets/web/realm-04.webp" alt="Ruby Crystal Abyss realm artwork" width="720" height="402" loading="lazy" decoding="async" />
-            <div class="rt-body"><span class="rt-num">REALM 04</span><h3>RUBY CRYSTAL ABYSS</h3><p>Blood-red crystals cling to the walls of a lightless chasm.</p></div>
-          </article>
-          <article class="realm-tile" style="--rt:#84cc16">
-            <img src="/src/assets/web/realm-05.webp" alt="Shadow Bamboo Grove realm artwork" width="720" height="402" loading="lazy" decoding="async" />
-            <div class="rt-body"><span class="rt-num">REALM 05</span><h3>SHADOW BAMBOO GROVE</h3><p>A rope bridge sways under a sunset sky as a giant whale drifts by.</p></div>
-          </article>
-          <article class="realm-tile" style="--rt:#fbbf24">
-            <img src="/src/assets/web/realm-06.webp" alt="Crimson Pagoda realm artwork" width="720" height="402" loading="lazy" decoding="async" />
-            <div class="rt-body"><span class="rt-num">REALM 06</span><h3>CRIMSON PAGODA</h3><p>A fire-breathing dragon guards a burning fortress wall.</p></div>
-          </article>
-          <article class="realm-tile" style="--rt:#a855f7">
-            <img src="/src/assets/web/realm-07.webp" alt="Devil's Gate Abyss realm artwork" width="720" height="402" loading="lazy" decoding="async" />
-            <div class="rt-body"><span class="rt-num">REALM 07</span><h3>DEVIL&#39;S GATE ABYSS</h3><p>A giant skeleton rises over a moonlit graveyard.</p></div>
-          </article>
-          <article class="realm-tile" style="--rt:#fde68a">
-            <img src="/src/assets/web/realm-08.webp" alt="Celestial Dragon Ruins realm artwork" width="720" height="402" loading="lazy" decoding="async" />
-            <div class="rt-body"><span class="rt-num">REALM 08</span><h3>CELESTIAL DRAGON RUINS</h3><p>A lone shinobi faces the sunrise from a mountain-peak torii.</p></div>
-          </article>
-          <article class="realm-tile" style="--rt:#cbd5e1">
-            <img src="/src/assets/web/realm-09.webp" alt="Obsidian Peak realm artwork" width="720" height="402" loading="lazy" decoding="async" />
-            <div class="rt-body"><span class="rt-num">REALM 09</span><h3>OBSIDIAN PEAK</h3><p>A huge spider waits in a crystal-veined, web-choked cave.</p></div>
-          </article>
-          <article class="realm-tile" style="--rt:#b91c1c">
-            <img src="/src/assets/web/realm-10.webp" alt="Blood Moon Sanctuary realm artwork" width="720" height="402" loading="lazy" decoding="async" />
-            <div class="rt-body"><span class="rt-num">REALM 10</span><h3>BLOOD MOON SANCTUARY</h3><p>A silhouette duel inside a blood-red temple.</p></div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. Progress & Unlock System -->
-    <section id="progression" class="section progression-section">
-      <div class="section-container">
-        <div class="section-header">
-          <span class="section-tag">05 / PROGRESSION</span>
-          <h2 class="section-title">Progress &amp; Points</h2>
-          <p class="section-subtitle">
-            Survive the endless descent to bank Points in your persistent wallet. Every shinobi and realm is open from your very first run.
-          </p>
-        </div>
-
-        <div class="progression-flow">
-          <div class="flow-step">
-            <div class="step-circle">1</div>
-            <h3 class="step-heading">PLAY RUN</h3>
-            <p class="step-text">Choose your shinobi and enter the endless domain.</p>
-          </div>
-          <div class="flow-arrow">➔</div>
-
-          <div class="flow-step">
-            <div class="step-circle">2</div>
-            <h3 class="step-heading">TRAVEL 1,000M</h3>
-            <p class="step-text">Survive lethal traps and shadow guards in the procedural world.</p>
-          </div>
-          <div class="flow-arrow">➔</div>
-
-          <div class="flow-step">
-            <div class="step-circle">3</div>
-            <h3 class="step-heading">EARN +10 POINTS</h3>
-            <p class="step-text">Receive real-time milestone points directly into your persistent wallet.</p>
-          </div>
-          <div class="flow-arrow">➔</div>
-
-          <div class="flow-step">
-            <div class="step-circle">4</div>
-            <h3 class="step-heading">GO DEEPER</h3>
-            <p class="step-text">Pick any of the 4 shinobi and 10 realms. The deeper you go, the harder it gets.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 7. Play Your Way (Cross-Platform) -->
-    <section id="crossplay" class="section crossplay-section">
-      <div class="section-container">
-        <div class="section-header">
-          <span class="section-tag">06 / CROSS-PLATFORM EXCELLENCE</span>
-          <h2 class="section-title">Play Your Way</h2>
-          <p class="section-subtitle">
-            Seamlessly engineered for mobile vertical thumb play, tablet landscape, and desktop precision.
-          </p>
-        </div>
-
-        <div class="crossplay-grid" data-stagger>
-          <div class="crossplay-card">
-            <span class="crossplay-icon">📱</span>
-            <h3 class="crossplay-title">Mobile Portrait Gamepad</h3>
-            <p class="crossplay-text">
-              Dedicated handheld arcade console deck below a 16:9 upper viewport. Large green Jump button, smooth D-pad sliding, and haptic vibration.
-            </p>
-          </div>
-
-          <div class="crossplay-card">
-            <span class="crossplay-icon">🔄</span>
-            <h3 class="crossplay-title">Landscape & Fullscreen</h3>
-            <p class="crossplay-text">
-              Rotate your device or press the top-right Fullscreen button for a 100% immersive edge-to-edge view with sleek unobtrusive HUD.
-            </p>
-          </div>
-
-          <div class="crossplay-card">
-            <span class="crossplay-icon">💻</span>
-            <h3 class="crossplay-title">Desktop & Gamepad</h3>
-            <p class="crossplay-text">
-              Ultra-high framerate keyboard (WASD/Arrows, Space/J, K, L) and hardware gamepad controller support on any modern browser.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 8. Final Call to Action -->
-    <section class="section final-cta-section">
-      <div class="final-cta-card">
-        <span class="final-cta-emblem">⛩️</span>
-        <h2 class="final-cta-title">ENTER DEVIL'S DOOR</h2>
-        <p class="final-cta-subtitle">
-          The endless descent awaits your blade. Choose your shinobi and conquer the shadow realms today.
-        </p>
-        <a href="/game" class="btn-cta-primary final-play-btn">
-          <span>⚔️ PLAY NOW — FREE IN BROWSER</span>
-          <span>➔</span>
-        </a>
-      </div>
-    </section>
   </main>
 
-  <!-- 9. Footer -->
-  <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-brand">
-        <a href="/" class="brand-link" style="margin-bottom: 12px;">
-          <img src="/src/assets/web/logo-96.webp" alt="DEVIL'S DOOR" class="brand-logo-icon" width="96" height="96" decoding="async" />
-          <span class="brand-text" style="font-size: 1.35rem;"><span class="brand-devil">DEVIL'S</span> <span class="brand-door">DOOR</span></span>
-        </a>
-        <p class="footer-tagline">DEVIL'S DOOR: A Shadow Assassin's Journey • Endless Dark-Fantasy Action Game</p>
-      </div>
-
-      <div class="footer-links-group">
-        <div class="footer-col">
-          <h4>GAMEPLAY</h4>
-          <ul>
-            <li><a href="/game">Play Game</a></li>
-            <li><a href="#shinobi">Shinobi Roster</a></li>
-            <li><a href="#realms">4K Realms</a></li>
-            <li><a href="#progression">Point Economy</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>DEVELOPER</h4>
-          <ul>
-            <li><a href="https://github.com/khalidabdullahh/DevilsDoor" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
-            <li><a href="https://github.com/khalidabdullahh/DevilsDoor/releases" target="_blank" rel="noopener noreferrer">Version Releases (v2.2)</a></li>
-            <li><a href="https://developer.crazygames.com" target="_blank" rel="noopener noreferrer">CrazyGames Publisher</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>LEGAL & IP</h4>
-          <ul>
-            <li><span class="footer-legal-text">© 2026 Khalid Abdullah</span></li>
-            <li><span class="footer-legal-text">Commercial Rights Reserved</span></li>
-            <li><span class="footer-legal-text">PEGI 12 Compliant</span></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>Devil's Door v2.2 (vNext Master Edition) • Developed & Directed by <strong>Khalid Abdullah</strong>.</p>
-    </div>
-  </footer>
-
-  <script src="/website/js/website.js"></script>
-  <script src="/website/js/landing.js" defer></script>
+  <noscript><style>.void-line{opacity:1!important;animation:none!important}</style></noscript>
+  <script src="/website/js/vendor/three.min.js" defer></script>
+  <script type="module" src="/website/js/cinema/main.js"></script>
 </body>
 </html>

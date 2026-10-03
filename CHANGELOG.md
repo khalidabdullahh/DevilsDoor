@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- Cinematic scroll-driven landing page (`index.html`, `website/css/cinema.css`, `website/js/cinema/*`): moon + torii hero, gate tunnel, shinobi showcase with shader dissolve, 10-realm horizontal journey, the Door, final entry. Self-hosted Cinzel + Barlow Condensed fonts, vendored Three.js r128.
+- Gameplay: 3-hit katana combo, separate dash, coyote time / jump buffer / variable jump, knockback instead of teleport, hit-stop, shuriken ammo, difficulty ramp, diamonds + life orbs, per-realm terrain themes, HUD stats.
+- Select screens: animated carousel, realm backdrop, on-demand realm backgrounds.
+- `scripts/visual/` (real-browser screenshot tool, Pages-like dev server), test suites `test:gameplay`, `test:world`, `test:hud`, `test:landing`, `test:all`.
+- Docs: `docs/LANDING_BRIEF.md`, `docs/LANDING_ROADMAP.md`, ADR-007 (PROPOSED).
+
+### Fixed
+- `/game` redirect loop on Cloudflare Pages (`ERR_TOO_MANY_REDIRECTS`): removed the `.html` rewrites.
+- `_headers`: overlapping rules produced conflicting `Cache-Control` and an invalid CORS header.
+- Dash hit enemies every frame (about 13 hits per dash); realm gallery drifted off-screen from realm 3; HUD rebuilt its DOM every frame; all 10 realm backgrounds were decoded at startup.
+
+---
+
 ## [2.1.0] - 2026-09-04 (Current Active Version)
 
 ### Added
