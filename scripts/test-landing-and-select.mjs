@@ -111,7 +111,7 @@ const ok = (name, cond, extra = '') => { (cond ? pass++ : fail++); console.log(`
   ok('Three.js is vendored with its license and loaded by a deferred script', exists('/website/js/vendor/three.min.js') && exists('/website/js/vendor/three.LICENSE.txt') && /three\.min\.js" defer/.test(html));
   ok('first-load budget: HTML + CSS + JS + Three.js < 900 KB raw', Math.round((size('/index.html') + size('/website/css/cinema.css') + size('/website/js/vendor/three.min.js') + files.reduce((a, f) => a + size('/website/js/cinema/' + f), 0)) / 1024) < 900);
   ok('old landing files that nothing uses are gone (landing.js, scene3d.js, landing3d.css)', !exists('/website/js/landing.js') && !exists('/website/js/scene3d.js') && !exists('/website/css/landing3d.css'));
-  ok('_redirects has no /game or /play rewrite (they loop on Cloudflare Pages)', !/^\/(game|play)\s/m.test(read('_redirects')));
+  ok('no /game or /play rewrite in _redirects (they loop on Cloudflare Pages; the file may be absent)', !exists('/_redirects') || !/^\/(game|play)\s/m.test(read('_redirects')));
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

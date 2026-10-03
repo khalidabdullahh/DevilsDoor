@@ -47,7 +47,6 @@ const requiredRootFiles = [
   'robots.txt',
   'sitemap.xml',
   'vercel.json',
-  '_redirects',
   '_headers'
 ];
 

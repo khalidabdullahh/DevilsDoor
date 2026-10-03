@@ -196,5 +196,5 @@ npm run test:all       # integrity + gameplay + world + HUD + landing/select che
 
 ## ☁️ Deploying to Cloudflare Pages
 
-Static site, no build command, output directory = repo root. Do **not** add `/game /game.html 200` style rewrites (infinite redirect: Pages already serves `game.html` at `/game`). Keep `_headers` rules non-overlapping. Per-file limit 25 MiB.
+Static site, no build command, output directory = repo root. There is no `_redirects` file on purpose: do **not** add `/game /game.html 200` style rewrites (infinite redirect: Pages already serves `game.html` at `/game`). Keep `_headers` rules non-overlapping. Per-file limit 25 MiB.
 

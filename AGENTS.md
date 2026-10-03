@@ -97,7 +97,7 @@ NODE_PATH=/tmp/br/node_modules node <repo>/scripts/visual/shot.mjs phone 390 844
 Headless WebGL is software-rendered (~1-3 fps): judge **composition and bugs, not speed**. `?debug` exposes `window.__cinema` (scene positions, `skipIntro()`).
 
 **Cloudflare Pages gotchas (they already broke production once)**
-- Pages serves `game.html` at `/game` by itself. A rewrite like `/game /game.html 200` loops forever (`ERR_TOO_MANY_REDIRECTS`). Never rewrite to `.html`.
+- Pages serves `game.html` at `/game` by itself. A rewrite like `/game /game.html 200` (the old `_redirects`, now deleted) loops forever (`ERR_TOO_MANY_REDIRECTS`). Never rewrite to `.html`.
 - If several `_headers` rules match one URL, Cloudflare **joins** same-name headers with commas (two `Cache-Control` values, `Access-Control-Allow-Origin: *, *`). Keep rules disjoint.
 - Limits: 25 MiB per file, 20,000 files. Do not commit zip/video build artifacts.
 - No secrets in the repo or in chat logs: a GitHub token was pasted in a chat once; it must stay revoked.
