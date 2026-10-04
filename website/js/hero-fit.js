@@ -10,7 +10,7 @@
   function fit() {
     var W = frame.clientWidth, H = frame.clientHeight;
     var portrait = W / H < 0.8;
-    var targetW = (portrait ? 0.88 : 0.68) * W;
+    var targetW = (portrait ? 0.88 : 0.72) * W;
     var maxH = (portrait ? 0.4 : 0.74) * H;
     var inv = 0, widths = lines.map(function (ln) {
       var s = ln.firstElementChild; ln.style.fontSize = '100px';

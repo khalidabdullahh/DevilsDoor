@@ -1,0 +1,15 @@
+{
+  "name": "Devil's Door",
+  "short_name": "Devil's Door",
+  "description": "An endless dark-fantasy 2.5D action game.",
+  "start_url": "/game",
+  "scope": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#d9d7e9",
+  "theme_color": "#d9d7e9",
+  "icons": [
+    { "src": "/src/assets/branding/favicon-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/src/assets/branding/favicon-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

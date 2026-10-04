@@ -7,6 +7,7 @@
   --paper:#d9d7e9;      /* lavender page */
   --slate:#4a5568;      /* headline */
   --ember:#e8481c;      /* accent */
+  --gold:#ffb800;       /* headline: DEVIL'S DOOR (flat gold, no glow) */
   --ink:#0c0c10;        /* frame */
   --gap:clamp(10px,2.6vmin,28px);
 }
@@ -31,25 +32,26 @@ body{background:#cfcde1;padding:var(--gap);font-family:"Barlow Condensed","Arial
 
 /* headline: three lines, each scaled by hero-fit.js so the block reads as one slab */
 .headline{
-  position:absolute;left:5.5cqw;top:11cqh;width:68cqw;z-index:1;
+  position:absolute;left:50%;transform:translateX(-50%);top:11cqh;width:70cqw;z-index:1;
   font-family:"Dela Gothic One","Arial Black",Impact,sans-serif;font-weight:400;
   color:var(--slate);line-height:.9;text-transform:uppercase;letter-spacing:-.01em;
 }
-.headline .ln{display:block;white-space:nowrap;overflow:hidden;padding-bottom:.04em}
+.headline .ln{display:block;white-space:nowrap;overflow:visible;clip-path:inset(0 -.12em 0 -.12em);padding-bottom:.04em} /* masks the rise animation vertically, but lets letter edges breathe sideways */
 .headline .ln>span{display:inline-block}
-.headline .ln:nth-child(1){font-size:min(9.4cqw,13cqh)}
+.headline .gold{color:var(--gold)}
+.headline .ln:nth-child(1){font-size:min(8.6cqw,12cqh)}
 .headline .ln:nth-child(2){font-size:min(12cqw,17cqh)}
 .headline .ln:nth-child(3){font-size:min(21cqw,29cqh)}
 
 /* portrait stands in front of the type, cropped by the frame at the bottom */
 .hero-img{
-  position:absolute;z-index:2;bottom:0;left:67%;transform:translateX(-50%);
+  position:absolute;z-index:2;bottom:0;left:50%;transform:translateX(-50%);
   height:min(66cqh,118cqw);width:auto;max-width:none;pointer-events:none;user-select:none;
 }
 
 /* small print */
 .tag{position:absolute;left:4.2cqw;bottom:6cqh;z-index:3;font-size:clamp(14px,1.55cqw,22px);line-height:1.12;letter-spacing:.03em}
-.blurb{position:absolute;right:4.2cqw;top:41cqh;z-index:3;width:min(22cqw,260px);font-size:clamp(12px,1.25cqw,17px);line-height:1.25;text-align:right;text-transform:none;font-weight:600}
+.blurb{position:absolute;right:4.2cqw;bottom:calc(6cqh + clamp(15px,1.7cqw,24px)*2.9);z-index:3;width:min(22cqw,260px);font-size:clamp(12px,1.25cqw,17px);line-height:1.25;text-align:right;text-transform:none;font-weight:600}
 .play{
   position:absolute;right:4.2cqw;bottom:6cqh;z-index:5;
   display:inline-flex;align-items:center;gap:.7em;
@@ -74,8 +76,8 @@ body{background:#cfcde1;padding:var(--gap);font-family:"Barlow Condensed","Arial
 
 /* portrait phones: type on top, portrait big and centred, buttons along the bottom */
 @container (max-aspect-ratio:4/5){
-  .headline{left:6cqw;width:88cqw;top:19cqh}
-  .headline .ln:nth-child(1){font-size:min(13.5cqw,9cqh)}
+  .headline{left:50%;width:88cqw;top:19cqh}
+  .headline .ln:nth-child(1){font-size:min(12.5cqw,9cqh)}
   .headline .ln:nth-child(2){font-size:min(17cqw,11cqh)}
   .headline .ln:nth-child(3){font-size:min(30cqw,19cqh)}
   .hero-img{left:50%;height:min(66cqh,134cqw)}
@@ -84,3 +86,6 @@ body{background:#cfcde1;padding:var(--gap);font-family:"Barlow Condensed","Arial
   .tag{font-size:clamp(12px,3.6cqw,16px);bottom:5cqh;left:6cqw}
   .play{right:6cqw;bottom:4.2cqh;font-size:clamp(14px,4.2cqw,20px)}
 }
+
+/* short landscape phones: the blurb would collide with the headline, so hide it */
+@container (max-height:430px){.blurb{display:none}}
