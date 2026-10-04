@@ -64,7 +64,11 @@ All contributions are subject to review and final authority by **Khalid Abdullah
 
 ---
 
-## 5. Landing page (cinematic, `index.html`): read this before touching it
+## 5. Landing page: current `index.html` is the poster-style hero
+
+`index.html` (+ identical copy `website/index.html`) is now a single poster-style hero: huge headline, the founder's cutout portrait in front of it, Play Now -> `/game`. Styles in `website/css/landing.css`, headline fitting in `website/js/hero-fit.js`, display font Dela Gothic One (self-hosted, OFL). The earlier scroll-driven WebGL journey is kept, unchanged, at `/cinematic` (`cinematic.html`); the rules below describe that page.
+
+## 5b. Cinematic landing (`cinematic.html`): read this before touching it
 
 **Status and next steps:** [`docs/LANDING_ROADMAP.md`](docs/LANDING_ROADMAP.md). **What the founder asked for:** [`docs/LANDING_BRIEF.md`](docs/LANDING_BRIEF.md). Creative rule: *atmosphere over UI, cinematic transition over another card, visual storytelling over more text.*
 

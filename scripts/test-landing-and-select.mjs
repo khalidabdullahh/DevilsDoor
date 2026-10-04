@@ -64,9 +64,11 @@ const ok = (name, cond, extra = '') => { (cond ? pass++ : fail++); console.log(`
   const exists = (p) => fs.existsSync(new URL('.' + p, root));
   const size = (p) => fs.statSync(new URL('.' + p, root)).size;
   const decode = (t) => t.replace(/&#39;/g, "'").replace(/&amp;/g, '&');
-  const html = read('index.html'), css = read('website/css/cinema.css'), main = read('website/js/cinema/main.js'), world = read('website/js/cinema/world.js');
+  const html = read('cinematic.html'), css = read('website/css/cinema.css'), main = read('website/js/cinema/main.js'), world = read('website/js/cinema/world.js');
 
-  ok('website/index.html is an exact copy of index.html', html === read('website/index.html'));
+  ok('website/index.html is an exact copy of index.html', read('index.html') === read('website/index.html'));
+  const lp = read('index.html');
+  ok('landing: one <h1>, Play Now points at /game, portrait + fonts exist', (lp.match(/<h1[\s>]/g) || []).length === 1 && /class="play" href="\/game"/.test(lp) && exists('/src/assets/web/landing-khalid.webp') && exists('/website/fonts/dela-gothic-one-latin-400-normal.woff2'));
   ok('exactly one <h1>', (html.match(/<h1[\s>]/g) || []).length === 1);
   ok('6 scroll scenes and an 8-chapter HUD rail', (html.match(/data-scene="/g) || []).length === 6 && (html.match(/data-ch="/g) || []).length === 8);
   ok('PLAY GAME / ENTER THE GAME all point at /game', (html.match(/href="\/game"/g) || []).length >= 3);
@@ -109,7 +111,7 @@ const ok = (name, cond, extra = '') => { (cond ? pass++ : fail++); console.log(`
   const bad = files.filter((f) => spawnSync(process.execPath, ['--input-type=module', '--check'], { input: read('website/js/cinema/' + f) }).status !== 0);
   ok(`all ${files.length} cinema modules parse (ES modules)`, bad.length === 0, bad.join(', '));
   ok('Three.js is vendored with its license and loaded by a deferred script', exists('/website/js/vendor/three.min.js') && exists('/website/js/vendor/three.LICENSE.txt') && /three\.min\.js" defer/.test(html));
-  ok('first-load budget: HTML + CSS + JS + Three.js < 900 KB raw', Math.round((size('/index.html') + size('/website/css/cinema.css') + size('/website/js/vendor/three.min.js') + files.reduce((a, f) => a + size('/website/js/cinema/' + f), 0)) / 1024) < 900);
+  ok('first-load budget: HTML + CSS + JS + Three.js < 900 KB raw', Math.round((size('/cinematic.html') + size('/website/css/cinema.css') + size('/website/js/vendor/three.min.js') + files.reduce((a, f) => a + size('/website/js/cinema/' + f), 0)) / 1024) < 900);
   ok('old landing files that nothing uses are gone (landing.js, scene3d.js, landing3d.css)', !exists('/website/js/landing.js') && !exists('/website/js/scene3d.js') && !exists('/website/css/landing3d.css'));
   ok('no /game or /play rewrite in _redirects (they loop on Cloudflare Pages; the file may be absent)', !exists('/_redirects') || !/^\/(game|play)\s/m.test(read('_redirects')));
 }

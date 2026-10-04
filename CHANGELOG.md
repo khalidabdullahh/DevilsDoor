@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Poster-style landing hero (`index.html`, `website/css/landing.css`, `website/js/hero-fit.js`): oversized headline, founder portrait cutout in front, orange accent, Play Now -> `/game`. The cinematic scroll journey moved to `/cinematic` (`cinematic.html`).
 - Cinematic scroll-driven landing page (`index.html`, `website/css/cinema.css`, `website/js/cinema/*`): moon + torii hero, gate tunnel, shinobi showcase with shader dissolve, 10-realm horizontal journey, the Door, final entry. Self-hosted Cinzel + Barlow Condensed fonts, vendored Three.js r128.
 - Gameplay: 3-hit katana combo, separate dash, coyote time / jump buffer / variable jump, knockback instead of teleport, hit-stop, shuriken ammo, difficulty ramp, diamonds + life orbs, per-realm terrain themes, HUD stats.
 - Select screens: animated carousel, realm backdrop, on-demand realm backgrounds.
