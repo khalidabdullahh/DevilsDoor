@@ -22,13 +22,13 @@ export class SceneSelect {
     const foundIndex = this.roster.findIndex(s => s.id === currentId);
     this.selectedIndex = foundIndex !== -1 ? foundIndex : 0;
 
+    this._preloaded = new Set();
     this.touchStartX = 0;
     this.touchStartY = 0;
     this.isSwiping = false;
 
     this._initDOM();
     this._attachEventListeners();
-    this._watchViewport();
     this.render();
 
     if (this.economy) {
@@ -86,10 +86,19 @@ export class SceneSelect {
       <!-- Main Stage -->
       <main class="vnext-scene-stage">
         <div class="vnext-gallery-viewport" id="scene-gallery-viewport">
-          <div class="vnext-gallery-track" id="scene-gallery-track"></div>
+          <!-- ONE big preview (two cross-fading layers, opacity-only animation) -->
+          <div class="vnext-preview" id="scene-preview">
+            <img class="vnext-preview-img" alt="" decoding="async" draggable="false" />
+            <img class="vnext-preview-img" alt="" decoding="async" draggable="false" />
+            <div class="vnext-lock-overlay" id="scene-preview-lock" style="display: none;"><span class="lock-icon">🔒</span><span class="lock-price"></span></div>
+            <div class="vnext-scene-gradient"></div>
+          </div>
           <button id="btn-scene-prev" class="vnext-nav-arrow arrow-left" aria-label="Previous Realm">‹</button>
           <button id="btn-scene-next" class="vnext-nav-arrow arrow-right" aria-label="Next Realm">›</button>
         </div>
+
+        <!-- Thumbnail strip: tiny 240px WebP, scroll/swipe to browse -->
+        <div class="vnext-thumb-strip" id="scene-thumb-strip" role="listbox" aria-label="Realms"></div>
 
         <!-- Action & Pricing Area -->
         <div class="vnext-action-deck" id="scene-action-deck">
@@ -166,13 +175,6 @@ export class SceneSelect {
     }
   }
 
-  _watchViewport() {
-    const vp = this.container && this.container.querySelector('#scene-gallery-viewport');
-    if (vp && typeof ResizeObserver !== 'undefined') {
-      new ResizeObserver(() => this._positionTrack(true)).observe(vp);
-    }
-  }
-
   prev() {
     if (this.selectedIndex > 0) { this.selectedIndex--; this.render(); }
   }
@@ -193,25 +195,27 @@ export class SceneSelect {
     this._updateWallet();
     this._updateRewardButton();
 
-    const track = this.container.querySelector('#scene-gallery-track');
-    if (track) {
-      if (!this._cards || this._cards.length !== this.roster.length) this._buildCards();
+    if (!this._thumbs) this._buildThumbs();
+    const isSelUnlocked = this.economy ? this.economy.isSceneUnlocked(scene.id) : scene.isFree;
+    this._thumbs.forEach((t, idx) => {
+      const item = this.roster[idx];
+      const unlocked = this.economy ? this.economy.isSceneUnlocked(item.id) : item.isFree;
+      t.classList.toggle('selected', idx === this.selectedIndex);
+      t.classList.toggle('locked', !unlocked);
+      t.setAttribute('aria-selected', idx === this.selectedIndex ? 'true' : 'false');
+      const lk = t.querySelector('.thumb-lock');
+      if (lk) lk.style.display = unlocked ? 'none' : 'block';
+    });
+    this._scrollThumbIntoView();
 
-      this._positionTrack();
-
-      this._cards.forEach((card, idx) => {
-        const item = this.roster[idx];
-        const isUnlocked = this.economy ? this.economy.isSceneUnlocked(item.id) : item.isFree;
-        card.classList.toggle('selected', idx === this.selectedIndex);
-        card.classList.toggle('unlocked', isUnlocked);
-        card.classList.toggle('locked', !isUnlocked);
-        const lock = card.querySelector('.vnext-lock-overlay');
-        if (lock) lock.style.display = isUnlocked ? 'none' : 'flex';
-      });
-
-      this._loadVisibleImages();
-      this._setBackdrop(scene);
+    this._showPreview(scene);
+    const lock = this.container.querySelector('#scene-preview-lock');
+    if (lock) {
+      lock.style.display = isSelUnlocked ? 'none' : 'flex';
+      const pr = lock.querySelector('.lock-price');
+      if (pr) pr.textContent = `${scene.price} PTS`;
     }
+    this._setBackdrop(scene);
 
     // Meta info
     const metaSerial = this.container.querySelector('#scene-meta-serial');
@@ -300,52 +304,58 @@ export class SceneSelect {
     atmo.style.setProperty('--atmo-glow', scene.glowColor || 'rgba(239,68,68,0.6)');
   }
 
-  _positionTrack(instant = false) {
-    const track = this.container && this.container.querySelector('#scene-gallery-track');
-    const card = this._cards && this._cards[this.selectedIndex];
-    if (!track || !card) return;
-    const padLeft = parseFloat(getComputedStyle(track).paddingLeft) || 0;
-    if (instant) track.style.transition = 'none';
-    track.style.transform = `translateX(${-(card.offsetLeft - padLeft)}px)`;
-    if (instant) {
-      void track.offsetWidth;
-      track.style.transition = '';
-    }
+  _scrollThumbIntoView() {
+    const strip = this.container.querySelector('#scene-thumb-strip');
+    const t = this._thumbs && this._thumbs[this.selectedIndex];
+    if (!strip || !t) return;
+    const left = t.offsetLeft - (strip.clientWidth - t.offsetWidth) / 2;
+    strip.scrollTo({ left, behavior: 'smooth' });
   }
 
-  _buildCards() {
-    const track = this.container.querySelector('#scene-gallery-track');
-    if (!track) return;
-    track.innerHTML = this.roster.map((item, idx) => `
-      <div class="vnext-scene-card" data-index="${idx}" style="--card-accent: ${item.accentColor};">
-        <div class="vnext-scene-frame">
-          <img data-src="${item.image}" alt="${item.name}" class="vnext-scene-img" decoding="async" draggable="false" />
-          <div class="vnext-lock-overlay" style="display: none;"><span class="lock-icon">🔒</span><span class="lock-price">${item.price} PTS</span></div>
-          <div class="vnext-scene-gradient"></div>
-          <div class="vnext-scene-card-label">${item.name}</div>
-        </div>
-      </div>
+  _buildThumbs() {
+    const strip = this.container.querySelector('#scene-thumb-strip');
+    if (!strip) return;
+    strip.innerHTML = this.roster.map((item, idx) => `
+      <button class="vnext-thumb" data-index="${idx}" role="option" aria-label="${item.number} ${item.name}" style="--card-accent: ${item.accentColor};">
+        <img src="${item.thumb}" alt="" loading="lazy" decoding="async" draggable="false" width="240" height="134" />
+        <span class="thumb-lock" style="display: none;">🔒</span>
+        <span class="thumb-num">${item.serial}</span>
+      </button>
     `).join('');
-    this._cards = Array.from(track.querySelectorAll('.vnext-scene-card'));
-    this._cards.forEach((card, idx) => card.addEventListener('click', () => this.selectIndex(idx)));
+    this._thumbs = Array.from(strip.querySelectorAll('.vnext-thumb'));
+    this._thumbs.forEach((t, idx) => t.addEventListener('click', () => this.selectIndex(idx)));
   }
 
-  _loadVisibleImages() {
-    for (const i of loadWindow(this.selectedIndex, this.roster.length, 2)) {
-      const img = this._cards[i].querySelector('.vnext-scene-img');
-      if (img && !img.getAttribute('src')) img.setAttribute('src', img.dataset.src);
+  // Show the selected realm's preview (cross-fade, opacity only) and warm the cache for neighbours.
+  _showPreview(scene) {
+    const layers = this.container.querySelectorAll('.vnext-preview-img');
+    if (layers.length < 2) return;
+    if (this._previewSrc !== scene.preview) {
+      this._previewSrc = scene.preview;
+      this._previewFlip = !this._previewFlip;
+      const next = layers[this._previewFlip ? 1 : 0];
+      const prev = layers[this._previewFlip ? 0 : 1];
+      next.alt = scene.name;
+      next.setAttribute('src', scene.preview);
+      next.classList.add('show');
+      prev.classList.remove('show');
+    }
+    // Preload only the 1 realm on each side (not all 10)
+    for (const i of loadWindow(this.selectedIndex, this.roster.length, 1)) {
+      const src = this.roster[i].preview;
+      if (!this._preloaded.has(src)) { this._preloaded.add(src); const im = new Image(); im.decoding = 'async'; im.src = src; }
     }
   }
 
   _setBackdrop(scene) {
     const layers = this.container.querySelectorAll('.vnext-scene-bg');
     this.container.style.setProperty('--sel-glow', scene.glowColor);
-    if (layers.length < 2 || this._backdropSrc === scene.image) return;
-    this._backdropSrc = scene.image;
+    if (layers.length < 2 || this._backdropSrc === scene.blur) return;
+    this._backdropSrc = scene.blur;
     this._backdropFlip = !this._backdropFlip;
     const next = layers[this._backdropFlip ? 1 : 0];
     const prev = layers[this._backdropFlip ? 0 : 1];
-    next.setAttribute('src', scene.image);
+    next.setAttribute('src', scene.blur);
     next.classList.add('show');
     prev.classList.remove('show');
   }

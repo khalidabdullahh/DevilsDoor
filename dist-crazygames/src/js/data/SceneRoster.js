@@ -146,3 +146,12 @@ export const SCENE_ROSTER = [
     particleType: 'ash'
   }
 ];
+
+// Lightweight WebP variants for the select screen (generated into /src/assets/backgrounds/web/).
+// `image` (the 4K original) is untouched and still used by the gameplay renderer.
+SCENE_ROSTER.forEach((scene) => {
+  const base = scene.image.replace('/backgrounds/', '/backgrounds/web/').replace(/\.(jpg|png)$/, '');
+  scene.preview = `${base}_preview.webp`; // 1280w, big preview
+  scene.thumb = `${base}_thumb.webp`;     // 240w, thumbnail strip
+  scene.blur = `${base}_blur.webp`;       // 480w, blurred backdrop
+});
