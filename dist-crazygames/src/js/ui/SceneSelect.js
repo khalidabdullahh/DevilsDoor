@@ -1,14 +1,13 @@
 import { SCENE_ROSTER } from '../data/SceneRoster.js';
+import { loadWindow } from './selectLayout.js';
 
 /**
- * SceneSelect — vNext Cinematic Scene Selection Screen for Devil's Door v2.2.
- * Features:
- * - Minimal Info Rule: Shows ONLY Scene Name & Unlock Price
- * - 16:9 Main Visual Focus (No distortion, complete composition)
- * - Cinematic Gallery: Main Scene in focus with adjacent Next Scene partially visible at edge
- * - Smooth slide & scale transitions on click/swipe
- * - Points unlock integration with EconomyManager
- * - Back to Character Selection navigation
+ * SceneSelect — v2.3 Cinematic Realm Selection Screen.
+ * v2.3 Visual Upgrades:
+ * - Realm lore tagline displayed below the scene name
+ * - Difficulty star rating (★★☆☆☆) shown alongside lore
+ * - Atmospheric CSS particle animation in backdrop (particleType-driven)
+ * - Backdrop cross-fade retains existing behavior
  */
 export class SceneSelect {
   constructor(containerEl, economyManager, rewardProvider, onStartRunCallback, onBackToCharCallback) {
@@ -29,6 +28,7 @@ export class SceneSelect {
 
     this._initDOM();
     this._attachEventListeners();
+    this._watchViewport();
     this.render();
 
     if (this.economy) {
@@ -48,9 +48,16 @@ export class SceneSelect {
   _initDOM() {
     if (!this.container) return;
     this.container.innerHTML = `
+      <!-- Full-bleed blurred artwork (two cross-fade layers) -->
+      <div class="vnext-scene-bgs" aria-hidden="true">
+        <img class="vnext-scene-bg" alt="" decoding="async" />
+        <img class="vnext-scene-bg" alt="" decoding="async" />
+      </div>
+      <!-- v2.3: Atmospheric particle overlay -->
+      <div class="vnext-atmo-particles" id="scene-atmo-particles" aria-hidden="true"></div>
       <div class="vnext-select-backdrop"></div>
 
-      <!-- Header: Back Button & Step Indicator & Points Wallet -->
+      <!-- Header -->
       <header class="vnext-header">
         <div class="vnext-header-left">
           <button id="btn-scene-back" class="vnext-back-btn" title="Back to Shinobi Select">
@@ -76,25 +83,26 @@ export class SceneSelect {
         </div>
       </header>
 
-      <!-- Main Stage: Cinematic 16:9 Gallery with Edge Peek -->
+      <!-- Main Stage -->
       <main class="vnext-scene-stage">
-        <!-- Cinematic Gallery Viewport -->
         <div class="vnext-gallery-viewport" id="scene-gallery-viewport">
-          <div class="vnext-gallery-track" id="scene-gallery-track">
-            <!-- Populated dynamically -->
-          </div>
-
-          <!-- Navigation Arrow Buttons -->
+          <div class="vnext-gallery-track" id="scene-gallery-track"></div>
           <button id="btn-scene-prev" class="vnext-nav-arrow arrow-left" aria-label="Previous Realm">‹</button>
           <button id="btn-scene-next" class="vnext-nav-arrow arrow-right" aria-label="Next Realm">›</button>
         </div>
 
-        <!-- Minimal Action & Pricing Area -->
+        <!-- Action & Pricing Area -->
         <div class="vnext-action-deck" id="scene-action-deck">
           <div class="vnext-meta-row">
             <span id="scene-meta-serial" class="meta-serial">REALM 01</span>
             <h2 id="scene-meta-name" class="meta-name">SUNSET SANCTUARY</h2>
             <span id="scene-meta-price" class="meta-price">FREE</span>
+          </div>
+
+          <!-- v2.3: Lore line + Difficulty stars -->
+          <div class="vnext-realm-lore-row" id="scene-lore-row">
+            <p id="scene-lore-text" class="realm-lore-text"></p>
+            <div id="scene-difficulty" class="realm-difficulty" aria-label="Difficulty"></div>
           </div>
 
           <div class="vnext-btn-row">
@@ -110,7 +118,6 @@ export class SceneSelect {
   _attachEventListeners() {
     if (!this.container) return;
 
-    // Back to Character Select
     const btnBack = this.container.querySelector('#btn-scene-back');
     if (btnBack) {
       btnBack.addEventListener('click', () => {
@@ -119,39 +126,24 @@ export class SceneSelect {
       });
     }
 
-    // Navigation Arrows
     const btnPrev = this.container.querySelector('#btn-scene-prev');
     const btnNext = this.container.querySelector('#btn-scene-next');
     if (btnPrev) btnPrev.addEventListener('click', () => this.prev());
     if (btnNext) btnNext.addEventListener('click', () => this.next());
 
-    // Primary Action Button (Enter Realm / Unlock)
     const btnAction = this.container.querySelector('#btn-scene-action');
-    if (btnAction) {
-      btnAction.addEventListener('click', () => this._handleAction());
-    }
+    if (btnAction) btnAction.addEventListener('click', () => this._handleAction());
 
-    // Rewarded Ad Button
     const btnAd = this.container.querySelector('#btn-scene-reward-ad');
-    if (btnAd) {
-      btnAd.addEventListener('click', () => this._handleWatchAd());
-    }
+    if (btnAd) btnAd.addEventListener('click', () => this._handleWatchAd());
 
-    // Keyboard Navigation
     window.addEventListener('keydown', (e) => {
-      if (this.container.classList.contains('hidden') || this.container.style.display === 'none') {
-        return;
-      }
-      if (e.code === 'ArrowLeft') {
-        this.prev();
-      } else if (e.code === 'ArrowRight') {
-        this.next();
-      } else if (e.code === 'Enter' || e.code === 'Space') {
-        this._handleAction();
-      }
+      if (this.container.classList.contains('hidden') || this.container.style.display === 'none') return;
+      if (e.code === 'ArrowLeft') this.prev();
+      else if (e.code === 'ArrowRight') this.next();
+      else if (e.code === 'Enter' || e.code === 'Space') this._handleAction();
     });
 
-    // Touch Swipe on Gallery Viewport
     const viewport = this.container.querySelector('#scene-gallery-viewport');
     if (viewport) {
       viewport.addEventListener('touchstart', (e) => {
@@ -167,37 +159,30 @@ export class SceneSelect {
         this.isSwiping = false;
         const deltaX = e.changedTouches[0].clientX - this.touchStartX;
         const deltaY = e.changedTouches[0].clientY - this.touchStartY;
-
         if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
-          if (deltaX < 0) {
-            this.next();
-          } else {
-            this.prev();
-          }
+          if (deltaX < 0) this.next(); else this.prev();
         }
       }, { passive: true });
     }
   }
 
-  prev() {
-    if (this.selectedIndex > 0) {
-      this.selectedIndex--;
-      this.render();
+  _watchViewport() {
+    const vp = this.container && this.container.querySelector('#scene-gallery-viewport');
+    if (vp && typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(() => this._positionTrack(true)).observe(vp);
     }
+  }
+
+  prev() {
+    if (this.selectedIndex > 0) { this.selectedIndex--; this.render(); }
   }
 
   next() {
-    if (this.selectedIndex < this.roster.length - 1) {
-      this.selectedIndex++;
-      this.render();
-    }
+    if (this.selectedIndex < this.roster.length - 1) { this.selectedIndex++; this.render(); }
   }
 
   selectIndex(index) {
-    if (index >= 0 && index < this.roster.length) {
-      this.selectedIndex = index;
-      this.render();
-    }
+    if (index >= 0 && index < this.roster.length) { this.selectedIndex = index; this.render(); }
   }
 
   render() {
@@ -210,59 +195,48 @@ export class SceneSelect {
 
     const track = this.container.querySelector('#scene-gallery-track');
     if (track) {
-      // Gallery calculation: main item in center, next scene partially visible on right edge
-      const itemWidthPercent = 82; // Main card width
-      const offsetPercent = -this.selectedIndex * (itemWidthPercent + 3);
+      if (!this._cards || this._cards.length !== this.roster.length) this._buildCards();
 
-      track.style.transform = `translateX(${offsetPercent}%)`;
+      this._positionTrack();
 
-      track.innerHTML = this.roster.map((item, idx) => {
-        const isSelected = idx === this.selectedIndex;
+      this._cards.forEach((card, idx) => {
+        const item = this.roster[idx];
         const isUnlocked = this.economy ? this.economy.isSceneUnlocked(item.id) : item.isFree;
-
-        return `
-          <div class="vnext-scene-card ${isSelected ? 'selected' : ''} ${isUnlocked ? 'unlocked' : 'locked'}"
-               data-index="${idx}">
-            <div class="vnext-scene-frame">
-              <img src="${item.image}" alt="${item.name}" class="vnext-scene-img" />
-              ${!isUnlocked ? '<div class="vnext-lock-overlay"><span class="lock-icon">🔒</span><span class="lock-price">' + item.price + ' PTS</span></div>' : ''}
-              <div class="vnext-scene-gradient"></div>
-              <div class="vnext-scene-card-label">${item.name}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      track.querySelectorAll('.vnext-scene-card').forEach((card) => {
-        card.addEventListener('click', () => {
-          const idx = parseInt(card.getAttribute('data-index'), 10);
-          this.selectIndex(idx);
-        });
+        card.classList.toggle('selected', idx === this.selectedIndex);
+        card.classList.toggle('unlocked', isUnlocked);
+        card.classList.toggle('locked', !isUnlocked);
+        const lock = card.querySelector('.vnext-lock-overlay');
+        if (lock) lock.style.display = isUnlocked ? 'none' : 'flex';
       });
+
+      this._loadVisibleImages();
+      this._setBackdrop(scene);
     }
 
-    // Update Meta Information (Minimal Information Rule)
+    // Meta info
     const metaSerial = this.container.querySelector('#scene-meta-serial');
-    const metaName = this.container.querySelector('#scene-meta-name');
+    const metaName  = this.container.querySelector('#scene-meta-name');
     const metaPrice = this.container.querySelector('#scene-meta-price');
-    const actionBtn = this.container.querySelector('#btn-scene-action');
+    const actionBtn  = this.container.querySelector('#btn-scene-action');
     const actionText = this.container.querySelector('#scene-action-text');
 
     const isUnlocked = this.economy ? this.economy.isSceneUnlocked(scene.id) : scene.isFree;
 
     if (metaSerial) metaSerial.textContent = scene.number;
-    if (metaName) metaName.textContent = scene.name;
+    if (metaName) {
+      metaName.classList.remove('name-reveal');
+      void metaName.offsetWidth;
+      metaName.classList.add('name-reveal');
+      metaName.textContent = scene.name;
+    }
 
     if (metaPrice) {
       if (scene.isFree) {
-        metaPrice.textContent = 'FREE';
-        metaPrice.className = 'meta-price unlocked';
+        metaPrice.textContent = 'FREE'; metaPrice.className = 'meta-price unlocked';
       } else if (isUnlocked) {
-        metaPrice.textContent = 'UNLOCKED';
-        metaPrice.className = 'meta-price unlocked';
+        metaPrice.textContent = 'UNLOCKED'; metaPrice.className = 'meta-price unlocked';
       } else {
-        metaPrice.textContent = `${scene.price} POINTS`;
-        metaPrice.className = 'meta-price locked';
+        metaPrice.textContent = `${scene.price} POINTS`; metaPrice.className = 'meta-price locked';
       }
     }
 
@@ -278,19 +252,108 @@ export class SceneSelect {
       }
     }
 
-    // Update Arrow button visibility
+    // v2.3: Lore + difficulty
+    this._updateLore(scene);
+    // v2.3: Atmospheric particle class
+    this._updateAtmoParticles(scene);
+
     const btnPrev = this.container.querySelector('#btn-scene-prev');
     const btnNext = this.container.querySelector('#btn-scene-next');
     if (btnPrev) btnPrev.style.visibility = this.selectedIndex > 0 ? 'visible' : 'hidden';
     if (btnNext) btnNext.style.visibility = this.selectedIndex < this.roster.length - 1 ? 'visible' : 'hidden';
   }
 
+  // v2.3: Render lore text and difficulty stars
+  _updateLore(scene) {
+    const loreText = this.container.querySelector('#scene-lore-text');
+    const diffEl = this.container.querySelector('#scene-difficulty');
+
+    if (loreText) {
+      loreText.classList.remove('lore-reveal');
+      void loreText.offsetWidth;
+      loreText.classList.add('lore-reveal');
+      loreText.textContent = scene.lore || '';
+    }
+
+    if (diffEl && scene.difficulty) {
+      const total = 5;
+      const filled = Math.min(total, Math.max(1, scene.difficulty));
+      let stars = '';
+      for (let i = 0; i < total; i++) {
+        stars += `<span class="diff-star ${i < filled ? 'filled' : 'empty'}">★</span>`;
+      }
+      diffEl.innerHTML = stars;
+    }
+  }
+
+  // v2.3: Set particleType class on the atmospheric overlay div
+  _updateAtmoParticles(scene) {
+    const atmo = this.container.querySelector('#scene-atmo-particles');
+    if (!atmo) return;
+    // Remove all particle type classes
+    atmo.className = 'vnext-atmo-particles';
+    if (scene.particleType) {
+      atmo.classList.add(`atmo-${scene.particleType}`);
+    }
+    // Set accent color for particles
+    atmo.style.setProperty('--atmo-color', scene.accentColor || '#ef4444');
+    atmo.style.setProperty('--atmo-glow', scene.glowColor || 'rgba(239,68,68,0.6)');
+  }
+
+  _positionTrack(instant = false) {
+    const track = this.container && this.container.querySelector('#scene-gallery-track');
+    const card = this._cards && this._cards[this.selectedIndex];
+    if (!track || !card) return;
+    const padLeft = parseFloat(getComputedStyle(track).paddingLeft) || 0;
+    if (instant) track.style.transition = 'none';
+    track.style.transform = `translateX(${-(card.offsetLeft - padLeft)}px)`;
+    if (instant) {
+      void track.offsetWidth;
+      track.style.transition = '';
+    }
+  }
+
+  _buildCards() {
+    const track = this.container.querySelector('#scene-gallery-track');
+    if (!track) return;
+    track.innerHTML = this.roster.map((item, idx) => `
+      <div class="vnext-scene-card" data-index="${idx}" style="--card-accent: ${item.accentColor};">
+        <div class="vnext-scene-frame">
+          <img data-src="${item.image}" alt="${item.name}" class="vnext-scene-img" decoding="async" draggable="false" />
+          <div class="vnext-lock-overlay" style="display: none;"><span class="lock-icon">🔒</span><span class="lock-price">${item.price} PTS</span></div>
+          <div class="vnext-scene-gradient"></div>
+          <div class="vnext-scene-card-label">${item.name}</div>
+        </div>
+      </div>
+    `).join('');
+    this._cards = Array.from(track.querySelectorAll('.vnext-scene-card'));
+    this._cards.forEach((card, idx) => card.addEventListener('click', () => this.selectIndex(idx)));
+  }
+
+  _loadVisibleImages() {
+    for (const i of loadWindow(this.selectedIndex, this.roster.length, 2)) {
+      const img = this._cards[i].querySelector('.vnext-scene-img');
+      if (img && !img.getAttribute('src')) img.setAttribute('src', img.dataset.src);
+    }
+  }
+
+  _setBackdrop(scene) {
+    const layers = this.container.querySelectorAll('.vnext-scene-bg');
+    this.container.style.setProperty('--sel-glow', scene.glowColor);
+    if (layers.length < 2 || this._backdropSrc === scene.image) return;
+    this._backdropSrc = scene.image;
+    this._backdropFlip = !this._backdropFlip;
+    const next = layers[this._backdropFlip ? 1 : 0];
+    const prev = layers[this._backdropFlip ? 0 : 1];
+    next.setAttribute('src', scene.image);
+    next.classList.add('show');
+    prev.classList.remove('show');
+  }
+
   _updateWallet() {
     if (!this.container) return;
     const walletEl = this.container.querySelector('#scene-wallet-points');
-    if (walletEl && this.economy) {
-      walletEl.textContent = this.economy.getPoints().toLocaleString();
-    }
+    if (walletEl && this.economy) walletEl.textContent = this.economy.getPoints().toLocaleString();
   }
 
   _updateRewardButton() {
@@ -309,15 +372,11 @@ export class SceneSelect {
   }
 
   async _handleWatchAd() {
-    if (!this.rewards) return;
-    if (!this.rewards.isAvailable()) return;
-
+    if (!this.rewards || !this.rewards.isAvailable()) return;
     const btnAd = this.container.querySelector('#btn-scene-reward-ad');
     if (btnAd) btnAd.classList.add('loading');
-
     const result = await this.rewards.showRewardedAd();
     if (btnAd) btnAd.classList.remove('loading');
-
     if (result && result.success) {
       this._showRewardNotification(`+${result.pointsEarned} POINTS EARNED!`);
       this.render();
@@ -336,17 +395,12 @@ export class SceneSelect {
   _handleAction() {
     const scene = this.roster[this.selectedIndex];
     if (!scene) return;
-
     const isUnlocked = this.economy ? this.economy.isSceneUnlocked(scene.id) : scene.isFree;
 
     if (isUnlocked) {
-      if (this.economy) {
-        this.economy.setSelectedScene(scene.id);
-      }
+      if (this.economy) this.economy.setSelectedScene(scene.id);
       this.hide();
-      if (this.onStartRun) {
-        this.onStartRun(scene);
-      }
+      if (this.onStartRun) this.onStartRun(scene);
     } else {
       const success = this.economy ? this.economy.unlockScene(scene.id, scene.price) : false;
       if (success) {
@@ -375,8 +429,6 @@ export class SceneSelect {
   }
 
   destroy() {
-    if (this.cooldownInterval) {
-      clearInterval(this.cooldownInterval);
-    }
+    if (this.cooldownInterval) clearInterval(this.cooldownInterval);
   }
 }

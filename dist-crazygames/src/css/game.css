@@ -1314,6 +1314,67 @@ body.portrait-mode .touch-floating-audio-btn:active {
   pointer-events: auto;
 }
 
+/* Diamonds / shuriken ammo / dash-ready pill next to the hearts */
+.hud-left { gap: 8px; }
+
+.hud-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(12, 17, 29, 0.88);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 22px;
+  padding: 6px 12px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+}
+
+.hud-stat { display: inline-flex; align-items: center; gap: 4px; }
+.hud-stat-icon { color: #7dd3fc; text-shadow: 0 0 8px rgba(56, 189, 248, 0.8); }
+.hud-ammo { display: inline-flex; align-items: center; gap: 4px; }
+
+.ammo-pip {
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg);
+  background: rgba(148, 163, 184, 0.22);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.ammo-pip.on {
+  background: #e2e8f0;
+  border-color: #ffffff;
+  box-shadow: 0 0 6px rgba(226, 232, 240, 0.8);
+}
+
+.hud-dash-pip {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.hud-dash-pip.ready {
+  background: #38bdf8;
+  border-color: #bae6fd;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.9);
+}
+
+.deck-left-cluster .hud-stats {
+  padding: 3px 8px;
+  gap: 7px;
+  font-size: 0.68rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+}
+
 .hud-health-bar {
   display: flex;
   align-items: center;
@@ -1507,6 +1568,27 @@ body.portrait-mode .touch-floating-audio-btn:active {
   box-shadow: 0 0 14px rgba(251, 191, 36, 0.4);
 }
 
+.dash-btn {
+  width: clamp(48px, 9.5vw, 60px);
+  height: clamp(48px, 9.5vw, 60px);
+  background: rgba(56, 189, 248, 0.22);
+  border-color: rgba(56, 189, 248, 0.75);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+}
+
+/* Portrait phones: keep the 4-button row narrow enough for ~360px screens */
+#game-container.portrait-mode .dash-btn,
+body.portrait-mode .dash-btn {
+  width: clamp(44px, 11.5vw, 54px) !important;
+  height: clamp(44px, 11.5vw, 54px) !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle at 35% 35%, #38bdf8 0%, #0369a1 100%) !important;
+  border: 2px solid #7dd3fc !important;
+  box-shadow: 0 5px 14px rgba(56, 189, 248, 0.4), inset 0 2px 3px rgba(255, 255, 255, 0.25) !important;
+  order: 2;
+  margin-bottom: 4px;
+}
+
 .shuriken-btn {
   width: clamp(52px, 10vw, 64px);
   height: clamp(52px, 10vw, 64px);
@@ -1526,11 +1608,13 @@ body.portrait-mode .touch-floating-audio-btn:active {
 .scale-compact .jump-btn { width: 58px; height: 58px; }
 .scale-compact .attack-btn { width: 52px; height: 52px; }
 .scale-compact .shuriken-btn { width: 44px; height: 44px; }
+.scale-compact .dash-btn { width: 44px; height: 44px; }
 
 .scale-large .dpad-btn { width: 84px; height: 84px; }
 .scale-large .jump-btn { width: 96px; height: 96px; }
 .scale-large .attack-btn { width: 84px; height: 84px; }
 .scale-large .shuriken-btn { width: 72px; height: 72px; }
+.scale-large .dash-btn { width: 72px; height: 72px; }
 
 /* ==========================================================================
    Player Settings Modal
@@ -1865,3 +1949,396 @@ body.portrait-mode .touch-floating-audio-btn:active {
 .hidden {
   display: none !important;
 }
+
+/* ==========================================================================
+   Batch 4: Shinobi / Realm select polish
+   ========================================================================== */
+
+/* Soft glow behind the stage, tinted by the highlighted hero / realm (--sel-glow is set by JS) */
+.vnext-select-backdrop::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: min(90vw, 760px);
+  height: min(70vh, 560px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background-color: var(--sel-glow, rgba(168, 85, 247, 0.6));
+  filter: blur(90px);
+  opacity: 0.3;
+  transition: background-color 0.6s ease;
+}
+
+/* Glowing floor ring under the centered hero */
+.vnext-char-card::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 2%;
+  width: 92%;
+  height: 14%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--card-accent, #a855f7) 0%, transparent 70%);
+  filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.vnext-char-card.selected::after { opacity: 0.75; }
+
+/* Mouse-driven 3D tilt on the centered hero (--tx / --ty are set by JS, -1..1) */
+.vnext-char-card.selected .vnext-char-img-wrapper {
+  transform: rotateY(calc(var(--tx, 0) * 12deg)) rotateX(calc(var(--ty, 0) * -8deg));
+  transform-style: preserve-3d;
+  transition: transform 0.18s ease-out;
+}
+
+/* Name on one line, epithet underneath (it used to wrap into two heavy lines) */
+.vnext-meta-row .meta-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  line-height: 1.12;
+  min-width: 0;
+}
+.meta-name-main { font-size: clamp(1.15rem, 3vw, 1.6rem); }
+.meta-name-title {
+  font-size: 0.62rem;
+  letter-spacing: 0.26em;
+  font-weight: 800;
+  color: var(--accent-gold, #fbbf24);
+  opacity: 0.9;
+}
+
+/* Realm screen: blurred full-bleed artwork of the highlighted realm, cross-faded */
+.vnext-scene-bgs {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.vnext-scene-bg {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  filter: blur(18px) brightness(0.4) saturate(1.2);
+}
+.vnext-scene-bg.show { opacity: 1; }
+
+/* Bigger gallery on large screens, realm-colored selection */
+.vnext-gallery-viewport {
+  max-width: min(94vw, 880px);
+  height: clamp(190px, 52vh, 440px);
+}
+.vnext-scene-card.selected {
+  border-color: var(--card-accent, var(--accent-cyan));
+  box-shadow: 0 0 26px -2px var(--card-accent, #38bdf8), 0 10px 36px rgba(0, 0, 0, 0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vnext-char-card.selected .vnext-char-img { animation: none; }
+  .vnext-char-card, .vnext-scene-card, .vnext-gallery-track { transition-duration: 0.01s; }
+  .vnext-scene-bg, .vnext-select-backdrop::after { transition: none; }
+}
+
+/* Meta row: badges never wrap, long realm names get the remaining space */
+.vnext-action-deck { max-width: 640px; }
+.meta-serial, .meta-price { white-space: nowrap; flex-shrink: 0; }
+.vnext-meta-row .meta-name { flex: 1 1 auto; letter-spacing: 0.06em; }
+
+/* Narrow phones: the realm header (back + step + points + wallet) overflowed by ~30px */
+@media (max-width: 480px) {
+  .vnext-header-left { gap: 6px; }
+  .vnext-header-left .step-label { display: none; }
+  .vnext-header-left .vnext-back-btn { padding-left: 10px; padding-right: 10px; }
+}
+
+/* ==========================================================================
+   v2.3 — VISUAL QUALITY OVERHAUL STYLES
+   ========================================================================== */
+
+/* ---- v2.3 root defaults ---- */
+:root {
+  --hud-accent-live: #ef4444; /* updated per biome by UIManager */
+}
+
+/* --------------------------------------------------------------------------
+   CHARACTER SELECT — Particle Aura Canvas
+   -------------------------------------------------------------------------- */
+.vnext-aura-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1; /* above backdrop, below cards */
+  opacity: 0.85;
+}
+
+/* --------------------------------------------------------------------------
+   CHARACTER SELECT — Name Reveal Animation
+   -------------------------------------------------------------------------- */
+@keyframes nameReveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    clip-path: inset(0 0% 0 0);
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.meta-name.name-reveal {
+  animation: nameReveal 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.meta-name-main {
+  display: block;
+  font-size: inherit;
+  letter-spacing: inherit;
+  line-height: 1;
+}
+
+.meta-name-title {
+  display: block;
+  font-size: 0.55em;
+  letter-spacing: 0.22em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 2px;
+  opacity: 0.85;
+}
+
+/* --------------------------------------------------------------------------
+   CHARACTER SELECT — Stat Bars
+   -------------------------------------------------------------------------- */
+.vnext-stat-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 10px 0 12px;
+  padding: 0 2px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stat-label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+  width: 28px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.stat-track {
+  flex: 1;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.stat-fill {
+  height: 100%;
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* --------------------------------------------------------------------------
+   SCENE SELECT — Lore & Difficulty
+   -------------------------------------------------------------------------- */
+.vnext-realm-lore-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 10px;
+  padding: 0 2px;
+}
+
+.realm-lore-text {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: rgba(148, 163, 184, 0.9);
+  font-style: italic;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+@keyframes loreReveal {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.realm-lore-text.lore-reveal {
+  animation: loreReveal 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both 0.1s;
+}
+
+.realm-difficulty {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.diff-star {
+  font-size: 0.8rem;
+  line-height: 1;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.diff-star.filled {
+  color: #fbbf24;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.7);
+}
+
+.diff-star.empty {
+  color: rgba(255, 255, 255, 0.18);
+}
+
+/* --------------------------------------------------------------------------
+   SCENE SELECT — Atmospheric Particle Overlay
+   -------------------------------------------------------------------------- */
+.vnext-atmo-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Generate pseudo-particles using CSS — no JS needed for the visual layer */
+.vnext-atmo-particles::before,
+.vnext-atmo-particles::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: var(--atmo-glow, rgba(239, 68, 68, 0.5));
+  animation: atmoFloat 6s ease-in-out infinite;
+  opacity: 0;
+}
+
+.vnext-atmo-particles::before {
+  width: 6px; height: 6px;
+  top: 70%; left: 20%;
+  animation-delay: 0s;
+  animation-duration: 5.5s;
+}
+.vnext-atmo-particles::after {
+  width: 4px; height: 4px;
+  top: 60%; left: 70%;
+  animation-delay: -2.5s;
+  animation-duration: 7s;
+}
+
+/* Snow variant: elongated drops */
+.vnext-atmo-particles.atmo-snow::before,
+.vnext-atmo-particles.atmo-snow::after {
+  border-radius: 2px;
+  width: 3px; height: 9px;
+  animation-name: atmoFall;
+  animation-duration: 4s;
+}
+
+/* Ash variant: flat ellipse tumble */
+.vnext-atmo-particles.atmo-ash::before,
+.vnext-atmo-particles.atmo-ash::after {
+  border-radius: 50% / 30%;
+  width: 8px; height: 3px;
+  animation-name: atmoTumble;
+}
+
+@keyframes atmoFloat {
+  0%   { opacity: 0; transform: translateY(0) scale(0.8); }
+  20%  { opacity: 0.7; }
+  80%  { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-120px) scale(1.2) translateX(20px); }
+}
+
+@keyframes atmoFall {
+  0%   { opacity: 0; transform: translateY(-30px) rotate(15deg); }
+  20%  { opacity: 0.65; }
+  100% { opacity: 0; transform: translateY(160px) rotate(-20deg); }
+}
+
+@keyframes atmoTumble {
+  0%   { opacity: 0; transform: translateY(0) rotate(0deg); }
+  20%  { opacity: 0.55; }
+  100% { opacity: 0; transform: translateY(-100px) rotate(180deg) translateX(40px); }
+}
+
+/* --------------------------------------------------------------------------
+   HUD v2.3 — Biome-reactive health dot colors
+   -------------------------------------------------------------------------- */
+.vitality-dot.active .dot-core {
+  background: var(--hud-accent-live, #ef4444);
+  box-shadow: 0 0 8px 2px var(--hud-accent-live, #ef4444);
+}
+
+/* Danger: last health dot — rapid red pulse */
+@keyframes dangerPulse {
+  0%, 100% { box-shadow: 0 0 8px 2px #ef4444; opacity: 1; }
+  50%       { box-shadow: 0 0 20px 6px #ef4444; opacity: 0.65; }
+}
+
+.vitality-dot.active.danger .dot-core {
+  background: #ef4444 !important;
+  animation: dangerPulse 0.55s ease-in-out infinite !important;
+}
+
+/* Depleted dot — dimmed cracked look */
+.vitality-dot.depleted .dot-core {
+  background: rgba(100, 100, 120, 0.3);
+  box-shadow: none;
+  clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+}
+
+/* Ammo pips — inherit realm accent */
+.ammo-pip.on {
+  background: var(--hud-accent-live, #ef4444) !important;
+  box-shadow: 0 0 6px 1px var(--hud-accent-live, #ef4444);
+}
+
+/* --------------------------------------------------------------------------
+   HUD v2.3 — Distance milestone flash
+   -------------------------------------------------------------------------- */
+@keyframes distFlash {
+  0%   { color: #fff; text-shadow: 0 0 22px var(--hud-accent-live, #ef4444), 0 0 8px #fff; transform: scale(1.15); }
+  60%  { color: var(--hud-accent-live, #ef4444); text-shadow: 0 0 12px var(--hud-accent-live, #ef4444); transform: scale(1.05); }
+  100% { color: inherit; text-shadow: none; transform: scale(1); }
+}
+
+#distance-display.dist-flash {
+  animation: distFlash 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced-motion overrides for all v2.3 animations
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .meta-name.name-reveal { animation: none; clip-path: none; }
+  .realm-lore-text.lore-reveal { animation: none; }
+  .vnext-atmo-particles::before,
+  .vnext-atmo-particles::after { animation: none; opacity: 0.3; }
+  .vitality-dot.active.danger .dot-core { animation: none !important; }
+  #distance-display.dist-flash { animation: none; }
+  .stat-fill { transition-duration: 0.01s; }
+}
+

@@ -51,6 +51,44 @@ export class NinjaArashiPlayer {
     this.dashDuration = 0.22;
     this.dashCooldown = 0;
     this.ghosts = [];
+    this.dashHitSet = new Set(); // each enemy can be hit only once per dash
+
+    // Sword Slash 3-hit combo (separate from dash)
+    this.isSlashing = false;
+    this.slashTimer = 0;
+    this.slashDuration = 0.2;
+    this.slashHitDelay = 0.06;
+    this.slashHitDone = true;
+    this.slashReach = 92;
+    this.slashCooldown = 0;
+    this.comboStep = 0;
+    this.comboTimer = 0;
+    this.slashFxTimer = 0;
+    this.slashFxDuration = 0.26;
+    this.slashFxStep = 1;
+    this.slashProfiles = [
+      { duration: 0.20, hitDelay: 0.06, reach: 92,  damage: 1, knock: 1.0, lunge: 220, cooldown: 0.17, hitStop: 0.05 },
+      { duration: 0.20, hitDelay: 0.06, reach: 96,  damage: 1, knock: 1.0, lunge: 240, cooldown: 0.17, hitStop: 0.05 },
+      { duration: 0.30, hitDelay: 0.10, reach: 124, damage: 2, knock: 1.9, lunge: 380, cooldown: 0.40, hitStop: 0.10 }
+    ];
+    this.hitSparks = [];
+    this.pendingHitStop = 0; // read + cleared by Game each frame
+
+    // Shuriken ammo: 5 stars, one comes back every 1.6s (shown as pips in the HUD)
+    this.shurikenMaxAmmo = 5;
+    this.shurikenAmmo = 5;
+    this.shurikenRegenTime = 1.6;
+    this.shurikenRegenTimer = 0;
+
+    // Movement forgiveness (makes controls feel tight)
+    this.coyoteTime = 0.10;      // can still jump 0.10s after leaving a ledge
+    this.coyoteTimer = 0;
+    this.jumpBufferTime = 0.12;  // jump pressed 0.12s before landing still counts
+    this.jumpBufferTimer = 0;
+    this.jumpCutFactor = 0.5;    // releasing jump early cuts upward speed
+    this.jumpCutReady = false;
+    this.wallKickLock = 0.16;    // brief steering lock so a wall kick really pushes away
+    this.inputLockTimer = 0;
 
     // Somersault Flip
     this.flipAngle = 0;
@@ -146,6 +184,20 @@ export class NinjaArashiPlayer {
     this.isDead = false;
     this.isDashing = false;
     this.dashTimer = 0;
+    this.isSlashing = false;
+    this.slashCooldown = 0;
+    this.comboStep = 0;
+    this.comboTimer = 0;
+    this.slashFxTimer = 0;
+    this.coyoteTimer = 0;
+    this.jumpBufferTimer = 0;
+    this.jumpCutReady = false;
+    this.inputLockTimer = 0;
+    this.pendingHitStop = 0;
+    this.hitSparks = [];
+    this.shurikenAmmo = this.shurikenMaxAmmo;
+    this.shurikenRegenTimer = 0;
+    this.dashHitSet.clear();
     this.isFlipping = false;
     this.flipAngle = 0;
     this.animTime = 0;
@@ -156,13 +208,40 @@ export class NinjaArashiPlayer {
     this._initClothNodes();
   }
 
-  takeDamage(amount = 1, audio = null, camera = null, level = null) {
+  /**
+   * opts.source: 'enemy' -> knockback away from the attacker (no teleport, short i-frames)
+   *              anything else (spikes, saws, pits) -> respawn on last safe ground (old behavior)
+   * opts.fromX:  x position of the attacker, used to pick the knockback direction
+   */
+  takeDamage(amount = 1, audio = null, camera = null, level = null, opts = {}) {
     if (this.isDead || this.isDashing || this.isInvulnerable) return;
 
-    if (this.health > 1) {
-      // 3-Life Vitality Checkpoint Respawn
-      this.health -= amount;
+    // Getting hit cancels any slash in progress and breaks the combo
+    this.isSlashing = false;
+    this.slashFxTimer = 0;
+    this.comboStep = 0;
+    this.comboTimer = 0;
 
+    if (this.health - amount <= 0) {
+      // Out of health -> run ends
+      this.kill(audio, camera);
+      return;
+    }
+
+    this.health -= amount;
+
+    if (opts && opts.source === 'enemy') {
+      const fromX = typeof opts.fromX === 'number' ? opts.fromX : this.x - 1;
+      const dir = (this.x + this.width / 2) >= fromX ? 1 : -1;
+      this.vx = dir * 430;
+      this.vy = -300;
+      this.isGrounded = false;
+      this.isWallSliding = false;
+      this.inputLockTimer = 0.22;
+      this.invulnerableTimer = 1.3;
+      this.pendingHitStop = Math.max(this.pendingHitStop, 0.07);
+    } else {
+      // Hazard / pit: respawn on the last safe ground
       const respawnX = this.lastSafeGroundedX || Math.max(120, this.x - 80);
       const respawnY = (this.lastSafeGroundedY || 560) - 16;
 
@@ -170,18 +249,15 @@ export class NinjaArashiPlayer {
       this.y = respawnY;
       this.vx = 0;
       this.vy = -160;
-
-      this.isInvulnerable = true;
       this.invulnerableTimer = 2.0; // 2s ghost invulnerability
-      this.isFlipping = false;
-      this.flipAngle = 0;
-
-      if (camera) camera.addShake(0.55);
-      if (audio) audio.playBladeHit();
-    } else {
-      // All 3 lives lost -> Run ends
-      this.kill(audio, camera);
     }
+
+    this.isInvulnerable = true;
+    this.isFlipping = false;
+    this.flipAngle = 0;
+
+    if (camera) camera.addShake(0.55);
+    if (audio) audio.playBladeHit();
   }
 
   kill(audio = null, camera = null) {
@@ -214,8 +290,43 @@ export class NinjaArashiPlayer {
 
     this.animTime += dt * 14;
 
+    // --- Timers (all count down toward 0) ---
     if (this.dashCooldown > 0) this.dashCooldown -= dt;
     if (this.shurikenCooldown > 0) this.shurikenCooldown -= dt;
+    if (this.slashCooldown > 0) this.slashCooldown -= dt;
+    if (this.inputLockTimer > 0) this.inputLockTimer -= dt;
+    if (this.slashFxTimer > 0) this.slashFxTimer -= dt;
+    if (this.comboTimer > 0) {
+      this.comboTimer -= dt;
+      if (this.comboTimer <= 0) this.comboStep = 0; // combo window expired
+    }
+
+    // Shuriken ammo regenerates one star at a time
+    if (this.shurikenAmmo < this.shurikenMaxAmmo) {
+      this.shurikenRegenTimer += dt;
+      if (this.shurikenRegenTimer >= this.shurikenRegenTime) {
+        this.shurikenRegenTimer = 0;
+        this.shurikenAmmo++;
+      }
+    } else {
+      this.shurikenRegenTimer = 0;
+    }
+
+    // Coyote time: while on the ground the timer is refilled; in the air it drains.
+    // Standing on ground also re-arms the air jump, so walking off a ledge still gives one jump.
+    if (this.isGrounded) {
+      this.coyoteTimer = this.coyoteTime;
+      this.canDoubleJump = true;
+    } else if (this.coyoteTimer > 0) {
+      this.coyoteTimer -= dt;
+    }
+
+    // Jump buffer: remember a jump press for a few frames
+    if (input.isJumpJustPressed()) {
+      this.jumpBufferTimer = this.jumpBufferTime;
+    } else if (this.jumpBufferTimer > 0) {
+      this.jumpBufferTimer -= dt;
+    }
 
     // 1. Dash Action
     if (this.isDashing) {
@@ -223,14 +334,7 @@ export class NinjaArashiPlayer {
       this.vx = this.facing * this.dashSpeed;
       this.vy = 0;
 
-      let ghostColor = '#a855f7';
-      if (this.heroType === 'ryujin' || this.heroType === 'oni_guard') {
-        ghostColor = '#f97316';
-      } else if (this.heroType === 'raijin' || this.heroType === 'shadow_ronin') {
-        ghostColor = '#38bdf8';
-      } else if (this.heroType === 'tsukuyomi' || this.heroType === 'crimson_assassin') {
-        ghostColor = '#f43f5e';
-      }
+      const ghostColor = this._accentColor();
 
       this.ghosts.push({
         x: this.x,
@@ -242,14 +346,17 @@ export class NinjaArashiPlayer {
         heroType: this.heroType
       });
 
+      // Dash strike: 1 damage, once per enemy per dash
+      // (before, it hit every frame: ~13 hits and +6500 score from a single dash)
       if (level && level.enemies) {
+        const pcx = this.x + this.width / 2;
+        const pcy = this.y + this.height / 2;
         for (const enemy of level.enemies) {
-          if (enemy.isDead) continue;
-          const dist = Math.hypot(this.x - enemy.x, (this.y + 24) - (enemy.y + 24));
-          if (dist < 115) {
-            enemy.takeDamage(2, this.facing, audio);
-            if (camera) camera.addShake(0.45);
-            this.score += 500;
+          if (enemy.isDead || this.dashHitSet.has(enemy)) continue;
+          const dist = Math.hypot(pcx - (enemy.x + enemy.width / 2), pcy - (enemy.y + enemy.height / 2));
+          if (dist < 100) {
+            this.dashHitSet.add(enemy);
+            this._hitEnemy(enemy, 1, 1.0, audio, camera, 0.04);
           }
         }
       }
@@ -259,14 +366,28 @@ export class NinjaArashiPlayer {
         this.vx = this.facing * this.moveSpeed * 0.75;
       }
     } else {
-      // 2. Horizontal Movement
+      // 2. Slash tick: the hit lands a moment after the button press (wind-up feel)
+      if (this.isSlashing) {
+        this.slashTimer -= dt;
+        const elapsed = this.slashDuration - this.slashTimer;
+        if (!this.slashHitDone && elapsed >= this.slashHitDelay) {
+          this.slashHitDone = true;
+          this._resolveSlashHit(level, audio, camera);
+        }
+        if (this.slashTimer <= 0) this.isSlashing = false;
+      }
+
+      // 3. Horizontal Movement (skipped briefly after a wall kick or knockback)
       let moveDir = 0;
       if (input.isLeft()) moveDir -= 1;
       if (input.isRight()) moveDir += 1;
 
-      if (moveDir !== 0) {
-        this.facing = moveDir;
-        this.vx = moveDir * this.moveSpeed;
+      if (this.inputLockTimer > 0) {
+        // keep launch velocity, only light air drag
+        this.vx *= 0.985;
+      } else if (moveDir !== 0) {
+        if (!this.isSlashing) this.facing = moveDir; // facing is locked while swinging
+        this.vx = moveDir * this.moveSpeed * (this.isSlashing ? 0.6 : 1);
         if (this.isGrounded && audio && Math.random() < 0.12) {
           audio.playFootstep();
         }
@@ -275,18 +396,26 @@ export class NinjaArashiPlayer {
         if (Math.abs(this.vx) < 10) this.vx = 0;
       }
 
-      // 3. Dash Trigger
-      if (input.isAttackJustPressed() && this.dashCooldown <= 0) {
+      // 4. Sword Slash Trigger (3-hit combo)
+      if (input.isAttackJustPressed() && this.slashCooldown <= 0) {
+        this._startSlash(audio, camera);
+      }
+
+      // 5. Dash Trigger (its own button now)
+      if (input.isDashJustPressed() && this.dashCooldown <= 0) {
         this.isDashing = true;
+        this.isSlashing = false;
         this.dashTimer = this.dashDuration;
         this.dashCooldown = 0.52;
+        this.dashHitSet.clear();
         if (audio) audio.playKatanaSlash();
         if (camera) camera.addShake(0.25);
       }
 
-      // 4. Shuriken Trigger
-      if (input.isShurikenJustPressed() && this.shurikenCooldown <= 0) {
+      // 6. Shuriken Trigger
+      if (input.isShurikenJustPressed() && this.shurikenCooldown <= 0 && this.shurikenAmmo > 0) {
         this.shurikenCooldown = 0.26;
+        this.shurikenAmmo--;
         const starX = this.x + (this.facing > 0 ? this.width + 8 : -8);
         const starY = this.y + 28;
         const star = new Shuriken(starX, starY, this.facing * 1100, 0);
@@ -294,12 +423,15 @@ export class NinjaArashiPlayer {
         if (audio) audio.playShurikenThrow();
       }
 
-      // 5. Jump / Double Jump / Wall Kick
-      if (input.isJumpJustPressed()) {
-        if (this.isGrounded) {
+      // 7. Jump / Coyote Jump / Wall Kick / Double Jump (buffered)
+      if (this.jumpBufferTimer > 0) {
+        if (this.coyoteTimer > 0) {
           this.vy = -this.jumpForce;
           this.isGrounded = false;
+          this.coyoteTimer = 0;
+          this.jumpBufferTimer = 0;
           this.canDoubleJump = true;
+          this.jumpCutReady = true;
           if (audio) audio.playJump();
         } else if (this.isWallSliding) {
           this.vy = -this.jumpForce * 0.95;
@@ -307,13 +439,27 @@ export class NinjaArashiPlayer {
           this.facing = -this.wallDir;
           this.isWallSliding = false;
           this.canDoubleJump = true;
+          this.inputLockTimer = this.wallKickLock;
+          this.jumpBufferTimer = 0;
+          this.jumpCutReady = true;
           if (audio) audio.playJump();
-        } else if (this.canDoubleJump) {
+        } else if (this.canDoubleJump && input.isJumpJustPressed()) {
           this.vy = -this.doubleJumpForce;
           this.canDoubleJump = false;
+          this.jumpBufferTimer = 0;
           this.isFlipping = true;
           this.flipAngle = 0;
           if (audio) audio.playDoubleJump();
+        }
+      }
+
+      // Variable jump height: let go of jump early -> shorter hop (Mario-style)
+      if (this.jumpCutReady) {
+        if (this.vy >= 0) {
+          this.jumpCutReady = false;
+        } else if (!input.isJump()) {
+          this.vy *= this.jumpCutFactor;
+          this.jumpCutReady = false;
         }
       }
 
@@ -335,17 +481,17 @@ export class NinjaArashiPlayer {
       }
     }
 
-    // 6. Physics Integration
+    // 8. Physics Integration
     this._integratePhysics(dt, level, audio, camera);
 
-    // 7. Shurikens
+    // 9. Shurikens
     for (let i = this.shurikens.length - 1; i >= 0; i--) {
       const star = this.shurikens[i];
       star.update(dt, level, audio, camera, this);
       if (star.isDead || !star.active) this.shurikens.splice(i, 1);
     }
 
-    // 8. Particle Lifecycle
+    // 10. Particle Lifecycle
     for (let i = this.ghosts.length - 1; i >= 0; i--) {
       const g = this.ghosts[i];
       g.life -= dt;
@@ -361,10 +507,19 @@ export class NinjaArashiPlayer {
       if (p.life <= 0) this.wallSparks.splice(i, 1);
     }
 
-    // 9. Cloth Verlet Physics Update
+    for (let i = this.hitSparks.length - 1; i >= 0; i--) {
+      const p = this.hitSparks[i];
+      p.life -= dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 500 * dt; // sparks fall with gravity
+      if (p.life <= 0) this.hitSparks.splice(i, 1);
+    }
+
+    // 11. Cloth Verlet Physics Update
     this._updateCloth(dt);
 
-    // 10. Somersault Rotation
+    // 12. Somersault Rotation
     if (this.isFlipping) {
       this.flipAngle += this.facing * Math.PI * 5.4 * dt;
       if (Math.abs(this.flipAngle) >= Math.PI * 2) {
@@ -372,6 +527,133 @@ export class NinjaArashiPlayer {
         this.isFlipping = false;
       }
     }
+  }
+
+  // ---- Combat helpers ----
+
+  _accentColor() {
+    if (this.heroType === 'ryujin' || this.heroType === 'oni_guard') return '#f97316';
+    if (this.heroType === 'raijin' || this.heroType === 'shadow_ronin') return '#38bdf8';
+    if (this.heroType === 'tsukuyomi' || this.heroType === 'crimson_assassin') return '#f43f5e';
+    return '#a855f7';
+  }
+
+  _startSlash(audio, camera) {
+    // Press again inside the combo window -> next hit (1 -> 2 -> 3 -> back to 1)
+    this.comboStep = this.comboTimer > 0 ? (this.comboStep % 3) + 1 : 1;
+    const prof = this.slashProfiles[this.comboStep - 1];
+
+    this.isSlashing = true;
+    this.slashTimer = prof.duration;
+    this.slashDuration = prof.duration;
+    this.slashHitDelay = prof.hitDelay;
+    this.slashHitDone = false;
+    this.slashReach = prof.reach;
+    this.slashCooldown = prof.cooldown;
+    this.comboTimer = prof.duration + 0.3;
+    this.slashFxDuration = prof.duration + 0.06;
+    this.slashFxTimer = this.slashFxDuration;
+    this.slashFxStep = this.comboStep;
+
+    // Small step forward into the swing (only if not already running forward)
+    if (Math.abs(this.vx) < 60) this.vx = this.facing * prof.lunge;
+
+    if (audio) audio.playKatanaSlash();
+    if (camera) camera.addShake(this.comboStep === 3 ? 0.3 : 0.12);
+  }
+
+  _resolveSlashHit(level, audio, camera) {
+    if (!level || !level.enemies) return;
+    const prof = this.slashProfiles[this.slashFxStep - 1];
+
+    // Hitbox: a rectangle in front of the player (a little behind center too)
+    const cx = this.x + this.width / 2;
+    const hx = this.facing > 0 ? cx - 6 : cx - this.slashReach;
+    const hw = this.slashReach + 6;
+    const hy = this.y - 16;
+    const hh = this.height + 26;
+
+    for (const enemy of level.enemies) {
+      if (enemy.isDead) continue;
+
+      if (this._checkAABB(hx, hy, hw, hh, enemy.x, enemy.y, enemy.width, enemy.height)) {
+        this._hitEnemy(enemy, prof.damage, prof.knock, audio, camera, prof.hitStop);
+      }
+
+      // Slash can deflect Cursed Monk curse orbs
+      if (enemy.projectiles && enemy.projectiles.length) {
+        for (let i = enemy.projectiles.length - 1; i >= 0; i--) {
+          const orb = enemy.projectiles[i];
+          if (orb.x > hx && orb.x < hx + hw && orb.y > hy && orb.y < hy + hh) {
+            enemy.projectiles.splice(i, 1);
+            this._spawnHitSparks(orb.x, orb.y);
+            this.score += 50;
+          }
+        }
+      }
+    }
+  }
+
+  // damage + feedback in one place: shake, hit-stop, sparks, score
+  _hitEnemy(enemy, damage, knockScale, audio, camera, hitStop) {
+    enemy.takeDamage(damage, this.facing, audio, Math.round(45 * knockScale));
+    if (camera) camera.addShake(0.2 + 0.15 * knockScale);
+    this.pendingHitStop = Math.max(this.pendingHitStop, hitStop);
+    this._spawnHitSparks(enemy.x + enemy.width / 2, enemy.y + enemy.height * 0.4);
+    this.score += enemy.isDead ? 300 : 50;
+  }
+
+  _spawnHitSparks(x, y) {
+    for (let i = 0; i < 9; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 140 + Math.random() * 260;
+      this.hitSparks.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 80,
+        life: 0.22 + Math.random() * 0.14
+      });
+    }
+  }
+
+  // Crescent slash trail: sweeps down (hit 1), up (hit 2), wide + thick (hit 3)
+  _drawSlashArc(ctx, px, py) {
+    if (this.slashFxTimer <= 0) return;
+    const t = 1 - this.slashFxTimer / this.slashFxDuration; // 0 -> 1 over the swing
+    const step = this.slashFxStep;
+    const col = this._accentColor();
+    const r = this.slashReach * 0.85;
+
+    // Angles are for facing right; scale(facing, 1) mirrors them for facing left
+    const from = step === 2 ? Math.PI * 0.45 : -Math.PI * 0.45;
+    const to = step === 2 ? -Math.PI * 0.45 : Math.PI * 0.45;
+    const head = from + (to - from) * Math.min(1, t * 1.6);
+    const tail = from + (to - from) * Math.max(0, t * 1.6 - 0.55);
+    const a0 = Math.min(head, tail);
+    const a1 = Math.max(head, tail);
+    if (a1 - a0 < 0.02) return;
+
+    ctx.save();
+    ctx.translate(px + this.width / 2 + this.facing * 8, py + this.height * 0.45);
+    ctx.scale(this.facing, 1);
+    ctx.globalAlpha = Math.max(0, 1 - t);
+    ctx.lineCap = 'round';
+    ctx.shadowColor = col;
+    ctx.shadowBlur = 16;
+
+    ctx.strokeStyle = col;
+    ctx.lineWidth = step === 3 ? 12 : 8;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, a0, a1);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = step === 3 ? 5 : 3;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, a0, a1);
+    ctx.stroke();
+    ctx.restore();
   }
 
   _integratePhysics(dt, level, audio, camera) {
@@ -509,6 +791,22 @@ export class NinjaArashiPlayer {
       ctx.restore();
     }
 
+    // 3b. Hit Sparks (impact feedback)
+    if (this.hitSparks.length) {
+      ctx.save();
+      ctx.strokeStyle = '#fde68a';
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      for (const p of this.hitSparks) {
+        ctx.globalAlpha = Math.min(1, p.life / 0.2);
+        ctx.beginPath();
+        ctx.moveTo(p.x - camX, p.y - camY);
+        ctx.lineTo(p.x - camX - p.vx * 0.03, p.y - camY - p.vy * 0.03);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
     // 4. Multi-Node Dynamic Flowing Scarf / Cloth (Authentic Ninja Ribbon)
     if (this.clothNodes && this.clothNodes.length > 0) {
       ctx.save();
@@ -570,7 +868,7 @@ export class NinjaArashiPlayer {
     const isRunning = this.isGrounded && Math.abs(this.vx) > 20;
     const stride = isRunning ? Math.sin(this.animTime) : 0;
     const bobbing = isRunning ? Math.abs(Math.sin(this.animTime)) * 3.5 : 0;
-    const leanAngle = isRunning ? 0.28 : (this.isDashing ? 0.46 : 0);
+    const leanAngle = isRunning ? 0.28 : (this.isDashing ? 0.46 : (this.isSlashing ? 0.22 : 0));
 
     ctx.translate(0, -bobbing);
     ctx.rotate(leanAngle);
@@ -589,6 +887,9 @@ export class NinjaArashiPlayer {
     this._renderShinobiModel(ctx, stride, isRunning);
 
     ctx.restore();
+
+    // 6. Sword slash crescent trail
+    this._drawSlashArc(ctx, px, py);
   }
 
   /**

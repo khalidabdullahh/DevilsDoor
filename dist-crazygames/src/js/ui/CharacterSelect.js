@@ -1,14 +1,14 @@
 import { CHARACTER_ROSTER } from '../data/CharacterRoster.js';
+import { characterCardLayout } from './selectLayout.js';
 
 /**
- * CharacterSelect — vNext 3D Focus-Animated Character Selection Screen.
- * Strict Minimal Information Rule:
- * - Serial number (01)
- * - Character name (KAGE-RYU)
- * - Price / Unlock state (FREE / 500 PTS)
- * - Action button (SELECT / UNLOCK)
- * - Dynamic 3D Focus Selector with perspective, scale & depth
- * - Swipe, tap, keyboard, and click navigation
+ * CharacterSelect — v2.3 Cinematic Character Selection Screen.
+ * v2.3 Visual Upgrades:
+ * - Canvas-based particle aura behind selected character (auraType-driven)
+ * - CSS clip-path name reveal animation on character switch
+ * - Backdrop radial gradient reactive to character glowColor
+ * - SPEED / POWER / STEALTH stat bar strip
+ * - Strict Minimal Information Rule preserved
  */
 export class CharacterSelect {
   constructor(containerEl, economyManager, rewardProvider, onSelectCallback) {
@@ -26,11 +26,14 @@ export class CharacterSelect {
     this.touchStartY = 0;
     this.isSwiping = false;
 
+    // v2.3: aura canvas RAF handle
+    this._auraRaf = null;
+    this._auraParticles = [];
+
     this._initDOM();
     this._attachEventListeners();
     this.render();
 
-    // Subscribe to economy updates
     if (this.economy) {
       this.economy.subscribe(() => {
         this._updateWallet();
@@ -40,7 +43,6 @@ export class CharacterSelect {
       });
     }
 
-    // Cooldown interval for reward button
     this.cooldownInterval = setInterval(() => {
       this._updateRewardButton();
     }, 1000);
@@ -49,9 +51,12 @@ export class CharacterSelect {
   _initDOM() {
     if (!this.container) return;
     this.container.innerHTML = `
-      <div class="vnext-select-backdrop"></div>
+      <div class="vnext-select-backdrop" id="char-backdrop"></div>
 
-      <!-- Minimal Header: Step Indicator & Points Wallet & Watch Ad CTA -->
+      <!-- v2.3: Particle Aura Canvas -->
+      <canvas class="vnext-aura-canvas" id="char-aura-canvas" aria-hidden="true"></canvas>
+
+      <!-- Minimal Header -->
       <header class="vnext-header">
         <div class="vnext-step-badge">
           <span class="step-num">STEP 1</span>
@@ -72,25 +77,36 @@ export class CharacterSelect {
         </div>
       </header>
 
-      <!-- Main Stage: 3D Perspective Character Focus Showcase -->
+      <!-- Main Stage -->
       <main class="vnext-char-stage">
-        <!-- 3D Carousel Stage -->
         <div class="vnext-carousel-viewport" id="char-carousel-viewport">
-          <div class="vnext-cards-track" id="char-cards-track">
-            <!-- Rendered dynamically -->
-          </div>
-
-          <!-- Navigation Arrow Buttons -->
+          <div class="vnext-cards-track" id="char-cards-track"></div>
           <button id="btn-char-prev" class="vnext-nav-arrow arrow-left" aria-label="Previous Shinobi">‹</button>
           <button id="btn-char-next" class="vnext-nav-arrow arrow-right" aria-label="Next Shinobi">›</button>
         </div>
 
-        <!-- Minimal Action & Pricing Area -->
+        <!-- Action & Pricing Area -->
         <div class="vnext-action-deck" id="char-action-deck">
           <div class="vnext-meta-row">
             <span id="char-meta-serial" class="meta-serial">01</span>
             <h2 id="char-meta-name" class="meta-name">KAGE-RYU</h2>
             <span id="char-meta-price" class="meta-price">FREE</span>
+          </div>
+
+          <!-- v2.3: Stat Bars -->
+          <div class="vnext-stat-bars" id="char-stat-bars" aria-label="Character stats">
+            <div class="stat-row">
+              <span class="stat-label">SPD</span>
+              <div class="stat-track"><div class="stat-fill" id="stat-fill-speed"></div></div>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">PWR</span>
+              <div class="stat-track"><div class="stat-fill" id="stat-fill-power"></div></div>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">STL</span>
+              <div class="stat-track"><div class="stat-fill" id="stat-fill-stealth"></div></div>
+            </div>
           </div>
 
           <div class="vnext-btn-row">
@@ -101,44 +117,102 @@ export class CharacterSelect {
         </div>
       </main>
     `;
+
+    // v2.3: start aura animation loop
+    this._startAuraLoop();
+  }
+
+  // ---- v2.3: Aura particle system ----
+  _startAuraLoop() {
+    const auraCanvas = this.container && this.container.querySelector('#char-aura-canvas');
+    if (!auraCanvas) return;
+
+    const resizeAura = () => {
+      auraCanvas.width = auraCanvas.offsetWidth || window.innerWidth;
+      auraCanvas.height = auraCanvas.offsetHeight || window.innerHeight;
+    };
+    resizeAura();
+    window.addEventListener('resize', resizeAura);
+
+    this._auraParticles = Array.from({ length: 36 }, (_, i) => ({
+      x: 0.5 + (Math.random() - 0.5) * 0.3,
+      y: 0.55 + (Math.random() - 0.5) * 0.25,
+      r: 2 + Math.random() * 5,
+      speed: 0.15 + Math.random() * 0.4,
+      angle: Math.random() * Math.PI * 2,
+      drift: (Math.random() - 0.5) * 0.6,
+      alpha: 0.3 + Math.random() * 0.5,
+      phase: Math.random() * Math.PI * 2
+    }));
+
+    const ctx = auraCanvas.getContext('2d');
+    let lastTime = performance.now();
+
+    const loop = (now) => {
+      this._auraRaf = requestAnimationFrame(loop);
+      if (!this.container || this.container.style.display === 'none') return;
+
+      const dt = Math.min(0.05, (now - lastTime) / 1000);
+      lastTime = now;
+      const char = this.roster[this.selectedIndex];
+      if (!char) return;
+
+      const w = auraCanvas.width;
+      const h = auraCanvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Parse glow color for particle tint
+      const glow = char.glowColor || 'rgba(168,85,247,0.7)';
+
+      for (const p of this._auraParticles) {
+        p.angle += p.drift * dt;
+        p.y -= p.speed * dt * 0.08;
+        if (p.y < -0.05) {
+          p.y = 0.65 + Math.random() * 0.1;
+          p.x = 0.35 + Math.random() * 0.3;
+        }
+        p.phase += dt * 1.2;
+
+        const px = p.x * w + Math.sin(p.phase) * 18;
+        const py = p.y * h;
+        const a = p.alpha * (0.5 + 0.5 * Math.sin(p.phase));
+
+        ctx.save();
+        ctx.globalAlpha = a;
+        ctx.fillStyle = glow.replace(/[\d.]+\)$/, `${a})`);
+        ctx.shadowColor = glow;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(px, py, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    };
+    this._auraRaf = requestAnimationFrame(loop);
   }
 
   _attachEventListeners() {
     if (!this.container) return;
 
-    // Navigation Arrows
     const btnPrev = this.container.querySelector('#btn-char-prev');
     const btnNext = this.container.querySelector('#btn-char-next');
     if (btnPrev) btnPrev.addEventListener('click', () => this.prev());
     if (btnNext) btnNext.addEventListener('click', () => this.next());
 
-    // Primary Action Button (Select / Unlock / Proceed)
     const btnAction = this.container.querySelector('#btn-char-action');
-    if (btnAction) {
-      btnAction.addEventListener('click', () => this._handleAction());
-    }
+    if (btnAction) btnAction.addEventListener('click', () => this._handleAction());
 
-    // Rewarded Ad Button
     const btnAd = this.container.querySelector('#btn-char-reward-ad');
-    if (btnAd) {
-      btnAd.addEventListener('click', () => this._handleWatchAd());
-    }
+    if (btnAd) btnAd.addEventListener('click', () => this._handleWatchAd());
 
-    // Keyboard Navigation (Desktop)
     window.addEventListener('keydown', (e) => {
-      if (this.container.classList.contains('hidden') || this.container.style.display === 'none') {
-        return;
-      }
-      if (e.code === 'ArrowLeft') {
-        this.prev();
-      } else if (e.code === 'ArrowRight') {
-        this.next();
-      } else if (e.code === 'Enter' || e.code === 'Space') {
-        this._handleAction();
-      }
+      if (this.container.classList.contains('hidden') || this.container.style.display === 'none') return;
+      if (e.code === 'ArrowLeft') this.prev();
+      else if (e.code === 'ArrowRight') this.next();
+      else if (e.code === 'Enter' || e.code === 'Space') this._handleAction();
     });
 
-    // Touch Swipe Navigation (Mobile)
     const viewport = this.container.querySelector('#char-carousel-viewport');
     if (viewport) {
       viewport.addEventListener('touchstart', (e) => {
@@ -154,38 +228,43 @@ export class CharacterSelect {
         this.isSwiping = false;
         const deltaX = e.changedTouches[0].clientX - this.touchStartX;
         const deltaY = e.changedTouches[0].clientY - this.touchStartY;
-
-        // Check horizontal swipe threshold
         if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
-          if (deltaX < 0) {
-            this.next();
-          } else {
-            this.prev();
-          }
+          if (deltaX < 0) this.next(); else this.prev();
         }
       }, { passive: true });
+    }
+
+    // Desktop mouse parallax on hero
+    const stage = this.container.querySelector('.vnext-char-stage');
+    const reduceMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (stage && !reduceMotion) {
+      let raf = 0;
+      stage.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const r = stage.getBoundingClientRect();
+          this.container.style.setProperty('--tx', (((e.clientX - r.left) / r.width) * 2 - 1).toFixed(3));
+          this.container.style.setProperty('--ty', (((e.clientY - r.top) / r.height) * 2 - 1).toFixed(3));
+        });
+      });
+      stage.addEventListener('pointerleave', () => {
+        this.container.style.setProperty('--tx', '0');
+        this.container.style.setProperty('--ty', '0');
+      });
     }
   }
 
   prev() {
-    if (this.selectedIndex > 0) {
-      this.selectedIndex--;
-      this.render();
-    }
+    if (this.selectedIndex > 0) { this.selectedIndex--; this.render(); }
   }
 
   next() {
-    if (this.selectedIndex < this.roster.length - 1) {
-      this.selectedIndex++;
-      this.render();
-    }
+    if (this.selectedIndex < this.roster.length - 1) { this.selectedIndex++; this.render(); }
   }
 
   selectIndex(index) {
-    if (index >= 0 && index < this.roster.length) {
-      this.selectedIndex = index;
-      this.render();
-    }
+    if (index >= 0 && index < this.roster.length) { this.selectedIndex = index; this.render(); }
   }
 
   render() {
@@ -196,57 +275,17 @@ export class CharacterSelect {
     this._updateWallet();
     this._updateRewardButton();
 
-    const track = this.container.querySelector('#char-cards-track');
-    if (track) {
-      track.innerHTML = this.roster.map((item, idx) => {
-        const offset = idx - this.selectedIndex;
-        const isSelected = offset === 0;
-        const isUnlocked = this.economy ? this.economy.isCharacterUnlocked(item.id) : item.isFree;
+    if (!this._cards || this._cards.length !== this.roster.length) this._buildCards();
+    this._applyLayout();
 
-        let transformStyle = '';
-        let opacityStyle = 0.35;
-        let zIndexStyle = 10 - Math.abs(offset);
-
-        if (offset === 0) {
-          transformStyle = 'translateX(0px) scale(1.22) translateZ(60px)';
-          opacityStyle = 1.0;
-        } else if (offset === -1) {
-          transformStyle = 'translateX(-160px) scale(0.78) rotateY(18deg) translateZ(0px)';
-          opacityStyle = 0.55;
-        } else if (offset === 1) {
-          transformStyle = 'translateX(160px) scale(0.78) rotateY(-18deg) translateZ(0px)';
-          opacityStyle = 0.55;
-        } else if (offset < -1) {
-          transformStyle = `translateX(${offset * 140}px) scale(0.6) rotateY(25deg) translateZ(-40px)`;
-          opacityStyle = 0.2;
-        } else {
-          transformStyle = `translateX(${offset * 140}px) scale(0.6) rotateY(-25deg) translateZ(-40px)`;
-          opacityStyle = 0.2;
-        }
-
-        return `
-          <div class="vnext-char-card ${isSelected ? 'selected' : ''} ${isUnlocked ? 'unlocked' : 'locked'}"
-               style="transform: ${transformStyle}; opacity: ${opacityStyle}; z-index: ${zIndexStyle};"
-               data-index="${idx}">
-            <div class="vnext-char-aura" style="background: radial-gradient(circle at 50% 50%, ${item.glowColor} 0%, transparent 70%);"></div>
-            <div class="vnext-char-img-wrapper">
-              <img src="${item.image}" alt="${item.name}" class="vnext-char-img" />
-              ${!isUnlocked ? '<div class="vnext-lock-overlay"><span class="lock-icon">🔒</span></div>' : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      // Bind click on cards to jump to selection
-      track.querySelectorAll('.vnext-char-card').forEach((card) => {
-        card.addEventListener('click', () => {
-          const idx = parseInt(card.getAttribute('data-index'), 10);
-          this.selectIndex(idx);
-        });
-      });
+    // v2.3: Reactive backdrop glow
+    this.container.style.setProperty('--sel-glow', char.glowColor);
+    const backdrop = this.container.querySelector('#char-backdrop');
+    if (backdrop) {
+      backdrop.style.background = `radial-gradient(ellipse 70% 60% at 50% 45%, ${char.glowColor.replace(/[\d.]+\)$/, '0.18)')}, transparent 70%)`;
     }
 
-    // Update Meta Info (Minimal Information Rule)
+    // Meta info
     const metaSerial = this.container.querySelector('#char-meta-serial');
     const metaName = this.container.querySelector('#char-meta-name');
     const metaPrice = this.container.querySelector('#char-meta-price');
@@ -257,7 +296,14 @@ export class CharacterSelect {
     const isSelected = this.economy ? this.economy.getSelectedCharacter() === char.id : (this.selectedIndex === 0);
 
     if (metaSerial) metaSerial.textContent = char.serial;
-    if (metaName) metaName.textContent = `${char.name} • ${char.title}`;
+
+    // v2.3: Animated name reveal via class toggle
+    if (metaName) {
+      metaName.classList.remove('name-reveal');
+      void metaName.offsetWidth; // reflow to retrigger animation
+      metaName.classList.add('name-reveal');
+      metaName.innerHTML = `<span class="meta-name-main">${char.name}</span><span class="meta-name-title">${char.title}</span>`;
+    }
 
     if (metaPrice) {
       if (char.isFree) {
@@ -284,19 +330,67 @@ export class CharacterSelect {
       }
     }
 
-    // Update Arrow button visibility
+    // v2.3: Stat bars
+    this._updateStatBars(char);
+
     const btnPrev = this.container.querySelector('#btn-char-prev');
     const btnNext = this.container.querySelector('#btn-char-next');
     if (btnPrev) btnPrev.style.visibility = this.selectedIndex > 0 ? 'visible' : 'hidden';
     if (btnNext) btnNext.style.visibility = this.selectedIndex < this.roster.length - 1 ? 'visible' : 'hidden';
   }
 
+  // v2.3: Stat bar fill widths
+  _updateStatBars(char) {
+    const stats = char.stats || { speed: char.speed || 80, power: 70, stealth: 70 };
+    const fillSpeed = this.container.querySelector('#stat-fill-speed');
+    const fillPower = this.container.querySelector('#stat-fill-power');
+    const fillStealth = this.container.querySelector('#stat-fill-stealth');
+    const accent = char.accentColor || '#a855f7';
+
+    if (fillSpeed) { fillSpeed.style.width = `${stats.speed}%`; fillSpeed.style.background = accent; }
+    if (fillPower)  { fillPower.style.width  = `${stats.power}%`;  fillPower.style.background  = accent; }
+    if (fillStealth){ fillStealth.style.width = `${stats.stealth}%`; fillStealth.style.background = accent; }
+  }
+
+  _buildCards() {
+    const track = this.container.querySelector('#char-cards-track');
+    if (!track) return;
+    track.innerHTML = this.roster.map((item, idx) => `
+      <div class="vnext-char-card" data-index="${idx}" style="--card-accent: ${item.accentColor};">
+        <div class="vnext-char-aura" style="background: radial-gradient(circle at 50% 50%, ${item.glowColor} 0%, transparent 70%);"></div>
+        <div class="vnext-char-img-wrapper">
+          <img src="${item.image}" alt="${item.name}" class="vnext-char-img" decoding="async" draggable="false" />
+          <div class="vnext-lock-overlay" style="display: none;"><span class="lock-icon">🔒</span></div>
+        </div>
+      </div>
+    `).join('');
+    this._cards = Array.from(track.querySelectorAll('.vnext-char-card'));
+    this._cards.forEach((card, idx) => card.addEventListener('click', () => this.selectIndex(idx)));
+  }
+
+  _applyLayout() {
+    this._cards.forEach((card, idx) => {
+      const item = this.roster[idx];
+      const offset = idx - this.selectedIndex;
+      const layout = characterCardLayout(offset);
+      const isUnlocked = this.economy ? this.economy.isCharacterUnlocked(item.id) : item.isFree;
+
+      card.style.transform = layout.transform;
+      card.style.opacity = layout.opacity;
+      card.style.zIndex = layout.zIndex;
+      card.classList.toggle('selected', offset === 0);
+      card.classList.toggle('unlocked', isUnlocked);
+      card.classList.toggle('locked', !isUnlocked);
+
+      const lock = card.querySelector('.vnext-lock-overlay');
+      if (lock) lock.style.display = isUnlocked ? 'none' : 'flex';
+    });
+  }
+
   _updateWallet() {
     if (!this.container) return;
     const walletEl = this.container.querySelector('#char-wallet-points');
-    if (walletEl && this.economy) {
-      walletEl.textContent = this.economy.getPoints().toLocaleString();
-    }
+    if (walletEl && this.economy) walletEl.textContent = this.economy.getPoints().toLocaleString();
   }
 
   _updateRewardButton() {
@@ -315,15 +409,11 @@ export class CharacterSelect {
   }
 
   async _handleWatchAd() {
-    if (!this.rewards) return;
-    if (!this.rewards.isAvailable()) return;
-
+    if (!this.rewards || !this.rewards.isAvailable()) return;
     const btnAd = this.container.querySelector('#btn-char-reward-ad');
     if (btnAd) btnAd.classList.add('loading');
-
     const result = await this.rewards.showRewardedAd();
     if (btnAd) btnAd.classList.remove('loading');
-
     if (result && result.success) {
       this._showRewardNotification(`+${result.pointsEarned} POINTS EARNED!`);
       this.render();
@@ -342,19 +432,13 @@ export class CharacterSelect {
   _handleAction() {
     const char = this.roster[this.selectedIndex];
     if (!char) return;
-
     const isUnlocked = this.economy ? this.economy.isCharacterUnlocked(char.id) : char.isFree;
 
     if (isUnlocked) {
-      if (this.economy) {
-        this.economy.setSelectedCharacter(char.id);
-      }
+      if (this.economy) this.economy.setSelectedCharacter(char.id);
       this.hide();
-      if (this.onSelect) {
-        this.onSelect(char);
-      }
+      if (this.onSelect) this.onSelect(char);
     } else {
-      // Attempt Purchase
       const success = this.economy ? this.economy.unlockCharacter(char.id, char.price) : false;
       if (success) {
         this._showRewardNotification(`${char.name} UNLOCKED!`);
@@ -382,8 +466,7 @@ export class CharacterSelect {
   }
 
   destroy() {
-    if (this.cooldownInterval) {
-      clearInterval(this.cooldownInterval);
-    }
+    if (this.cooldownInterval) clearInterval(this.cooldownInterval);
+    if (this._auraRaf) cancelAnimationFrame(this._auraRaf);
   }
 }

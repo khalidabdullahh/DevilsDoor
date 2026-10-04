@@ -38,12 +38,16 @@ export class ShadowNinjaEnemy {
     this.projectiles = []; // Monk curse orbs
   }
 
-  takeDamage(amount = 1, hitFacing = 1, audio = null) {
+  // knockback = pixels pushed back; heavy combo finishers pass a bigger value
+  takeDamage(amount = 1, hitFacing = 1, audio = null, knockback = 45) {
     if (this.isDead) return;
     this.health -= amount;
-    this.state = 'hurt';
-    this.stateTimer = 0.2;
-    this.x += hitFacing * 45;
+    // Oni Guards have "super armor": light hits do not interrupt their attack
+    if (this.type !== 'oni' || amount >= 2) {
+      this.state = 'hurt';
+      this.stateTimer = 0.2;
+    }
+    this.x += hitFacing * knockback;
     this.facing = -hitFacing;
 
     if (audio) audio.playBladeHit();
@@ -98,7 +102,7 @@ export class ShadowNinjaEnemy {
       if (player && !player.isDead) {
         const d = Math.hypot(player.x - orb.x, (player.y + 20) - orb.y);
         if (d < 30) {
-          player.takeDamage(1, audio, camera);
+          player.takeDamage(1, audio, camera, null, { source: 'enemy', fromX: orb.x });
           this.projectiles.splice(i, 1);
           continue;
         }
@@ -193,7 +197,7 @@ export class ShadowNinjaEnemy {
           const hit = (dirToPlayer === this.facing && xDist < hitRange && yDist < 60);
           if (hit) {
             this.hasHitPlayerThisAttack = true;
-            player.takeDamage(1, audio, camera);
+            player.takeDamage(1, audio, camera, null, { source: 'enemy', fromX: this.x + this.width / 2 });
           }
         }
 

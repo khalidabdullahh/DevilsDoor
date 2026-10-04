@@ -1,3 +1,11 @@
+/*
+ * ==============================================================================
+ * Project: Devil's Door (Ninja Arashi style action game)
+ * File: src/js/core/Game.js
+ * Description: Master Game Coordinator orchestrating state transitions,
+ *              game loop, character/scene rendering, physics, and rewards.
+ * ==============================================================================
+ */
 import { NinjaArashiRenderer } from '../render/NinjaArashiRenderer.js';
 import { Camera2D } from './Camera2D.js';
 import { NinjaArashiPlayer } from '../entities/NinjaArashiPlayer.js';
@@ -138,6 +146,7 @@ export class Game {
     this.selectedCharacter = CHARACTER_ROSTER.find(c => c.id === activeCharId) || CHARACTER_ROSTER[0];
 
     this.isInSelectionFlow = false;
+    if (this.renderer && this.selectedScene) this.renderer.loadBackground(this.selectedScene.id);
     this.world = new EndlessWorld(this.selectedScene ? this.selectedScene.id : 'sunset_torii');
     this.player.setCharacter(this.selectedCharacter ? this.selectedCharacter.id : 'kage_ryu');
     this.player.reset(this.world.playerStartX, this.world.playerStartY);
@@ -159,7 +168,8 @@ export class Game {
         this.highScore,
         this.player.health,
         this.player.maxHealth,
-        this.world.biome
+        this.world.biome,
+        this._hudExtras()
       );
     }
   }
@@ -192,9 +202,31 @@ export class Game {
     requestAnimationFrame((t) => this._loop(t));
   }
 
+  // Small stats shown next to the hearts: diamonds, shuriken ammo, dash ready
+  _hudExtras() {
+    const p = this.player;
+    return {
+      diamonds: p.diamonds || 0,
+      ammo: p.shurikenAmmo,
+      maxAmmo: p.shurikenMaxAmmo,
+      dashReady: p.dashCooldown <= 0
+    };
+  }
+
   _update(dt) {
+    // Hit-stop: freeze the simulation for a few ms on impact so hits feel heavy.
+    // Rendering still runs, so the frame simply holds.
+    if (this.hitStop > 0) {
+      this.hitStop -= dt;
+      return;
+    }
+
     // 1. Update Player and Endless World
     this.player.update(dt, this.input, this.world, this.audio, this.camera);
+    if (this.player.pendingHitStop > 0) {
+      this.hitStop = Math.max(this.hitStop || 0, this.player.pendingHitStop);
+      this.player.pendingHitStop = 0;
+    }
     this.world.update(dt, this.player, this.audio, this.camera);
 
     // 2. Camera Tracking
@@ -218,7 +250,8 @@ export class Game {
         this.highScore,
         this.player.health,
         this.player.maxHealth,
-        this.world.biome
+        this.world.biome,
+        this._hudExtras()
       );
     }
 

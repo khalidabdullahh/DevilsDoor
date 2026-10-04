@@ -243,7 +243,25 @@ export class UIManager {
     if (this.touchControls) this.touchControls.classList.add('hidden');
   }
 
-  updateEndlessHUD(distance, score, highScore, health = 3, maxHealth = 3, biome = 'sunset_torii') {
+  updateEndlessHUD(distance, score, highScore, health = 3, maxHealth = 3, biome = 'sunset_torii', extras = null) {
+    // v2.3: Set biome-reactive HUD accent color
+    const hudAccents = {
+      sunset_torii:    '#ef4444',
+      moonlight_ruins: '#06b6d4',
+      scythe_chasm:    '#10b981',
+      crystal_abyss:   '#f43f5e',
+      bamboo_mist:     '#10b981',
+      crimson_temple:  '#e11d48',
+      underworld_gate: '#8b5cf6',
+      celestial_ruins: '#38bdf8',
+      shadow_peak:     '#f59e0b',
+      blood_moon:      '#dc2626'
+    };
+    const accentColor = hudAccents[biome] || '#ef4444';
+    if (typeof document !== 'undefined' && document.documentElement && document.documentElement.style) {
+      document.documentElement.style.setProperty('--hud-accent-live', accentColor);
+    }
+
     if (this.distanceDisplay) {
       this.distanceDisplay.textContent = `${distance.toLocaleString()}m`;
     }
@@ -267,21 +285,60 @@ export class UIManager {
       deckRealm.textContent = `DEVIL'S DOOR ⚡ ${names[biome] || '4K REALM'}`;
     }
 
-    let dotsHtml = '';
-    for (let i = 0; i < maxHealth; i++) {
-      const isActive = i < health;
-      dotsHtml += `
-        <div class="vitality-dot ${isActive ? 'active' : 'depleted'}" title="Health: ${health}/${maxHealth}">
+    // Only touch the DOM when something changed. Re-creating the dots every frame
+    // (the old behavior) restarted their CSS pulse animation 60x per second.
+    const healthKey = `${health}/${maxHealth}`;
+    document.querySelectorAll('.hud-health-bar').forEach((el) => {
+      if (el.dataset.key === healthKey && el.firstChild) return;
+      el.dataset.key = healthKey;
+      let dotsHtml = '';
+      for (let i = 0; i < maxHealth; i++) {
+        const isActive = i < health;
+        // v2.3: last dot danger class when health === 1
+        const isDanger = isActive && health === 1 && i === 0;
+        const cls = isActive
+          ? `vitality-dot active${isDanger ? ' danger' : ''}`
+          : 'vitality-dot depleted';
+        dotsHtml += `
+        <div class="${cls}" title="Health: ${health}/${maxHealth}">
           <span class="dot-core"></span>
         </div>
       `;
-    }
-
-    const healthBars = document.querySelectorAll('.hud-health-bar');
-    healthBars.forEach((el) => {
+      }
       el.innerHTML = dotsHtml;
     });
+
+    // v2.3: Distance milestone flash (every 1000m)
+    if (this.distanceDisplay) {
+      const km = Math.floor(distance / 1000);
+      if (km > 0 && km !== this._lastMilestoneKm) {
+        this._lastMilestoneKm = km;
+        this.distanceDisplay.classList.remove('dist-flash');
+        void this.distanceDisplay.offsetWidth; // reflow
+        this.distanceDisplay.classList.add('dist-flash');
+        setTimeout(() => {
+          if (this.distanceDisplay) this.distanceDisplay.classList.remove('dist-flash');
+        }, 700);
+      }
+    }
+
+    if (extras) this._updateHudStats(extras);
   }
+
+  // Diamonds counter, shuriken ammo pips, dash-ready dot (landscape HUD + portrait deck)
+  // v2.3: ammo pips inherit --hud-accent-live via CSS
+  _updateHudStats({ diamonds = 0, ammo = 0, maxAmmo = 5, dashReady = true }) {
+    const key = `${diamonds}|${ammo}|${maxAmmo}|${dashReady ? 1 : 0}`;
+    if (key === this._hudStatsKey) return;
+    this._hudStatsKey = key;
+
+    document.querySelectorAll('.hud-diamonds-val').forEach((el) => { el.textContent = String(diamonds); });
+    let pips = '';
+    for (let i = 0; i < maxAmmo; i++) pips += `<i class="ammo-pip ${i < ammo ? 'on' : ''}"></i>`;
+    document.querySelectorAll('.hud-ammo').forEach((el) => { el.innerHTML = pips; });
+    document.querySelectorAll('.hud-dash-pip').forEach((el) => { el.classList.toggle('ready', dashReady); });
+  }
+
 
   /**
    * Show animated notification when reaching 1000m milestones (strictly non-blocking)

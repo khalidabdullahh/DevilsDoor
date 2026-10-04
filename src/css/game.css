@@ -2060,3 +2060,285 @@ body.portrait-mode .dash-btn {
   .vnext-header-left .step-label { display: none; }
   .vnext-header-left .vnext-back-btn { padding-left: 10px; padding-right: 10px; }
 }
+
+/* ==========================================================================
+   v2.3 — VISUAL QUALITY OVERHAUL STYLES
+   ========================================================================== */
+
+/* ---- v2.3 root defaults ---- */
+:root {
+  --hud-accent-live: #ef4444; /* updated per biome by UIManager */
+}
+
+/* --------------------------------------------------------------------------
+   CHARACTER SELECT — Particle Aura Canvas
+   -------------------------------------------------------------------------- */
+.vnext-aura-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1; /* above backdrop, below cards */
+  opacity: 0.85;
+}
+
+/* --------------------------------------------------------------------------
+   CHARACTER SELECT — Name Reveal Animation
+   -------------------------------------------------------------------------- */
+@keyframes nameReveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    clip-path: inset(0 0% 0 0);
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.meta-name.name-reveal {
+  animation: nameReveal 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.meta-name-main {
+  display: block;
+  font-size: inherit;
+  letter-spacing: inherit;
+  line-height: 1;
+}
+
+.meta-name-title {
+  display: block;
+  font-size: 0.55em;
+  letter-spacing: 0.22em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 2px;
+  opacity: 0.85;
+}
+
+/* --------------------------------------------------------------------------
+   CHARACTER SELECT — Stat Bars
+   -------------------------------------------------------------------------- */
+.vnext-stat-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 10px 0 12px;
+  padding: 0 2px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stat-label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+  width: 28px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.stat-track {
+  flex: 1;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.stat-fill {
+  height: 100%;
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* --------------------------------------------------------------------------
+   SCENE SELECT — Lore & Difficulty
+   -------------------------------------------------------------------------- */
+.vnext-realm-lore-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 10px;
+  padding: 0 2px;
+}
+
+.realm-lore-text {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: rgba(148, 163, 184, 0.9);
+  font-style: italic;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+@keyframes loreReveal {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.realm-lore-text.lore-reveal {
+  animation: loreReveal 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both 0.1s;
+}
+
+.realm-difficulty {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.diff-star {
+  font-size: 0.8rem;
+  line-height: 1;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.diff-star.filled {
+  color: #fbbf24;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.7);
+}
+
+.diff-star.empty {
+  color: rgba(255, 255, 255, 0.18);
+}
+
+/* --------------------------------------------------------------------------
+   SCENE SELECT — Atmospheric Particle Overlay
+   -------------------------------------------------------------------------- */
+.vnext-atmo-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Generate pseudo-particles using CSS — no JS needed for the visual layer */
+.vnext-atmo-particles::before,
+.vnext-atmo-particles::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: var(--atmo-glow, rgba(239, 68, 68, 0.5));
+  animation: atmoFloat 6s ease-in-out infinite;
+  opacity: 0;
+}
+
+.vnext-atmo-particles::before {
+  width: 6px; height: 6px;
+  top: 70%; left: 20%;
+  animation-delay: 0s;
+  animation-duration: 5.5s;
+}
+.vnext-atmo-particles::after {
+  width: 4px; height: 4px;
+  top: 60%; left: 70%;
+  animation-delay: -2.5s;
+  animation-duration: 7s;
+}
+
+/* Snow variant: elongated drops */
+.vnext-atmo-particles.atmo-snow::before,
+.vnext-atmo-particles.atmo-snow::after {
+  border-radius: 2px;
+  width: 3px; height: 9px;
+  animation-name: atmoFall;
+  animation-duration: 4s;
+}
+
+/* Ash variant: flat ellipse tumble */
+.vnext-atmo-particles.atmo-ash::before,
+.vnext-atmo-particles.atmo-ash::after {
+  border-radius: 50% / 30%;
+  width: 8px; height: 3px;
+  animation-name: atmoTumble;
+}
+
+@keyframes atmoFloat {
+  0%   { opacity: 0; transform: translateY(0) scale(0.8); }
+  20%  { opacity: 0.7; }
+  80%  { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-120px) scale(1.2) translateX(20px); }
+}
+
+@keyframes atmoFall {
+  0%   { opacity: 0; transform: translateY(-30px) rotate(15deg); }
+  20%  { opacity: 0.65; }
+  100% { opacity: 0; transform: translateY(160px) rotate(-20deg); }
+}
+
+@keyframes atmoTumble {
+  0%   { opacity: 0; transform: translateY(0) rotate(0deg); }
+  20%  { opacity: 0.55; }
+  100% { opacity: 0; transform: translateY(-100px) rotate(180deg) translateX(40px); }
+}
+
+/* --------------------------------------------------------------------------
+   HUD v2.3 — Biome-reactive health dot colors
+   -------------------------------------------------------------------------- */
+.vitality-dot.active .dot-core {
+  background: var(--hud-accent-live, #ef4444);
+  box-shadow: 0 0 8px 2px var(--hud-accent-live, #ef4444);
+}
+
+/* Danger: last health dot — rapid red pulse */
+@keyframes dangerPulse {
+  0%, 100% { box-shadow: 0 0 8px 2px #ef4444; opacity: 1; }
+  50%       { box-shadow: 0 0 20px 6px #ef4444; opacity: 0.65; }
+}
+
+.vitality-dot.active.danger .dot-core {
+  background: #ef4444 !important;
+  animation: dangerPulse 0.55s ease-in-out infinite !important;
+}
+
+/* Depleted dot — dimmed cracked look */
+.vitality-dot.depleted .dot-core {
+  background: rgba(100, 100, 120, 0.3);
+  box-shadow: none;
+  clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+}
+
+/* Ammo pips — inherit realm accent */
+.ammo-pip.on {
+  background: var(--hud-accent-live, #ef4444) !important;
+  box-shadow: 0 0 6px 1px var(--hud-accent-live, #ef4444);
+}
+
+/* --------------------------------------------------------------------------
+   HUD v2.3 — Distance milestone flash
+   -------------------------------------------------------------------------- */
+@keyframes distFlash {
+  0%   { color: #fff; text-shadow: 0 0 22px var(--hud-accent-live, #ef4444), 0 0 8px #fff; transform: scale(1.15); }
+  60%  { color: var(--hud-accent-live, #ef4444); text-shadow: 0 0 12px var(--hud-accent-live, #ef4444); transform: scale(1.05); }
+  100% { color: inherit; text-shadow: none; transform: scale(1); }
+}
+
+#distance-display.dist-flash {
+  animation: distFlash 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced-motion overrides for all v2.3 animations
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .meta-name.name-reveal { animation: none; clip-path: none; }
+  .realm-lore-text.lore-reveal { animation: none; }
+  .vnext-atmo-particles::before,
+  .vnext-atmo-particles::after { animation: none; opacity: 0.3; }
+  .vitality-dot.active.danger .dot-core { animation: none !important; }
+  #distance-display.dist-flash { animation: none; }
+  .stat-fill { transition-duration: 0.01s; }
+}
+
