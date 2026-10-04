@@ -68,6 +68,29 @@ All contributions are subject to review and final authority by **Khalid Abdullah
 
 `index.html` (+ identical copy `website/index.html`) is now a single poster-style hero: huge headline, the founder's cutout portrait in front of it, Play Now -> `/game`. Styles in `website/css/landing.css`, headline fitting in `website/js/hero-fit.js`, display font Dela Gothic One (self-hosted, OFL). The earlier scroll-driven WebGL journey is kept, unchanged, at `/cinematic` (`cinematic.html`); the rules below describe that page.
 
+## 5a. Selection pages plan (Landing -> Character -> Realm -> Game)
+
+**Why.** The in-game select screens load the original PNG/JPG art (about 18 MB of characters, 9.4 MB of backgrounds) and lag. The new pages use the small WebP files only.
+
+**Locked decisions (from the founder)**
+1. Realms stay **exactly** as they are: same 10 artworks, names and order (data from `SCENE_ROSTER`). Only the container changes.
+2. Pages follow the landing look: lavender frame, black rounded border, huge slate type, orange accent, Dela Gothic One + Barlow Condensed (`website/css/landing.css` tokens). Game feel comes from the art being large and the type sitting behind/in front of it.
+3. Heroes are shown as real characters: transparent cutout in front of the big name, slow breathing float, small parallax, accent colour per hero from `CHARACTER_ROSTER`, real stats (speed, jump, hearts) as bars.
+4. Data only from `CHARACTER_ROSTER`, `SCENE_ROSTER` and the economy. No invented names or stats.
+5. Flow: `/` -> `/select/character` -> `/select/realm` -> `/game`, with back buttons and a 3-step indicator. PLAY NOW on the landing keeps pointing at `/game` until the pages work end to end.
+6. Performance rules: only the selected item and +-2 neighbours load their image (`loadWindow` in `src/js/ui/selectLayout.js`); thumbnails are tiny WebP; animate only `transform`/`opacity`; no new libraries; honour `prefers-reduced-motion`.
+7. Locked heroes/realms (assumption, change if the founder says otherwise): the pages show them with a lock and price and say "unlock in game"; unlocking stays in the game economy.
+8. Enemies (assumption): **deferred**. Enemies are drawn by code and have no portrait art. Needs either founder-made art or game renders; decide later.
+9. The old in-game select screens stay until the new flow works; `src/js/**` is touched only for the small hand-off in step 5 and only after approval.
+
+**Steps** (one at a time, each ends with tests + screenshots + commit to `main`)
+- [x] 1. Light assets done: `src/assets/web/select-hero-0N.webp` (transparent cutouts, 94-128 KB each) and `realm-NN-sm.webp` (360 px thumbs, 5-10 KB each). NOTE: `characters/solo/*.png` are full scenes with an opaque alpha, NOT cutouts; the cutouts were made with rembg (isnet-general-use) from them, and the red moon behind Tsukuyomi was removed by hand. Realm art itself was not touched (`realm-NN.webp` / `-lg.webp` are the exact originals).
+- [ ] 2. Shared select style + roster data module for the pages.
+- [ ] 3. Realm page.
+- [ ] 4. Character page.
+- [ ] 5. Hand-off: save the two choices, make `/game` start with them (needs founder approval).
+- [ ] 6. Switch landing PLAY NOW to the new flow; phone + desktop speed and screenshot check.
+
 ## 5b. Cinematic landing (`cinematic.html`): read this before touching it
 
 **Status and next steps:** [`docs/LANDING_ROADMAP.md`](docs/LANDING_ROADMAP.md). **What the founder asked for:** [`docs/LANDING_BRIEF.md`](docs/LANDING_BRIEF.md). Creative rule: *atmosphere over UI, cinematic transition over another card, visual storytelling over more text.*
