@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+> `package.json` is at 2.2.0; the 2.2.x changes are listed here (and in `DevilsDoor_Vault/📂_04_VERSION_UPGRADES_&_RELEASE_LOGS/`) until a release is cut.
+
 ### Added
 - Poster-style landing hero (`index.html`, `website/css/landing.css`, `website/js/hero-fit.js`): oversized headline, founder portrait cutout in front, orange accent, Play Now -> `/game`. The cinematic scroll journey moved to `/cinematic` (`cinematic.html`).
 - Cinematic scroll-driven landing page (`index.html`, `website/css/cinema.css`, `website/js/cinema/*`): moon + torii hero, gate tunnel, shinobi showcase with shader dissolve, 10-realm horizontal journey, the Door, final entry. Self-hosted Cinzel + Barlow Condensed fonts, vendored Three.js r128.
@@ -24,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.1.0] - 2026-09-04 (Current Active Version)
+## [2.1.0] - 2026-09-04
 
 ### Added
 - **4 Official 4K Cinematic Realms**: Replaced all previous scenes with 4 high-definition 4K dark fantasy realms (`Sunset Sanctuary`, `Moonlight Citadel`, `Shadow Scythe Grove`, `Ruby Crystal Abyss`).

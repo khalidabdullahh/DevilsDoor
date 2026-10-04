@@ -42,7 +42,7 @@
   - Top HUD overlay with death counter, level title, and instant restart.
 
 - [x] **Phase 7 — Official Landing Website**
-  - Mobile-first, responsive marketing website with system-aware Light/Dark mode tokens.
+  - Mobile-first marketing website: poster-style hero at `/`, dark-only cinematic journey at `/cinematic` (ADR-007, still PROPOSED).
   - Direct playable launcher integration.
 
 - [ ] **Phase 8 — Content Expansion (Levels 6–25)**

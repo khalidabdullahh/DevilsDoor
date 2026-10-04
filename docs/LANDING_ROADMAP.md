@@ -1,7 +1,7 @@
 # Landing page: implementation plan (phase by phase)
 
 Read first: [`docs/LANDING_BRIEF.md`](LANDING_BRIEF.md) (what the founder wants) and the "Landing page" section of [`AGENTS.md`](../AGENTS.md) (how it is built, how to test it).
-Branch of this work: `cinematic-landing` (not merged to `main` yet). The redirect hotfix is already on `main` (see Phase 0).
+Branch of this work: `cinematic-landing` (merged to `main` in PR #3; it now lives at `/cinematic`, while `/` is the poster-style hero). The redirect hotfix is already on `main` (see Phase 0).
 
 ## Where we are (honest status)
 
@@ -24,7 +24,7 @@ Each scene looks intentional at 390x844, 768x1024, 1366x768, 1920x1080; no text 
 ---
 
 ## Phase 0: production check (5 min)
-The `/game` redirect loop (`ERR_TOO_MANY_REDIRECTS`) is **already fixed on `main`** (commit `3cdba3a` removed `_redirects`; Cloudflare Pages serves `game.html` at `/game` by itself). The branch `fix-game-redirect-loop` is obsolete: delete it.
+The `/game` redirect loop (`ERR_TOO_MANY_REDIRECTS`) is **already fixed on `main`** (commit `3cdba3a` removed `_redirects`; Cloudflare Pages serves `game.html` at `/game` by itself). The branch `fix-game-redirect-loop` is obsolete (safe to delete).
 1. After the next deploy open `https://<site>/game` and `/play` on a phone: both must load the game.
 2. Never add `/game /game.html 200` style rewrites back.
 **Done when:** PLAY GAME works on the live site.
