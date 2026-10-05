@@ -91,7 +91,8 @@ All contributions are subject to review and final authority by **Khalid Abdullah
 - [x] 3. Realm picker lightweight: one big preview + 240px WebP thumbnail strip; only the selected realm and ±1 neighbour preload (`loadWindow`); `SceneRoster.js` derives `preview` / `thumb` / `blur` WebP paths from `image` (files in `src/assets/backgrounds/web/`).
 - [x] 4. UI kit + restyled Shinobi / Realm screens + bevelled touch buttons (section 8).
 - [x] 5. Dedicated standalone `/select/character` & `/select/realm` routes with poster aesthetic, stat gauges, and localStorage hand-off to `/game`.
-- [ ] 6. Enemy portrait art (Option C chosen: enemies deferred; later: AI-generated art, same style, transparent cutout -> WebP).
+- [ ] 6. Enemy portrait art (Option C chosen: enemies deferred). Prompt pack ready: `docs/ART_PROMPTS.md` (style block, 7 enemy prompts, UI piece prompts, hand-off checklist). Enemy roster for art: Shadow Ronin, Oni Guard, Cursed Monk, Crimson Assassin, Shadow Sentry, Oni Boss (Shadow Entity), Shadow Devil. In-game enemies stay code-drawn; AI art is for portraits/cards only.
+- [!] 7. **Open flow question (2026-10-05):** standalone poster-style `/select/character` and `/select/realm` pages exist (commit fbda45f), but the landing's PLAY NOW goes straight to `/game` (in-game dark-UI select screens, section 8). Both look different (lavender poster vs dark game UI). Founder must decide which flow is final before either is removed or linked.
 
 ### 6.3 Cinematic Landing (`cinematic.html`)
 Status & guidelines in [`docs/LANDING_ROADMAP.md`](docs/LANDING_ROADMAP.md) and [`docs/LANDING_BRIEF.md`](docs/LANDING_BRIEF.md). Creative rule: *atmosphere over UI, cinematic transition over another card, visual storytelling over more text.*
@@ -182,6 +183,7 @@ scripts/sync-shells.js             <- dist path rewrites for ui-kit.css / immers
 ```
 
 ### 8.4 Next ideas (not started)
+- Painted art pass: generate enemy portraits + UI textures from `docs/ART_PROMPTS.md`, then wire them in (keep CSS as the fallback).
 - Cooldown ring on Dash / Shuriken buttons (needs cooldown values exposed from the player).
 - Optional AI-generated button / frame / pedestal textures (WebP) for a hand-painted look.
 - Enemy portraits (Option B) once art exists.
