@@ -1,0 +1,242 @@
+/* ==========================================================================
+   DEVIL'S DOOR — UI KIT (v2.4)
+   One place for the in-game "mobile game UI" look: tokens, bevelled buttons, panels, pills.
+   Loaded AFTER game.css, so these rules restyle the Shinobi / Realm screens and touch controls.
+   Rules of thumb: animate only transform/opacity, no backdrop-filter, no big blurs (phones lag).
+   The landing page (lavender poster) is separate and does not use this file.
+   ========================================================================== */
+
+@font-face{font-family:"Dela Gothic One";src:url("/src/assets/fonts/dela-gothic-one-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Barlow Condensed";src:url("/src/assets/fonts/barlow-condensed-latin-600-normal.woff2") format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Barlow Condensed";src:url("/src/assets/fonts/barlow-condensed-latin-700-normal.woff2") format("woff2");font-weight:700;font-display:swap}
+
+:root{
+  /* palette: dark navy base + the landing page's gold / ember accents */
+  --dd-gold:#ffb800;
+  --dd-gold-hi:#ffd866;
+  --dd-gold-lo:#d98200;
+  --dd-ember:#e8481c;
+  --dd-ink:#0b0c14;
+  --dd-panel:rgba(14,16,28,.88);
+  --dd-panel-edge:rgba(255,184,0,.38);
+  --dd-text:#f4f1ff;
+  --dd-muted:#9aa0b8;
+  --dd-display:"Dela Gothic One","Arial Black",Impact,sans-serif;
+  --dd-ui:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --sel-accent:#a855f7; /* set per hero by CharacterSelect.js */
+}
+
+/* ---- Bevelled game button (the BATTLE-style CTA). Use on <button class="dd-btn"> ---- */
+.dd-btn,
+.vnext-primary-cta{
+  position:relative;
+  font-family:var(--dd-ui);
+  background:linear-gradient(180deg,var(--dd-gold-hi) 0%,var(--dd-gold) 46%,var(--dd-gold-lo) 100%);
+  border:2px solid #6b3200;
+  border-radius:14px;
+  color:#3b1b00;
+  text-shadow:0 1px 0 rgba(255,255,255,.55);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.65),   /* top highlight  */
+    inset 0 -5px 0 rgba(120,52,0,.40),      /* bottom bevel   */
+    0 5px 0 #7a3a00,                        /* solid "thickness" under the button */
+    0 10px 16px rgba(0,0,0,.55);            /* ground shadow  */
+  transition:transform .08s ease, box-shadow .08s ease, filter .15s ease;
+}
+.dd-btn:active,
+.vnext-primary-cta:active{
+  transform:translateY(4px);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.55), inset 0 -3px 0 rgba(120,52,0,.40), 0 1px 0 #7a3a00, 0 4px 8px rgba(0,0,0,.5);
+}
+.vnext-primary-cta .cta-text{font-family:var(--dd-ui);font-weight:700;font-size:clamp(.95rem,2.1vw,1.45rem);letter-spacing:.08em;white-space:nowrap}
+.vnext-primary-cta.can-buy{background:linear-gradient(180deg,#ffe28a,#ffc21a 46%,#e08a00);box-shadow:inset 0 2px 0 rgba(255,255,255,.65),inset 0 -5px 0 rgba(120,52,0,.4),0 5px 0 #7a3a00,0 10px 16px rgba(0,0,0,.55)}
+.vnext-primary-cta.cannot-buy{
+  background:linear-gradient(180deg,#8d93a8,#666c82 50%,#4a4f63);border-color:#262a38;color:#d6d9e6;text-shadow:0 1px 0 rgba(0,0,0,.5);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.25),inset 0 -5px 0 rgba(0,0,0,.3),0 5px 0 #20232f,0 10px 16px rgba(0,0,0,.5);
+}
+
+/* ---- Pills (currency, step badge) ---- */
+.vnext-wallet-badge,.vnext-step-badge{
+  font-family:var(--dd-ui);
+  background:linear-gradient(180deg,#1b1e33,#10121f);
+  border:1.5px solid var(--dd-panel-edge);
+  border-radius:999px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 3px 0 rgba(0,0,0,.45);
+}
+.vnext-wallet-badge .wallet-num{color:var(--dd-gold-hi);font-weight:700;font-size:1.05rem}
+.vnext-wallet-badge .wallet-label,.vnext-step-badge .step-label{color:var(--dd-text);font-weight:600;letter-spacing:.08em}
+.vnext-step-badge .step-num{color:var(--dd-gold);font-weight:700}
+.vnext-ad-btn{
+  font-family:var(--dd-ui);font-weight:700;color:#fff;border:2px solid #6a1d05;border-radius:999px;
+  background:linear-gradient(180deg,#ff7a45,var(--dd-ember) 55%,#b92f0a);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 3px 0 #7a2208,0 6px 10px rgba(0,0,0,.45);
+}
+.vnext-back-btn{font-family:var(--dd-ui);font-weight:700;letter-spacing:.06em;border:1.5px solid var(--dd-panel-edge);background:linear-gradient(180deg,#1b1e33,#10121f);color:var(--dd-text);border-radius:999px}
+
+/* ---- Round arrow buttons: dark bevelled discs with a gold rim ---- */
+.vnext-nav-arrow{
+  background:radial-gradient(circle at 50% 30%,#2a2e4a,#10121f 70%);
+  border:2px solid var(--dd-panel-edge);color:var(--dd-gold-hi);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 4px 0 rgba(0,0,0,.55),0 8px 14px rgba(0,0,0,.5);
+}
+
+/* ---- Panel: dark framed box with a gold hairline ---- */
+.dd-panel{
+  background:linear-gradient(180deg,rgba(26,29,48,.92),var(--dd-panel));
+  border:1.5px solid var(--dd-panel-edge);border-radius:16px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 8px 18px rgba(0,0,0,.5);
+}
+
+/* ==========================================================================
+   SHINOBI SCREEN — hero on a pedestal, info panel left, big CTA bottom-right
+   ========================================================================== */
+.vnext-select-backdrop{
+  background-image:
+    radial-gradient(ellipse 55% 60% at 50% 55%,color-mix(in srgb,var(--sel-accent) 34%,transparent) 0%,transparent 70%),
+    radial-gradient(rgba(255,255,255,.035) 1.5px,transparent 1.5px);
+  background-size:100% 100%,22px 22px;
+}
+.vnext-carousel-viewport{max-width:none;height:clamp(240px,70vh,560px)}
+.vnext-char-card{
+  top:auto;bottom:14%;
+  height:80%;width:auto;aspect-ratio:1/1;
+}
+.vnext-char-card::after{display:none}                          /* old blurred floor glow: replaced by the pedestal */
+.vnext-char-img{filter:drop-shadow(0 10px 14px rgba(0,0,0,.75))}
+.vnext-char-card:not(.selected){opacity:0!important;pointer-events:none}   /* one hero on stage; switch with arrows, swipe or dots */
+.vnext-char-aura{display:none}                                 /* big blurred aura layer was costly; backdrop glow does the job */
+
+/* the pedestal: a stone disc with an accent glow ring (pure CSS, no image) */
+.dd-pedestal{
+  position:absolute;left:50%;bottom:7%;width:min(64%,340px);height:clamp(30px,9vh,56px);
+  transform:translateX(-50%);border-radius:50%;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 30%,#4a4f6b 0%,#262a40 55%,#14162a 100%);
+  box-shadow:0 0 0 3px #0d0e19,0 0 0 4.5px #a855f7,0 10px 0 -1px #0d0e19,0 20px 24px rgba(0,0,0,.65); /* fallback for browsers without color-mix */
+  box-shadow:
+    0 0 0 3px #0d0e19,
+    0 0 0 4.5px color-mix(in srgb,var(--sel-accent) 70%,#fff 0%),
+    0 10px 0 -1px #0d0e19,
+    0 20px 24px rgba(0,0,0,.65),
+    0 0 36px 4px color-mix(in srgb,var(--sel-accent) 55%,transparent);
+}
+.dd-pedestal::after{content:"";position:absolute;left:12%;right:12%;top:18%;height:42%;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 50%,color-mix(in srgb,var(--sel-accent) 55%,transparent),transparent 72%)}
+
+/* info block: name in the hero's accent colour, display face */
+.vnext-meta-row{gap:10px}
+.vnext-meta-row .meta-name{font-family:var(--dd-display);font-weight:400;color:var(--sel-accent);text-shadow:0 3px 0 rgba(0,0,0,.6);text-transform:uppercase;letter-spacing:.02em}
+.vnext-meta-row .meta-name .meta-name-main{font-size:clamp(1.15rem,3.3vw,2.4rem);line-height:1;white-space:nowrap}
+.vnext-meta-row .meta-name .meta-name-title{font-family:var(--dd-ui);font-weight:700;font-size:clamp(.8rem,1.8vw,1rem);letter-spacing:.2em;color:var(--dd-muted)}
+.meta-serial{font-family:var(--dd-ui);font-weight:700;color:var(--dd-gold);background:#10121f;border:1.5px solid var(--dd-panel-edge)}
+.meta-price{font-family:var(--dd-ui);font-weight:700}
+
+/* stat bars: real data, bevelled tracks (also fixes the old 0-width bug) */
+.vnext-stat-bars{align-self:stretch;width:100%;gap:8px;padding:10px 12px;margin:0}
+.stat-row{width:100%}
+.stat-label{font-family:var(--dd-ui);font-weight:700;font-size:.85rem;color:var(--dd-text);width:34px}
+.stat-track{height:10px;min-width:40px;background:#0a0b14;border:1px solid rgba(255,255,255,.14);border-radius:6px;box-shadow:inset 0 2px 3px rgba(0,0,0,.7)}
+.stat-fill{border-radius:5px;box-shadow:inset 0 2px 0 rgba(255,255,255,.35),inset 0 -2px 0 rgba(0,0,0,.25)}
+
+/* LANDSCAPE: 3 columns  [info + stats | hero on pedestal | CTA] */
+@media (min-aspect-ratio:5/4){
+  .vnext-char-stage{display:grid;grid-template-columns:minmax(190px,27%) 1fr minmax(210px,28%);grid-template-rows:1fr auto;column-gap:10px;align-items:center;perspective:none;padding:0 4px}
+  .vnext-char-stage .vnext-carousel-viewport{grid-column:2;grid-row:1 / 3;width:100%;perspective:1000px}
+  .vnext-char-stage .vnext-action-deck{display:contents}
+  .vnext-char-stage .vnext-meta-row{grid-column:1;grid-row:1;align-self:end;flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px 8px;
+    background:linear-gradient(180deg,rgba(26,29,48,.92),var(--dd-panel));border:1.5px solid var(--dd-panel-edge);border-bottom:0;border-radius:16px 16px 0 0}
+  .vnext-char-stage .vnext-meta-row .meta-name{align-items:flex-start;text-align:left}
+  .vnext-char-stage .vnext-stat-bars{grid-column:1;grid-row:2;align-self:start;
+    background:var(--dd-panel);border:1.5px solid var(--dd-panel-edge);border-top:1px dashed rgba(255,184,0,.2);border-radius:0 0 16px 16px}
+  .vnext-char-stage .vnext-btn-row{grid-column:3;grid-row:1 / 3;align-self:end;justify-self:stretch;padding-bottom:10px}
+  .vnext-char-stage .vnext-primary-cta{padding:clamp(12px,3.2vh,22px) 14px}
+}
+/* PORTRAIT / narrow: stacked */
+@media (max-aspect-ratio:5/4){
+  .vnext-char-stage .vnext-carousel-viewport{height:clamp(240px,46vh,460px)}
+  .vnext-char-stage .vnext-stat-bars{background:var(--dd-panel);border:1.5px solid var(--dd-panel-edge);border-radius:14px;max-width:420px}
+}
+
+/* hero dots */
+.dd-dots{position:absolute;left:50%;bottom:0;transform:translateX(-50%);display:flex;gap:10px;z-index:35}
+.dd-dot{width:26px;height:8px;border-radius:5px;border:1px solid rgba(255,255,255,.25);background:#10121f;padding:0;cursor:pointer;transition:transform .2s ease,opacity .2s ease;opacity:.7}
+.dd-dot.on{background:var(--dot,var(--dd-gold));opacity:1;transform:scaleX(1.5);border-color:#fff}
+
+/* ==========================================================================
+   REALM SCREEN — framed preview + thumbnails left, info panel + ENTER REALM right
+   ========================================================================== */
+.vnext-preview{border:3px solid var(--dd-gold);border-radius:16px;
+  box-shadow:inset 0 0 0 2px #0b0c14,0 0 0 3px #0b0c14,0 8px 0 rgba(0,0,0,.45),0 14px 20px rgba(0,0,0,.55)}
+.vnext-thumb{border-color:rgba(255,255,255,.18)}
+.vnext-thumb.selected{border-color:var(--dd-gold);box-shadow:0 0 0 2px #0b0c14,0 4px 0 rgba(0,0,0,.5)}
+.thumb-num{font-family:var(--dd-ui);font-weight:700;font-size:.75rem}
+
+.vnext-scene-stage .vnext-meta-row .meta-name{font-family:var(--dd-display);font-weight:400;color:#fff;text-transform:uppercase;
+  font-size:clamp(1.1rem,3vw,2.2rem);line-height:1.05;letter-spacing:.01em;text-shadow:0 3px 0 rgba(0,0,0,.6)}
+.vnext-scene-stage .meta-serial{color:#fff;background:linear-gradient(180deg,#ff7a45,var(--dd-ember) 55%,#b92f0a);border:2px solid #6a1d05;border-radius:8px;font-size:.9rem;letter-spacing:.1em;box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #7a2208}
+.realm-lore-text{font-family:var(--dd-ui);font-weight:600;color:var(--dd-muted);font-size:clamp(.85rem,1.9vw,1.05rem)}
+.realm-difficulty{color:var(--dd-gold)}
+
+@media (min-aspect-ratio:5/4){
+  .vnext-scene-stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,31%);grid-template-rows:1fr auto;gap:8px 12px;justify-content:stretch;align-items:stretch;padding:2px 4px 0}
+  .vnext-scene-stage .vnext-gallery-viewport{grid-column:1;grid-row:1;max-width:none;width:100%;height:auto;min-height:0;overflow:visible}
+  .vnext-scene-stage .vnext-thumb-strip{grid-column:1;grid-row:2;width:100%}
+  .vnext-scene-stage .vnext-action-deck{grid-column:2;grid-row:1 / 3;max-width:none;margin:0;height:100%;justify-content:space-between;align-items:stretch;gap:8px;
+    background:linear-gradient(180deg,rgba(26,29,48,.92),var(--dd-panel));border:1.5px solid var(--dd-panel-edge);border-radius:16px;padding:12px 12px 14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 8px 18px rgba(0,0,0,.5)}
+  .vnext-scene-stage .vnext-meta-row{flex-direction:column;align-items:flex-start;gap:8px}
+  .vnext-scene-stage .vnext-meta-row .meta-name{text-align:left}
+  .vnext-scene-stage .vnext-realm-lore-row{flex-direction:column;align-items:flex-start;gap:6px;margin:0}
+  .vnext-scene-stage .vnext-primary-cta{padding:clamp(12px,3vh,20px) 12px}
+  .vnext-scene-stage .vnext-nav-arrow.arrow-left{left:8px}.vnext-scene-stage .vnext-nav-arrow.arrow-right{right:8px}
+}
+
+/* ==========================================================================
+   IN-GAME TOUCH CONTROLS — dark bevelled buttons with a coloured rim (no blur, GPU-cheap)
+   Each button sets --rim; everything else (gloss, bevel, press) is shared.
+   Logic lives in TouchControls.js and is untouched; only the look changed.
+   ========================================================================== */
+.touch-btn{
+  --rim:#aab3d0;
+  position:relative;
+  background:radial-gradient(circle at 50% 26%,rgba(78,84,112,.94) 0%,rgba(22,24,38,.94) 58%,rgba(8,9,16,.96) 100%);
+  border:3px solid var(--rim);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+  box-shadow:
+    inset 0 3px 0 rgba(255,255,255,.28),      /* lit top edge        */
+    inset 0 -7px 12px rgba(0,0,0,.55),        /* shaded bottom       */
+    0 0 0 2px rgba(0,0,0,.7),                 /* dark outline        */
+    0 6px 0 rgba(0,0,0,.6),                   /* button thickness    */
+    0 11px 14px rgba(0,0,0,.45);              /* ground shadow       */
+  transition:transform .06s ease, box-shadow .06s ease;
+}
+.touch-btn::before{                           /* glossy highlight */
+  content:"";position:absolute;left:16%;right:16%;top:5%;height:30%;border-radius:50%;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,0));
+}
+.touch-btn:active,.touch-btn.active{
+  transform:translateY(5px) scale(.95);
+  background:radial-gradient(circle at 50% 26%,color-mix(in srgb,var(--rim) 55%,#222) 0%,rgba(18,20,34,.96) 70%);
+  border-color:var(--rim);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.2),inset 0 -4px 8px rgba(0,0,0,.5),0 0 0 2px rgba(0,0,0,.7),0 1px 0 rgba(0,0,0,.6),0 4px 6px rgba(0,0,0,.4);
+}
+.dpad-btn{--rim:#9aa3c4;border-radius:50%}
+.jump-btn{--rim:#38bdf8;background:radial-gradient(circle at 50% 26%,rgba(56,120,160,.95) 0%,rgba(14,28,46,.95) 62%,rgba(6,10,20,.97) 100%);box-shadow:inset 0 3px 0 rgba(255,255,255,.3),inset 0 -7px 12px rgba(0,0,0,.55),0 0 0 2px rgba(0,0,0,.7),0 6px 0 rgba(0,0,0,.6),0 11px 14px rgba(0,0,0,.45)}
+.attack-btn{--rim:#ffb800;background:radial-gradient(circle at 50% 26%,rgba(150,108,20,.95) 0%,rgba(40,28,8,.95) 62%,rgba(14,10,4,.97) 100%);box-shadow:inset 0 3px 0 rgba(255,255,255,.3),inset 0 -7px 12px rgba(0,0,0,.55),0 0 0 2px rgba(0,0,0,.7),0 6px 0 rgba(0,0,0,.6),0 11px 14px rgba(0,0,0,.45)}
+.dash-btn{--rim:#38bdf8;box-shadow:inset 0 3px 0 rgba(255,255,255,.3),inset 0 -7px 12px rgba(0,0,0,.55),0 0 0 2px rgba(0,0,0,.7),0 5px 0 rgba(0,0,0,.6),0 9px 12px rgba(0,0,0,.45)}
+.shuriken-btn{--rim:#c084fc;background:radial-gradient(circle at 50% 26%,rgba(110,60,160,.95) 0%,rgba(28,14,44,.95) 62%,rgba(10,6,18,.97) 100%);box-shadow:inset 0 3px 0 rgba(255,255,255,.3),inset 0 -7px 12px rgba(0,0,0,.55),0 0 0 2px rgba(0,0,0,.7),0 5px 0 rgba(0,0,0,.6),0 9px 12px rgba(0,0,0,.45)}
+/* portrait-mode dash had an !important blue gradient; restyle it to match */
+#game-container.portrait-mode .dash-btn,body.portrait-mode .dash-btn{
+  background:radial-gradient(circle at 50% 26%,rgba(56,120,160,.95) 0%,rgba(14,28,46,.95) 70%) !important;
+  border:3px solid #38bdf8 !important;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.3),inset 0 -6px 10px rgba(0,0,0,.55),0 0 0 2px rgba(0,0,0,.7),0 5px 0 rgba(0,0,0,.6),0 9px 12px rgba(0,0,0,.45) !important;
+}
+.touch-btn:active .btn-icon,.touch-btn.active .btn-icon{filter:drop-shadow(0 0 6px var(--rim))}
+
+/* top-right HUD round buttons share the same bevel */
+.hud-btn{
+  background:radial-gradient(circle at 50% 26%,rgba(70,76,104,.94),rgba(14,16,28,.96) 70%);
+  border:2px solid rgba(255,184,0,.55);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.25),0 0 0 1.5px rgba(0,0,0,.7),0 3px 0 rgba(0,0,0,.6),0 6px 8px rgba(0,0,0,.4);
+}
+.hud-btn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),0 0 0 1.5px rgba(0,0,0,.7),0 0 0 rgba(0,0,0,.6)}

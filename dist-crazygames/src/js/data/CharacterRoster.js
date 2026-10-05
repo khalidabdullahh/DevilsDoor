@@ -78,3 +78,8 @@ export const CHARACTER_ROSTER = [
     stats: { speed: 100, power: 85, stealth: 88 }
   }
 ];
+
+// Light transparent WebP cutouts (~640px) for the select screen. The 1.4 MB sketch PNGs stay as `image`/`sketchImage`.
+CHARACTER_ROSTER.forEach((hero) => {
+  hero.portrait = `/src/assets/web/hero-${hero.serial}-${hero.name.toLowerCase()}-sel.webp`;
+});

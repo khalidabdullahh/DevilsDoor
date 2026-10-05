@@ -80,6 +80,8 @@ export class CharacterSelect {
       <!-- Main Stage -->
       <main class="vnext-char-stage">
         <div class="vnext-carousel-viewport" id="char-carousel-viewport">
+          <div class="dd-pedestal" aria-hidden="true"></div>
+          <div class="dd-dots" id="char-dots" role="tablist" aria-label="Shinobi"></div>
           <div class="vnext-cards-track" id="char-cards-track"></div>
           <button id="btn-char-prev" class="vnext-nav-arrow arrow-left" aria-label="Previous Shinobi">‹</button>
           <button id="btn-char-next" class="vnext-nav-arrow arrow-right" aria-label="Next Shinobi">›</button>
@@ -280,6 +282,7 @@ export class CharacterSelect {
 
     // v2.3: Reactive backdrop glow
     this.container.style.setProperty('--sel-glow', char.glowColor);
+    this.container.style.setProperty('--sel-accent', char.accentColor || '#a855f7');
     const backdrop = this.container.querySelector('#char-backdrop');
     if (backdrop) {
       backdrop.style.background = `radial-gradient(ellipse 70% 60% at 50% 45%, ${char.glowColor.replace(/[\d.]+\)$/, '0.18)')}, transparent 70%)`;
@@ -330,6 +333,16 @@ export class CharacterSelect {
       }
     }
 
+    // dots (one per hero): tap to jump
+    const dots = this.container.querySelector('#char-dots');
+    if (dots) {
+      if (dots.children.length !== this.roster.length) {
+        dots.innerHTML = this.roster.map((r, i) => `<button type="button" class="dd-dot" role="tab" aria-label="${r.name}" data-i="${i}" style="--dot:${r.accentColor}"></button>`).join('');
+        dots.querySelectorAll('.dd-dot').forEach((d) => d.addEventListener('click', () => this.selectIndex(Number(d.dataset.i))));
+      }
+      Array.from(dots.children).forEach((d, i) => { d.classList.toggle('on', i === this.selectedIndex); d.setAttribute('aria-selected', i === this.selectedIndex ? 'true' : 'false'); });
+    }
+
     // v2.3: Stat bars
     this._updateStatBars(char);
 
@@ -359,7 +372,7 @@ export class CharacterSelect {
       <div class="vnext-char-card" data-index="${idx}" style="--card-accent: ${item.accentColor};">
         <div class="vnext-char-aura" style="background: radial-gradient(circle at 50% 50%, ${item.glowColor} 0%, transparent 70%);"></div>
         <div class="vnext-char-img-wrapper">
-          <img src="${item.image}" alt="${item.name}" class="vnext-char-img" decoding="async" draggable="false" />
+          <img src="${item.portrait || item.image}" alt="${item.name}" class="vnext-char-img" decoding="async" draggable="false" />
           <div class="vnext-lock-overlay" style="display: none;"><span class="lock-icon">🔒</span></div>
         </div>
       </div>

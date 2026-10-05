@@ -67,14 +67,19 @@ All contributions are subject to review and final authority by **Khalid Abdullah
 ## 6. Landing Page & Standalone Selection Pages Architecture
 
 ### 6.1 Landing Page (`index.html`)
-`index.html` (+ identical copy `website/index.html`) is a poster-style hero: huge headline, founder cutout portrait, Play Now -> `/game`. Styles in `website/css/landing.css`, headline fitting in `website/js/hero-fit.js`, display font Dela Gothic One (self-hosted, OFL). The earlier scroll-driven WebGL journey is kept at `/cinematic` (`cinematic.html`).
+`index.html` (+ identical copy `website/index.html`) is a lavender poster-style hero (APPROVED by the founder, 2026-10-05; do not restyle without asking). Layout: the founder cutout portrait is **exactly centred** in front of the headline; headline = `WELCOME TO` (slate) + `DEVIL'S DOOR` (flat bright gold `--gold:#ffb800`, **no glow / text-shadow**); Play Now -> `/game`. Styles in `website/css/landing.css`, headline fitting in `website/js/hero-fit.js` (scales each line to one slab width), display font Dela Gothic One (self-hosted, OFL). The earlier scroll-driven WebGL journey is kept at `/cinematic` (`cinematic.html`).
+
+**Mobile fullscreen / landscape (`src/js/immersive.js`, `manifest.webmanifest`)** — browsers allow fullscreen and orientation lock only right after a user tap, so it is tap-driven, never automatic:
+- Landing (`data-gate="true"`): touch devices see a one-tap "PLAY FULL SCREEN" gate; portrait phones see "ROTATE YOUR PHONE". "Continue anyway" skips (remembered per session).
+- Game page: the first tap anywhere silently calls `requestFullscreen({navigationUI:'hide'})`, then `screen.orientation.lock('landscape')` (Android Chrome). Skipped when inside an iframe (CrazyGames) or already fullscreen/standalone.
+- iPhone Safari has no page Fullscreen API and no orientation lock: it only gets the rotate prompt. Installing via "Add to Home Screen" uses `manifest.webmanifest` (`display: fullscreen`, `orientation: landscape`).
 
 ### 6.2 Selection Pages Plan (Landing -> Character -> Realm -> Game)
 **Goal:** The in-game select screens load WebP assets to eliminate memory bloat and lag.
 
 **Locked decisions (from Founder Khalid Abdullah):**
 1. Realms stay **exactly** as they are: same 10 artworks, names, and order (data from `SCENE_ROSTER`).
-2. Pages follow the landing look: lavender frame, black rounded border, huge slate type, orange accent, Dela Gothic One + Barlow Condensed (`website/css/landing.css` tokens).
+2. **(Amended 2026-10-05)** The landing stays the lavender poster. The in-game screens (Shinobi, Realm, HUD buttons) use a dark mobile-game UI (hero on a pedestal, framed panels, bevelled gold CTA) built from `src/css/ui-kit.css`; the landing's gold + ember accents and Dela Gothic One + Barlow Condensed are the bridge between the two looks.
 3. Heroes are shown as real characters: transparent cutout in front of the big name, slow breathing float, small parallax, accent colour per hero from `CHARACTER_ROSTER`, real stats (speed, jump, hearts, power, stealth) as bars.
 4. Data strictly from `CHARACTER_ROSTER`, `SCENE_ROSTER`, and the economy.
 5. Flow: `/` -> `/select/character` -> `/select/realm` -> `/game`, with back buttons and 3-step indicator.
@@ -83,7 +88,10 @@ All contributions are subject to review and final authority by **Khalid Abdullah
 **Implementation Status:**
 - [x] 1. Light assets done: `src/assets/web/select-hero-0N.webp` and `realm-NN-sm.webp`.
 - [x] 2. In-game character & realm select overhauled with stat bars, particle aura, lore, difficulty stars, and reactive backdrop.
-- [ ] 3. Dedicated standalone `/select/character` & `/select/realm` routes.
+- [x] 3. Realm picker lightweight: one big preview + 240px WebP thumbnail strip; only the selected realm and ±1 neighbour preload (`loadWindow`); `SceneRoster.js` derives `preview` / `thumb` / `blur` WebP paths from `image` (files in `src/assets/backgrounds/web/`).
+- [x] 4. UI kit + restyled Shinobi / Realm screens + bevelled touch buttons (section 8).
+- [ ] 5. Dedicated standalone `/select/character` & `/select/realm` routes.
+- [ ] 6. Enemy portrait art (Option C chosen: enemies deferred; later: AI-generated art, same style, transparent cutout -> WebP).
 
 ### 6.3 Cinematic Landing (`cinematic.html`)
 Status & guidelines in [`docs/LANDING_ROADMAP.md`](docs/LANDING_ROADMAP.md) and [`docs/LANDING_BRIEF.md`](docs/LANDING_BRIEF.md). Creative rule: *atmosphere over UI, cinematic transition over another card, visual storytelling over more text.*
@@ -137,3 +145,43 @@ src/js/render/NinjaArashiRenderer.js ← Renderer: 3-layer parallax, shimmer, ha
 src/js/ui/UIManager.js           ← HUD: --hud-accent-live, danger pulse, distance flash
 src/css/game.css                 ← Styles: all new visual features
 ```
+
+---
+
+## 8. v2.4 — UI Kit, Shinobi/Realm Screens, Touch Buttons (2026-10-05)
+
+> **Status**: IMPLEMENTED — pending founder visual approval on a real phone.
+
+### 8.1 What changed
+- **`src/css/ui-kit.css`** (loaded after `game.css`): design tokens (`--dd-gold`, `--dd-ember`, `--dd-panel`, `--dd-display`, `--dd-ui`, `--sel-accent`), `.dd-btn` / `.vnext-primary-cta` bevelled gold CTA, pills, `.dd-panel`, pedestal, dots, touch/HUD button bevel. Fonts are self-hosted in `src/assets/fonts/`. To retheme, change tokens here, not individual rules.
+- **Shinobi screen** (`CharacterSelect.js`): one hero on stage standing on a CSS pedestal (`.dd-pedestal`), name in the hero's accent colour (`--sel-accent`), info + SPD/PWR/STL bars in a left panel, big CTA bottom-right (landscape grid; stacked in portrait), dots to switch, swipe/arrows still work. Uses `hero.portrait` (alpha-cleaned `hero-0N-<name>-sel.webp`, ~100 KB) instead of the 1.4 MB sketch PNG. Stat bars were previously 0px wide (flex bug) and are fixed.
+- **Realm screen** (`SceneSelect.js`): framed preview + thumbnails left, info panel + ENTER REALM right (landscape), accent from `scene.accentColor`.
+- **Touch controls**: markup, IDs and `TouchControls.js` logic unchanged; only CSS look (dark bevelled round buttons, coloured rim per action via `--rim`, gloss, press-down). No `backdrop-filter`.
+- **Game-ready checks**: `npm test`, `test:landing`, `test:hud`, `test:gameplay`, `test:world` all pass.
+
+### 8.2 Constraints (DO NOT REVERT)
+- Landing page remains lavender; never apply `ui-kit.css` to `index.html` / `website/`.
+- Animate only `transform` / `opacity`; no `backdrop-filter`, no large `filter: blur()` layers on select screens or HUD (phone lag).
+- Keep the 10 realms (art, names, order) and the 4 heroes unchanged; roster data stays the single source of truth (`stats`, `accentColor`, etc.).
+- Do not hardcode colours in JS for select screens: set `--sel-accent` / `--sel-glow` and let CSS react.
+- After editing `src/index.html` run `node scripts/sync-shells.js` (mirrors `game.html`, `play.html`, `dist-crazygames/`).
+
+### 8.3 Files touched
+```
+src/css/ui-kit.css                 <- NEW: tokens, buttons, panels, select + touch styles
+src/assets/fonts/*.woff2           <- NEW: self-hosted display/UI fonts for the game
+src/assets/web/hero-0N-*-sel.webp  <- NEW: alpha-cleaned hero cutouts
+src/js/immersive.js                <- NEW: fullscreen / landscape helper
+manifest.webmanifest               <- NEW: installable fullscreen landscape app
+src/js/ui/CharacterSelect.js       <- pedestal, dots, --sel-accent, portrait art
+src/js/ui/SceneSelect.js           <- big preview + thumbnail strip, --sel-accent
+src/js/data/CharacterRoster.js     <- derived `portrait` field
+src/js/data/SceneRoster.js         <- derived `preview` / `thumb` / `blur` fields
+website/index.html, website/css/landing.css, website/js/hero-fit.js <- landing
+scripts/sync-shells.js             <- dist path rewrites for ui-kit.css / immersive.js
+```
+
+### 8.4 Next ideas (not started)
+- Cooldown ring on Dash / Shuriken buttons (needs cooldown values exposed from the player).
+- Optional AI-generated button / frame / pedestal textures (WebP) for a hand-painted look.
+- Enemy portraits (Option B) once art exists.

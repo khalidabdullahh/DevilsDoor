@@ -73,3 +73,12 @@
 - **Decision**: The landing page (`/`) is dark-only: its identity is a night scene lit by a red moon, and a light theme would contradict it. The game and any future content pages are unaffected. The page is built with vendored Three.js r128 + native ES modules (no build step), independent of the game engine (ADR-006 / Babylon.js), and is never loaded by the game. Without JS/WebGL/with reduced motion it degrades to a plain, readable, dark page.
 - **Consequences**: No light theme or toggle on `/` (accessibility is covered by contrast, semantic HTML, keyboard access and the static fallback). Two 3D libraries exist in the repo (Babylon.js for the game, Three.js for the landing); they never load together. If the founder wants a light theme back, build it for the static layout only.
 
+---
+
+## ADR-008: Dark Mobile-Game UI for In-Game Screens; Landing Stays Lavender (amends ADR-007 scope notes and AGENTS.md 6.2)
+
+- **Date**: 2026-10-05
+- **Status**: ACCEPTED (founder-requested)
+- **Context**: The founder wants the Shinobi and Realm screens to feel like a mobile game (hero on a pedestal, framed panels, big bevelled CTA) and the touch buttons to look realistic, while the lavender landing page is approved as-is.
+- **Decision**: Introduce `src/css/ui-kit.css` as the single styling layer for in-game select screens and touch/HUD buttons. Landing page is unchanged by it. Gold/ember accents and the two self-hosted fonts connect both looks. Pure CSS/SVG first; painted textures are optional later.
+- **Consequences**: Consistent, retheme-able look; phone-safe (transform/opacity only). The `/select/*` standalone routes remain a future option.

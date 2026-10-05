@@ -56,6 +56,7 @@ let distIndexHtml = srcIndexHtml
   .replace('<link rel="stylesheet" href="/src/css/game.css" />', '<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>\n  <link rel="stylesheet" href="./src/css/game.css" />')
   .replace('<script src="/src/js/immersive.js" defer></script>', '<script src="./src/js/immersive.js" defer></script>')
   .replace('<link rel="manifest" href="/manifest.webmanifest" />\n  ', '')
+  .replace('<link rel="stylesheet" href="/src/css/ui-kit.css" />', '<link rel="stylesheet" href="./src/css/ui-kit.css" />')
   .replace('<script type="module" src="/src/js/main.js"></script>', '<script type="module" src="./src/js/main.js"></script>');
 
 fs.writeFileSync(path.join(distCrazyGames, 'index.html'), distIndexHtml, 'utf-8');

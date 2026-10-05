@@ -350,6 +350,7 @@ export class SceneSelect {
   _setBackdrop(scene) {
     const layers = this.container.querySelectorAll('.vnext-scene-bg');
     this.container.style.setProperty('--sel-glow', scene.glowColor);
+    this.container.style.setProperty('--sel-accent', scene.accentColor || '#e8481c');
     if (layers.length < 2 || this._backdropSrc === scene.blur) return;
     this._backdropSrc = scene.blur;
     this._backdropFlip = !this._backdropFlip;
