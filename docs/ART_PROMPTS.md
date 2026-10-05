@@ -67,3 +67,19 @@ Replace nothing; just paste STYLE BLOCK + the line below.
 - Green fringe / halo on edges, hard jagged edges, a floor or shadow stuck to the feet.
 - Hands/weapons malformed, text or a watermark visible.
 - Palette not dark navy/obsidian + one accent (it will clash with the UI).
+
+## 8. HUD TOUCH BUTTONS (painted version of the in-game controls)
+Current buttons (logic in `TouchControls.js`, look in `src/css/ui-kit.css`): Move Left, Move Right, Jump (cyan), Slash (gold), Shuriken (purple), Dash (cyan).
+Generate ONE button per image (more consistent than a sheet), square 1:1, same tool and same session. Generate **Left only**; the Right button is the mirrored copy (done in post).
+
+**HUD STYLE BLOCK** (paste first):
+```
+Premium mobile-game UI button asset, realistic-cartoon style: a single round game button seen straight from the front, perfectly circular and centered, dark brushed-metal bevelled disc with a glossy top highlight and deep inner shadow, thick glowing metal rim, bold clean ink-outlined icon in the centre with a soft glow, crisp edges. Flat pure green (#00FF00) background, no drop shadow, no ground shadow, no text, no letters, no hand, no phone mockup. The button fills about 90% of the square canvas.
+```
+- **Move Left** (silver rim): `A bold double-chevron arrow pointing left, silver-steel rim, white icon.`
+- **Jump** (cyan rim): `A thick upward arrow, bright cyan glowing rim, white icon with cyan edge light.`
+- **Slash** (gold rim): `A curved katana slash crescent, golden glowing rim, white-gold icon.`
+- **Shuriken** (purple rim): `A sharp four-point ninja throwing star, violet glowing rim, white-lilac icon.`
+- **Dash** (cyan rim): `A double chevron pointing right with short speed lines, cyan glowing rim, white icon.`
+- Optional small HUD buttons (settings gear, sound, restart, fullscreen): same recipe, silver/gold rim.
+Hand-off: upload the 5 PNGs; developer keys out green, trims, exports ~192 px WebP, mirrors Left -> Right, and swaps them into the CSS backgrounds (CSS bevel stays as fallback; press / cooldown effects stay in CSS).
