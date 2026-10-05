@@ -240,3 +240,114 @@
   box-shadow:inset 0 2px 0 rgba(255,255,255,.25),0 0 0 1.5px rgba(0,0,0,.7),0 3px 0 rgba(0,0,0,.6),0 6px 8px rgba(0,0,0,.4);
 }
 .hud-btn:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),0 0 0 1.5px rgba(0,0,0,.7),0 0 0 rgba(0,0,0,.6)}
+
+/* ==========================================================================
+   v2.5 — Reference-style Shinobi screen (profile plate, side icons, name over hero, power plaque, sword CTA)
+   ========================================================================== */
+#char-select-screen .vnext-select-backdrop,
+.vnext-select-overlay .vnext-select-backdrop{
+  background-image:
+    linear-gradient(180deg,rgba(6,7,14,.55) 0%,rgba(6,7,14,.35) 45%,rgba(6,7,14,.8) 100%),
+    radial-gradient(ellipse 55% 60% at 50% 58%,color-mix(in srgb,var(--sel-accent) 38%,transparent) 0%,transparent 70%),
+    url("/src/assets/backgrounds/web/scene_02_moonlight_ruins_blur.webp");
+  background-size:100% 100%,100% 100%,cover;background-position:center;
+}
+
+/* profile plate (dark wood-like plank with gold edge, like the reference's player plate) */
+.dd-profile{display:flex;align-items:center;gap:10px;padding:5px 18px 5px 5px;border-radius:40px 14px 14px 40px;
+  background:linear-gradient(180deg,#3b2b1d,#22170f);border:2px solid #7b5a2c;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.14),0 4px 0 rgba(0,0,0,.5),0 8px 12px rgba(0,0,0,.4)}
+.dd-avatar{position:relative;width:48px;height:48px;border-radius:50%;flex:none;border:3px solid var(--dd-gold);
+  background:#14162a center 8%/cover no-repeat;box-shadow:0 0 0 2px #0b0c14,0 3px 0 rgba(0,0,0,.5)}
+.dd-lvl{position:absolute;left:-6px;bottom:-5px;min-width:20px;height:20px;padding:0 4px;display:grid;place-items:center;border-radius:10px;
+  font:700 .72rem/1 var(--dd-ui);color:#fff;background:#c43d12;border:2px solid #3a1204}
+.dd-profile-text{display:flex;flex-direction:column;gap:4px}
+.dd-profile-name{font:700 clamp(.85rem,2.2vw,1.1rem)/1 var(--dd-ui);letter-spacing:.08em;color:#fff4dc;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+.dd-xp{position:relative;width:clamp(96px,16vw,150px);height:14px;border-radius:7px;background:#120c07;border:1.5px solid #5a4020;overflow:hidden}
+.dd-xp i{position:absolute;inset:0 auto 0 0;background:linear-gradient(180deg,#ffd866,#ffb800 55%,#d98200)}
+.dd-xp b{position:absolute;inset:0;display:grid;place-items:center;font:700 .62rem/1 var(--dd-ui);letter-spacing:.1em;color:#fff;text-shadow:0 1px 1px #000}
+
+/* left icon column */
+.dd-side{position:absolute;left:10px;top:max(64px,9vh);z-index:40;display:flex;flex-direction:column;gap:10px}
+.dd-icon-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0;border:0;background:none;cursor:pointer;color:var(--dd-gold-hi)}
+.dd-icon-btn .ic{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;
+  background:radial-gradient(circle at 50% 25%,#4a3a2a,#1b1209 75%);border:2px solid #7b5a2c;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.2),0 4px 0 rgba(0,0,0,.55),0 8px 10px rgba(0,0,0,.4);transition:transform .08s ease}
+.dd-icon-btn:active .ic{transform:translateY(3px)}
+.dd-icon-btn .lb{font:700 .72rem/1 var(--dd-ui);letter-spacing:.06em;color:#fff;text-shadow:0 2px 0 #000,0 0 4px #000}
+
+/* hero name floats above the hero (like "Alice" in the reference) */
+.dd-hero-name{position:absolute;left:50%;top:0;transform:translateX(-50%);z-index:30;width:100%;text-align:center;pointer-events:none}
+.dd-hero-name .meta-name{margin:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:var(--dd-display);font-weight:400;
+  color:var(--sel-accent);text-transform:uppercase;text-shadow:0 3px 0 rgba(0,0,0,.65)}
+.dd-hero-name .meta-name-main{font-size:clamp(1.4rem,4vw,2.5rem);line-height:1;white-space:nowrap;color:#fff;-webkit-text-stroke:0;text-shadow:0 3px 0 rgba(0,0,0,.65),0 0 0 var(--sel-accent)}
+.dd-hero-name .meta-name-title{font:700 clamp(.72rem,1.7vw,.95rem)/1 var(--dd-ui);letter-spacing:.22em;color:var(--sel-accent);filter:brightness(1.25)}
+
+/* power plaque under the pedestal (like the "152321" plaque in the reference) */
+.dd-power{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:34;display:flex;align-items:center;gap:8px;
+  padding:5px 18px;border-radius:12px;color:var(--dd-gold-hi);background:linear-gradient(180deg,#3b2b1d,#22170f);border:2px solid #7b5a2c;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.14),0 4px 0 rgba(0,0,0,.5)}
+.dd-power-label{font:700 .7rem/1 var(--dd-ui);letter-spacing:.16em;color:#d9c6a0}
+.dd-power b{font:700 clamp(1.1rem,2.6vw,1.5rem)/1 var(--dd-ui);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.6)}
+
+/* stage geometry: hero card sits between the name (top) and the plaque (bottom) */
+.vnext-char-card{bottom:60px;height:calc(100% - 118px);}
+.dd-pedestal{bottom:38px}
+.dd-dots{bottom:0}
+
+/* BATTLE-style CTA: sword icon + big text + inset sub bar */
+.vnext-primary-cta{display:flex;align-items:center;justify-content:center;gap:12px;
+  background:linear-gradient(180deg,#ffc24a 0%,#ff9d1a 48%,#e06a00 100%);border:3px solid #8a3d00;color:#fff;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.55),inset 0 -6px 0 rgba(140,60,0,.4),0 6px 0 #7a3200,0 12px 16px rgba(0,0,0,.55)}
+.vnext-primary-cta:active{box-shadow:inset 0 3px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(140,60,0,.4),0 1px 0 #7a3200,0 4px 8px rgba(0,0,0,.5)}
+.vnext-primary-cta .cta-ico{flex:none;color:#fff7e6;filter:drop-shadow(0 2px 0 rgba(120,50,0,.7))}
+.vnext-primary-cta .cta-col{display:flex;flex-direction:column;align-items:center;gap:5px}
+.vnext-primary-cta .cta-text{color:#fff;text-shadow:0 3px 0 #8a3d00,0 0 2px #8a3d00;font-size:clamp(.95rem,2.2vw,1.5rem)}
+.vnext-primary-cta .cta-sub{font:700 .7rem/1 var(--dd-ui);letter-spacing:.14em;color:#fff3d6;padding:4px 12px;border-radius:6px;background:rgba(120,50,0,.45);box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
+.vnext-primary-cta.cannot-buy .cta-ico{color:#d6d9e6;filter:none}.vnext-primary-cta.cannot-buy .cta-text{text-shadow:0 2px 0 rgba(0,0,0,.5)}.vnext-primary-cta.cannot-buy .cta-sub{background:rgba(0,0,0,.3)}
+
+/* header row: plate left, wallet right */
+.vnext-header{align-items:flex-start}
+.vnext-step-badge{display:none}
+
+@media (max-aspect-ratio:5/4){
+  .dd-side{top:auto;bottom:max(14px,3vh)}
+  .vnext-char-card{bottom:60px;height:calc(100% - 118px)}
+}
+
+/* v2.5 tuning */
+.dd-side{top:max(84px,22vh)}
+.vnext-select-overlay .vnext-select-backdrop{
+  background-image:
+    linear-gradient(180deg,rgba(6,7,14,.35) 0%,rgba(6,7,14,.12) 45%,rgba(6,7,14,.62) 100%),
+    radial-gradient(ellipse 50% 58% at 50% 58%,color-mix(in srgb,var(--sel-accent) 30%,transparent) 0%,transparent 70%),
+    url("/src/assets/backgrounds/web/scene_02_moonlight_ruins_blur.webp");
+}
+@media (min-aspect-ratio:5/4){
+  .vnext-char-stage .vnext-carousel-viewport{height:calc(100dvh - 62px)}
+}
+.vnext-char-card{bottom:68px;height:calc(100% - 128px)}
+.dd-pedestal{bottom:50px}
+.dd-power{bottom:10px;padding:4px 16px}
+.dd-dots{display:none}                       /* arrows + swipe + roster order are enough; plaque sits there now */
+.vnext-primary-cta .cta-text{font-size:clamp(.82rem,1.8vw,1.3rem);letter-spacing:.05em}
+.vnext-primary-cta .cta-ico{width:28px;height:28px}
+
+/* v2.5 fix: keep the bottom row (info panel + CTA) fully on screen */
+@media (min-aspect-ratio:5/4){
+  .vnext-char-stage{padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  .vnext-char-stage .vnext-carousel-viewport{height:calc(100dvh - 84px)}
+  .vnext-char-stage .vnext-btn-row{padding-bottom:4px}
+}
+
+/* ==========================================================================
+   v2.5 — Realm screen banner (like the reference's event banners: dark name strip + gold underline)
+   ========================================================================== */
+.dd-banner-tag{position:absolute;left:10px;top:10px;z-index:6;padding:4px 10px;border-radius:8px;font:700 .85rem/1 var(--dd-ui);letter-spacing:.12em;color:#fff;
+  background:linear-gradient(180deg,#ff7a45,var(--dd-ember) 55%,#b92f0a);border:2px solid #6a1d05;box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #7a2208}
+.dd-banner-strip{position:absolute;left:0;right:0;bottom:0;z-index:6;padding:8px 14px 10px;text-align:center;
+  background:linear-gradient(180deg,rgba(8,9,16,.2),rgba(8,9,16,.88));border-bottom:4px solid var(--dd-gold)}
+.dd-banner-strip span{font:400 clamp(1rem,3vw,1.9rem)/1 var(--dd-display);color:#fff;text-transform:uppercase;letter-spacing:.02em;text-shadow:0 3px 0 rgba(0,0,0,.7)}
+.vnext-scene-stage .vnext-meta-row .meta-name{display:none}
+.vnext-scene-stage .vnext-lock-overlay{z-index:7}
+.vnext-scene-stage .meta-serial{display:none}

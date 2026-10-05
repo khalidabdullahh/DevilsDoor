@@ -56,11 +56,14 @@ export class CharacterSelect {
       <!-- v2.3: Particle Aura Canvas -->
       <canvas class="vnext-aura-canvas" id="char-aura-canvas" aria-hidden="true"></canvas>
 
-      <!-- Minimal Header -->
+      <!-- Header: profile plate (left) + reward / wallet (right) -->
       <header class="vnext-header">
-        <div class="vnext-step-badge">
-          <span class="step-num">STEP 1</span>
-          <span class="step-label">CHOOSE SHINOBI</span>
+        <div class="dd-profile">
+          <div class="dd-avatar" id="char-avatar"><span class="dd-lvl" id="char-avatar-num">01</span></div>
+          <div class="dd-profile-text">
+            <span class="dd-profile-name">CHOOSE SHINOBI</span>
+            <div class="dd-xp"><i style="width:50%"></i><b>STEP 1 / 2</b></div>
+          </div>
         </div>
 
         <div class="vnext-header-right">
@@ -77,10 +80,25 @@ export class CharacterSelect {
         </div>
       </header>
 
+      <!-- Left icon column -->
+      <nav class="dd-side" aria-label="Menu">
+        <button type="button" id="btn-char-home" class="dd-icon-btn" aria-label="Home">
+          <span class="ic"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M12 3 2 12h3v8h5v-5h4v5h5v-8h3z"/></svg></span>
+          <span class="lb">HOME</span>
+        </button>
+      </nav>
+
       <!-- Main Stage -->
       <main class="vnext-char-stage">
         <div class="vnext-carousel-viewport" id="char-carousel-viewport">
+          <div class="dd-hero-name">
+            <h2 id="char-meta-name" class="meta-name">KAGE-RYU</h2>
+          </div>
           <div class="dd-pedestal" aria-hidden="true"></div>
+          <div class="dd-power" id="char-power" aria-label="Combat power">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M14.5 3 21 9.5l-1.4 1.4-1.1-1.1-6.7 6.7 1.5 1.5-1.4 1.4-1.5-1.5-3.3 3.3-2.6-2.6 3.3-3.3-1.5-1.5 1.4-1.4 1.5 1.5 6.7-6.7-1.1-1.1z"/></svg>
+            <span class="dd-power-label">POWER</span><b id="char-power-num">0</b>
+          </div>
           <div class="dd-dots" id="char-dots" role="tablist" aria-label="Shinobi"></div>
           <div class="vnext-cards-track" id="char-cards-track"></div>
           <button id="btn-char-prev" class="vnext-nav-arrow arrow-left" aria-label="Previous Shinobi">‹</button>
@@ -91,11 +109,10 @@ export class CharacterSelect {
         <div class="vnext-action-deck" id="char-action-deck">
           <div class="vnext-meta-row">
             <span id="char-meta-serial" class="meta-serial">01</span>
-            <h2 id="char-meta-name" class="meta-name">KAGE-RYU</h2>
             <span id="char-meta-price" class="meta-price">FREE</span>
           </div>
 
-          <!-- v2.3: Stat Bars -->
+          <!-- Stat Bars (real data from CHARACTER_ROSTER) -->
           <div class="vnext-stat-bars" id="char-stat-bars" aria-label="Character stats">
             <div class="stat-row">
               <span class="stat-label">SPD</span>
@@ -113,7 +130,11 @@ export class CharacterSelect {
 
           <div class="vnext-btn-row">
             <button id="btn-char-action" class="vnext-primary-cta">
-              <span id="char-action-text" class="cta-text">SELECT SHINOBI ➔</span>
+              <svg class="cta-ico" viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M14.5 3 21 9.5l-1.4 1.4-1.1-1.1-6.7 6.7 1.5 1.5-1.4 1.4-1.5-1.5-3.3 3.3-2.6-2.6 3.3-3.3-1.5-1.5 1.4-1.4 1.5 1.5 6.7-6.7-1.1-1.1z"/><path d="M9.5 3 3 9.5l1.4 1.4 1.1-1.1 3.2 3.2 1.4-1.4-3.2-3.2 1.1-1.1z" opacity=".75"/></svg>
+              <span class="cta-col">
+                <span id="char-action-text" class="cta-text">SELECT SHINOBI ➔</span>
+                <span class="cta-sub">10 REALMS AWAIT</span>
+              </span>
             </button>
           </div>
         </div>
@@ -195,6 +216,8 @@ export class CharacterSelect {
   }
 
   _attachEventListeners() {
+    const homeBtn = this.container && this.container.querySelector('#btn-char-home');
+    if (homeBtn) homeBtn.addEventListener('click', () => { if (window.ddGoHome) window.ddGoHome(); else window.location.href = '/'; });
     if (!this.container) return;
 
     const btnPrev = this.container.querySelector('#btn-char-prev');
@@ -332,6 +355,15 @@ export class CharacterSelect {
         actionText.textContent = canAfford ? `UNLOCK (${char.price} PTS) 🔓` : `NEED ${char.price - points} MORE PTS`;
       }
     }
+
+    // profile avatar + power plaque (real data from the roster)
+    const av = this.container.querySelector('#char-avatar');
+    if (av) av.style.backgroundImage = `url("${char.portrait || char.image}")`;
+    const avNum = this.container.querySelector('#char-avatar-num');
+    if (avNum) avNum.textContent = char.serial;
+    const st = char.stats || { speed: char.speed || 80, power: 70, stealth: 70 };
+    const pw = this.container.querySelector('#char-power-num');
+    if (pw) pw.textContent = String(st.speed + st.power + st.stealth + (char.jump || 0));
 
     // dots (one per hero): tap to jump
     const dots = this.container.querySelector('#char-dots');

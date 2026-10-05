@@ -178,7 +178,7 @@ export class UIManager {
 
     if (this.btnModalHome) {
       this.btnModalHome.addEventListener('click', () => {
-        window.location.href = '/';
+        if (window.ddGoHome) window.ddGoHome(); else window.location.href = '/';
       });
     }
   }

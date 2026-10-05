@@ -4,6 +4,12 @@
    API for pages, so there it can only ask the player to rotate. */
 (function () {
   'use strict';
+  // Go back to the landing page. When the game runs inside the landing's full-screen frame, ask the parent to close it
+  // (a normal navigation would drop fullscreen); otherwise just navigate.
+  window.ddGoHome = function () {
+    if (window.self !== window.top) { try { window.parent.postMessage({ type: 'dd-home' }, location.origin); return; } catch (e) {} }
+    window.location.href = '/';
+  };
   // 1) Only touch-first devices, never inside an iframe (e.g. CrazyGames embeds handle this themselves).
   if (!window.matchMedia || !matchMedia('(pointer: coarse)').matches || window.self !== window.top) return;
   // Already running as an installed app (manifest display: fullscreen/standalone) -> nothing to do.
@@ -31,6 +37,8 @@
       if (screen.orientation && screen.orientation.lock) return screen.orientation.lock('landscape').catch(function () {});
     }).catch(function () {});
   }
+
+  window.DDImmersive = { enter: enter, isFullscreen: isFS };
 
   // ---- overlay UI (only transform/opacity animation) ----
   var css = '.dd-gate{position:fixed;inset:0;z-index:2147483000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;' +

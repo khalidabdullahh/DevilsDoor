@@ -1,4 +1,5 @@
 import { SCENE_ROSTER } from '../data/SceneRoster.js';
+import { CHARACTER_ROSTER } from '../data/CharacterRoster.js';
 import { loadWindow } from './selectLayout.js';
 
 /**
@@ -63,9 +64,12 @@ export class SceneSelect {
           <button id="btn-scene-back" class="vnext-back-btn" title="Back to Shinobi Select">
             ‹ SHINOBI
           </button>
-          <div class="vnext-step-badge">
-            <span class="step-num">STEP 2</span>
-            <span class="step-label">SELECT REALM</span>
+          <div class="dd-profile">
+            <div class="dd-avatar" id="scene-avatar"><span class="dd-lvl" id="scene-avatar-num">01</span></div>
+            <div class="dd-profile-text">
+              <span class="dd-profile-name">CHOOSE REALM</span>
+              <div class="dd-xp"><i style="width:100%"></i><b>STEP 2 / 2</b></div>
+            </div>
           </div>
         </div>
 
@@ -92,6 +96,8 @@ export class SceneSelect {
             <img class="vnext-preview-img" alt="" decoding="async" draggable="false" />
             <div class="vnext-lock-overlay" id="scene-preview-lock" style="display: none;"><span class="lock-icon">🔒</span><span class="lock-price"></span></div>
             <div class="vnext-scene-gradient"></div>
+            <span class="dd-banner-tag" id="scene-banner-tag">REALM 01</span>
+            <div class="dd-banner-strip"><span id="scene-banner-name">SUNSET SANCTUARY</span></div>
           </div>
           <button id="btn-scene-prev" class="vnext-nav-arrow arrow-left" aria-label="Previous Realm">‹</button>
           <button id="btn-scene-next" class="vnext-nav-arrow arrow-right" aria-label="Next Realm">›</button>
@@ -227,6 +233,15 @@ export class SceneSelect {
     const isUnlocked = this.economy ? this.economy.isSceneUnlocked(scene.id) : scene.isFree;
 
     if (metaSerial) metaSerial.textContent = scene.number;
+    const bTag = this.container.querySelector('#scene-banner-tag');
+    const bName = this.container.querySelector('#scene-banner-name');
+    if (bTag) bTag.textContent = scene.number;
+    if (bName) bName.textContent = scene.name;
+    const hero = CHARACTER_ROSTER.find((c) => this.economy && c.id === this.economy.getSelectedCharacter()) || CHARACTER_ROSTER[0];
+    const av = this.container.querySelector('#scene-avatar');
+    if (av && hero) av.style.backgroundImage = `url("${hero.portrait || hero.image}")`;
+    const avNum = this.container.querySelector('#scene-avatar-num');
+    if (avNum) avNum.textContent = scene.serial;
     if (metaName) {
       metaName.classList.remove('name-reveal');
       void metaName.offsetWidth;
