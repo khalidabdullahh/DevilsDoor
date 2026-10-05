@@ -351,3 +351,42 @@
 .vnext-scene-stage .vnext-meta-row .meta-name{display:none}
 .vnext-scene-stage .vnext-lock-overlay{z-index:7}
 .vnext-scene-stage .meta-serial{display:none}
+
+/* ==========================================================================
+   v2.6 — Painted (AI-art) touch buttons. Files: src/assets/web/btn-*.webp (256px, transparent).
+   Logic untouched. The CSS bevel above stays as the fallback if an image fails to load.
+   Press / active effect is pure CSS (transform + brightness). The art already contains the icon, so the SVG icon + label are hidden.
+   ========================================================================== */
+#touch-left,#touch-right,#touch-jump,#touch-attack,#touch-shuriken,#touch-dash{
+  background-color:transparent;background-position:center;background-size:contain;background-repeat:no-repeat;
+  border:0;border-radius:50%;
+  box-shadow:none;
+  filter:drop-shadow(0 5px 3px rgba(0,0,0,.6));
+  transition:transform .06s ease,filter .06s ease;
+}
+#touch-left{background-image:url("/src/assets/web/btn-left.webp")}
+#touch-right{background-image:url("/src/assets/web/btn-right.webp")}
+#touch-jump{background-image:url("/src/assets/web/btn-jump.webp")}
+#touch-attack{background-image:url("/src/assets/web/btn-slash.webp")}
+#touch-shuriken{background-image:url("/src/assets/web/btn-shuriken.webp")}
+#touch-dash{background-image:url("/src/assets/web/btn-dash.webp")}
+#touch-left::before,#touch-right::before,#touch-jump::before,#touch-attack::before,#touch-shuriken::before,#touch-dash::before{display:none}
+#touch-left .btn-icon,#touch-right .btn-icon,#touch-jump .btn-icon,#touch-attack .btn-icon,#touch-shuriken .btn-icon,#touch-dash .btn-icon,
+#touch-jump .btn-label,#touch-attack .btn-label,#touch-shuriken .btn-label,#touch-dash .btn-label{visibility:hidden}
+#touch-left:active,#touch-right:active,#touch-jump:active,#touch-attack:active,#touch-shuriken:active,#touch-dash:active,
+#touch-left.active,#touch-right.active,#touch-jump.active,#touch-attack.active,#touch-shuriken.active,#touch-dash.active{
+  transform:translateY(4px) scale(.93);
+  filter:brightness(.82) drop-shadow(0 1px 1px rgba(0,0,0,.6));
+  background-color:transparent;box-shadow:none;border:0;
+}
+/* portrait-mode dash override from game.css used !important gradients: neutralise it for the painted button */
+#game-container.portrait-mode #touch-dash,body.portrait-mode #touch-dash{background:url("/src/assets/web/btn-dash.webp") center/contain no-repeat !important;border:0 !important;box-shadow:none !important}
+
+/* ==========================================================================
+   v2.6 — Enemy portraits (flavour art): loading screen + game-over card. transform/opacity only.
+   ========================================================================== */
+.dd-loading-foe{position:absolute;right:6%;bottom:0;height:86%;width:auto;max-width:46%;object-fit:contain;pointer-events:none;opacity:.92;
+  -webkit-mask-image:linear-gradient(180deg,#000 80%,transparent 100%);mask-image:linear-gradient(180deg,#000 80%,transparent 100%);
+  filter:drop-shadow(0 0 18px rgba(232,72,28,.25))}
+#loading-overlay>:not(.dd-loading-foe){position:relative;z-index:1}
+.dd-modal-foe{display:block;margin:-6px auto -8px;height:clamp(84px,26vh,170px);width:auto;max-width:70%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 6px 8px rgba(0,0,0,.6))}

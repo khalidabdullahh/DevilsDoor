@@ -1,4 +1,5 @@
 import { AnalyticsManager } from '../core/AnalyticsManager.js';
+import { randomEnemy } from '../data/EnemyRoster.js';
 
 /**
  * UIManager — High-Polish Action HUD, Modals & Progression UI for Devil's Door v2.2.
@@ -34,6 +35,12 @@ export class UIManager {
     this.btnModalHome = document.getElementById('btn-modal-home');
 
     this.loadingOverlay = document.getElementById('loading-overlay');
+    if (this.loadingOverlay) {
+      const foe = randomEnemy();
+      const img = document.createElement('img');
+      img.className = 'dd-loading-foe'; img.src = foe.portrait; img.alt = ''; img.decoding = 'async'; img.draggable = false;
+      this.loadingOverlay.prepend(img);
+    }
 
     this._bindEvents();
   }
@@ -368,9 +375,24 @@ export class UIManager {
     }
   }
 
+  // Flavour art (not tied to who actually killed the player): a random Shadow Army portrait above the Game Over card.
+  _setModalFoe(show) {
+    const card = document.querySelector('#modal-overlay .modal-card');
+    if (!card) return;
+    let img = card.querySelector('.dd-modal-foe');
+    if (!show) { if (img) img.remove(); return; }
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'dd-modal-foe'; img.alt = ''; img.decoding = 'async'; img.draggable = false;
+      card.prepend(img);
+    }
+    img.src = randomEnemy().portrait;
+  }
+
   showPauseModal(onResume, onRestart, onChangeScene, onChangeChar) {
     if (this.game) this.game.setPaused(true);
     if (this.modalTitle) this.modalTitle.textContent = 'PAUSED';
+    this._setModalFoe(false);
     if (this.modalDescription) this.modalDescription.textContent = 'Take breath, shinobi. The endless descent awaits your blade.';
     if (this.btnModalPrimary) this.btnModalPrimary.textContent = '▶ RESUME RUN';
     if (this.btnModalSceneSelect) this.btnModalSceneSelect.classList.remove('hidden');
@@ -392,6 +414,7 @@ export class UIManager {
 
     const isNewHigh = score >= highScore && score > 0;
     if (this.modalTitle) this.modalTitle.textContent = isNewHigh ? '🏆 NEW RECORD!' : '💀 SHADOW FALLEN';
+    this._setModalFoe(true);
     if (this.modalDescription) {
       this.modalDescription.innerHTML = `
         <div class="modal-stats-card">

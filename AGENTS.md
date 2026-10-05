@@ -91,7 +91,7 @@ All contributions are subject to review and final authority by **Khalid Abdullah
 - [x] 3. Realm picker lightweight: one big preview + 240px WebP thumbnail strip; only the selected realm and ±1 neighbour preload (`loadWindow`); `SceneRoster.js` derives `preview` / `thumb` / `blur` WebP paths from `image` (files in `src/assets/backgrounds/web/`).
 - [x] 4. UI kit + restyled Shinobi / Realm screens + bevelled touch buttons (section 8).
 - [x] 5. Dedicated standalone `/select/character` & `/select/realm` routes with poster aesthetic, stat gauges, and localStorage hand-off to `/game`.
-- [ ] 6. Enemy portrait art (Option C chosen: enemies deferred). Prompt pack ready: `docs/ART_PROMPTS.md` (style block, 7 enemy prompts, UI piece prompts, hand-off checklist). Enemy roster for art: Shadow Ronin, Oni Guard, Cursed Monk, Crimson Assassin, Shadow Sentry, Oni Boss (Shadow Entity), Shadow Devil. In-game enemies stay code-drawn; AI art is for portraits/cards only.
+- [~] 6. Enemy portrait art: 5 of 7 delivered and wired as flavour art (see 8.6); Cursed Monk and Oni Boss missing. (Originally: Option C, enemies deferred.) Prompt pack ready: `docs/ART_PROMPTS.md` (style block, 7 enemy prompts, UI piece prompts, hand-off checklist). Enemy roster for art: Shadow Ronin, Oni Guard, Cursed Monk, Crimson Assassin, Shadow Sentry, Oni Boss (Shadow Entity), Shadow Devil. In-game enemies stay code-drawn; AI art is for portraits/cards only.
 - [x] 7. **Flow decided (2026-10-05, see 8.5):** Landing -> in-game select screens. (Previously an open question:) standalone poster-style `/select/character` and `/select/realm` pages exist (commit fbda45f), but the landing's PLAY NOW goes straight to `/game` (in-game dark-UI select screens, section 8). Both look different (lavender poster vs dark game UI). Founder must decide which flow is final before either is removed or linked.
 
 ### 6.3 Cinematic Landing (`cinematic.html`)
@@ -188,6 +188,13 @@ Founder's reference: a mobile-game lobby (profile plate top-left, icon column, n
 - **Shinobi screen:** `.dd-profile` plate (avatar = selected hero, step 1/2 bar), `.dd-side` HOME icon button, hero name + title above the hero, `.dd-power` plaque (SPD+PWR+STL+jump from `CHARACTER_ROSTER`), left info/stat panel, orange `.vnext-primary-cta` with sword icon and "10 REALMS AWAIT" sub-bar. Backdrop = blurred realm art (`scene_02_*_blur.webp`) + hero accent glow.
 - **Realm screen:** same plate (avatar = chosen hero, step 2/2), banner with REALM tag + dark name strip with gold underline (`.dd-banner-*`), thumbnails, ENTER REALM CTA.
 - Idea backlog from the reference that needs real features first: Mission / Shop / Bag icons, BOSS button, daily reward.
+
+### 8.6 v2.6 — Painted art pass (2026-10-05)
+AI-generated art (prompts: `docs/ART_PROMPTS.md`) is cut out with **`scripts/key-art.py`** (green screen -> transparent WebP; `--kind enemy|button`, `--mirror`). Re-run it for every new asset so edges and green spill are handled the same way.
+- **Touch buttons** now use painted discs: `src/assets/web/btn-{left,right,jump,slash,shuriken,dash}.webp` (256px; Right = mirrored Left). CSS block "v2.6 Painted touch buttons" in `ui-kit.css` sets them as `background-image` on `#touch-*`, hides the SVG icon + label (the art contains the icon) and keeps press = `transform` + `brightness`. The older CSS bevel is the fallback. `TouchControls.js` is unchanged.
+- **Enemy portraits** `src/assets/web/enemy-0N-*.webp` + `src/js/data/EnemyRoster.js` (`ENEMY_ROSTER`, `randomEnemy()`): Shadow Ronin, Crimson Assassin, Oni Guard, Shadow Sentry, Shadow Devil. Used as flavour art only: a random one on the loading screen (`.dd-loading-foe`) and above the Game Over card (`.dd-modal-foe`, `UIManager._setModalFoe`). It is NOT "who killed you" (not tracked). In-game enemies are still code-drawn.
+- **Still missing art:** Cursed Monk, Oni Boss (Shadow Entity), top-right HUD icons (settings / sound / restart / fullscreen), pedestal/panel textures.
+- Rule: keep each portrait <= ~110 KB and each button <= ~20 KB.
 
 ### 8.4 Next ideas (not started)
 - Painted art pass: generate enemy portraits + UI textures from `docs/ART_PROMPTS.md`, then wire them in (keep CSS as the fallback).
