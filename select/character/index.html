@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Choose Shinobi — DEVIL'S DOOR</title>
+  <meta name="description" content="Select your Shinobi hero. Master four legendary shadow assassins in Devil's Door." />
+  <meta name="theme-color" content="#d9d7e9" />
+  <link rel="icon" type="image/png" sizes="64x64" href="/src/assets/branding/favicon.png" />
+  <link rel="icon" type="image/x-icon" href="/src/assets/branding/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="192x192" href="/src/assets/branding/favicon-192x192.png" />
+  <link rel="preload" href="/website/fonts/dela-gothic-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/website/fonts/barlow-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/website/css/select.css" />
+</head>
+<body>
+  <main class="frame" id="main">
+    <!-- Header -->
+    <header class="select-header">
+      <div class="header-left">
+        <a href="/" class="nav-back-btn" aria-label="Back to home">
+          &larr; <span>HOME</span>
+        </a>
+        <div class="step-tracker">
+          <span class="step-item active">01 <span>SHINOBI</span></span>
+          <span class="step-sep">/</span>
+          <span class="step-item">02 <span>REALM</span></span>
+          <span class="step-sep">/</span>
+          <span class="step-item">03 <span>PLAY</span></span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="wallet-badge">
+          <span>💎</span> <span id="wallet-points">0</span> <span>PTS</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Stage -->
+    <section class="select-stage" id="stage" aria-label="Shinobi Selection">
+      <h1 class="backdrop-title" id="backdrop-name" aria-hidden="true">KAGE-RYU</h1>
+
+      <div class="carousel-deck" id="carousel-viewport">
+        <div class="carousel-track" id="carousel-track">
+          <!-- Cards populated by JavaScript -->
+        </div>
+
+        <button class="carousel-nav-btn prev" id="btn-prev" aria-label="Previous Shinobi">&#8249;</button>
+        <button class="carousel-nav-btn next" id="btn-next" aria-label="Next Shinobi">&#8250;</button>
+      </div>
+    </section>
+
+    <!-- Footer Action -->
+    <footer class="select-footer">
+      <div class="details-block">
+        <span class="meta-serial-badge" id="char-serial">SHINOBI #01</span>
+        <h2 class="meta-main-title" id="char-name">KAGE-RYU</h2>
+        <span class="meta-sub-tag" id="char-title">SHADOW ASSASSIN</span>
+      </div>
+
+      <div class="stats-strip" id="char-stats">
+        <div class="stat-item">
+          <div class="stat-header"><span>SPEED</span><span id="stat-val-speed">95</span></div>
+          <div class="stat-gauge"><div class="stat-fill-bar" id="gauge-speed" style="width: 95%;"></div></div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-header"><span>POWER</span><span id="stat-val-power">70</span></div>
+          <div class="stat-gauge"><div class="stat-fill-bar" id="gauge-power" style="width: 70%;"></div></div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-header"><span>STEALTH</span><span id="stat-val-stealth">98</span></div>
+          <div class="stat-gauge"><div class="stat-fill-bar" id="gauge-stealth" style="width: 98%;"></div></div>
+        </div>
+      </div>
+
+      <button class="primary-proceed-btn" id="btn-proceed">
+        <span>CHOOSE REALM</span>
+        <span aria-hidden="true">&rarr;</span>
+      </button>
+    </footer>
+  </main>
+
+  <script type="module">
+    import { CHARACTER_ROSTER } from '/src/js/data/CharacterRoster.js';
+    import { characterCardLayout, loadWindow } from '/src/js/ui/selectLayout.js';
+
+    const STORAGE_KEY_CHAR = 'devils_door_selected_character';
+    const STORAGE_KEY_PTS = 'devils_door_points';
+
+    const heroes = [
+      {
+        id: 'kage_ryu',
+        serial: '01',
+        name: 'KAGE-RYU',
+        title: 'SHADOW SHINOBI',
+        image: '/src/assets/web/select-hero-01.webp',
+        accent: '#a855f7',
+        stats: { speed: 95, power: 70, stealth: 98 }
+      },
+      {
+        id: 'ryujin',
+        serial: '02',
+        name: 'RYUJIN',
+        title: 'DRAGON NINJA',
+        image: '/src/assets/web/select-hero-02.webp',
+        accent: '#f97316',
+        stats: { speed: 80, power: 92, stealth: 65 }
+      },
+      {
+        id: 'raijin',
+        serial: '03',
+        name: 'RAIJIN',
+        title: 'LIGHTNING RONIN',
+        image: '/src/assets/web/select-hero-03.webp',
+        accent: '#38bdf8',
+        stats: { speed: 90, power: 78, stealth: 72 }
+      },
+      {
+        id: 'tsukuyomi',
+        serial: '04',
+        name: 'TSUKUYOMI',
+        title: 'CRIMSON KUNOICHI',
+        image: '/src/assets/web/select-hero-04.webp',
+        accent: '#ef4444',
+        stats: { speed: 100, power: 85, stealth: 88 }
+      }
+    ];
+
+    const currentId = localStorage.getItem(STORAGE_KEY_CHAR) || 'kage_ryu';
+    let selectedIndex = Math.max(0, heroes.findIndex(h => h.id === currentId));
+    if (selectedIndex === -1) selectedIndex = 0;
+
+    const track = document.getElementById('carousel-track');
+    const backdropName = document.getElementById('backdrop-name');
+    const charSerial = document.getElementById('char-serial');
+    const charName = document.getElementById('char-name');
+    const charTitle = document.getElementById('char-title');
+    const gaugeSpeed = document.getElementById('gauge-speed');
+    const gaugePower = document.getElementById('gauge-power');
+    const gaugeStealth = document.getElementById('gauge-stealth');
+    const statValSpeed = document.getElementById('stat-val-speed');
+    const statValPower = document.getElementById('stat-val-power');
+    const statValStealth = document.getElementById('stat-val-stealth');
+    const walletPts = document.getElementById('wallet-points');
+    const btnProceed = document.getElementById('btn-proceed');
+
+    // Load points
+    const points = parseInt(localStorage.getItem(STORAGE_KEY_PTS) || '0', 10);
+    if (walletPts) walletPts.textContent = points.toLocaleString();
+
+    // Render cards
+    track.innerHTML = heroes.map((h, i) => `
+      <div class="shinobi-card" data-index="${i}">
+        <div class="shinobi-cutout-wrap">
+          <img data-src="${h.image}" alt="${h.name}" class="shinobi-cutout" decoding="async" />
+        </div>
+      </div>
+    `).join('');
+
+    const cards = Array.from(track.querySelectorAll('.shinobi-card'));
+    cards.forEach((card, idx) => {
+      card.addEventListener('click', () => {
+        if (selectedIndex !== idx) {
+          selectedIndex = idx;
+          update();
+        }
+      });
+    });
+
+    function update() {
+      const hero = heroes[selectedIndex];
+      backdropName.textContent = hero.name;
+      charSerial.textContent = `SHINOBI #${hero.serial}`;
+      charName.textContent = hero.name;
+      charTitle.textContent = hero.title;
+
+      statValSpeed.textContent = hero.stats.speed;
+      statValPower.textContent = hero.stats.power;
+      statValStealth.textContent = hero.stats.stealth;
+
+      gaugeSpeed.style.width = `${hero.stats.speed}%`;
+      gaugePower.style.width = `${hero.stats.power}%`;
+      gaugeStealth.style.width = `${hero.stats.stealth}%`;
+      gaugeSpeed.style.background = hero.accent;
+      gaugePower.style.background = hero.accent;
+      gaugeStealth.style.background = hero.accent;
+
+      document.documentElement.style.setProperty('--accent-sel', hero.accent);
+
+      cards.forEach((card, i) => {
+        const offset = i - selectedIndex;
+        const layout = characterCardLayout(offset);
+        card.style.transform = layout.transform;
+        card.style.opacity = layout.opacity;
+        card.style.zIndex = layout.zIndex;
+        card.classList.toggle('selected', offset === 0);
+      });
+
+      // Lazy load images
+      for (const i of loadWindow(selectedIndex, heroes.length, 2)) {
+        const img = cards[i].querySelector('img');
+        if (img && !img.getAttribute('src')) {
+          img.setAttribute('src', img.dataset.src);
+        }
+      }
+    }
+
+    update();
+
+    // Navigation
+    document.getElementById('btn-prev').addEventListener('click', () => {
+      if (selectedIndex > 0) {
+        selectedIndex--;
+        update();
+      }
+    });
+
+    document.getElementById('btn-next').addEventListener('click', () => {
+      if (selectedIndex < heroes.length - 1) {
+        selectedIndex++;
+        update();
+      }
+    });
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' && selectedIndex > 0) {
+        selectedIndex--;
+        update();
+      } else if (e.key === 'ArrowRight' && selectedIndex < heroes.length - 1) {
+        selectedIndex++;
+        update();
+      } else if (e.key === 'Enter') {
+        proceed();
+      }
+    });
+
+    // Touch navigation
+    let touchStartX = 0;
+    const viewport = document.getElementById('carousel-viewport');
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', (e) => {
+      const deltaX = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(deltaX) > 40) {
+        if (deltaX < 0 && selectedIndex < heroes.length - 1) {
+          selectedIndex++;
+          update();
+        } else if (deltaX > 0 && selectedIndex > 0) {
+          selectedIndex--;
+          update();
+        }
+      }
+    }, { passive: true });
+
+    function proceed() {
+      const hero = heroes[selectedIndex];
+      localStorage.setItem(STORAGE_KEY_CHAR, hero.id);
+      window.location.href = '/select/realm';
+    }
+
+    btnProceed.addEventListener('click', proceed);
+  </script>
+</body>
+</html>

@@ -1,0 +1,457 @@
+/* ==========================================================================
+   DEVIL'S DOOR — SELECTION PAGES (POSTER & ARCADE HERO SYSTEM)
+   Follows website/css/landing.css design tokens & typography.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Dela Gothic One";
+  src: url("/website/fonts/dela-gothic-one-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("/website/fonts/barlow-condensed-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("/website/fonts/barlow-condensed-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  --paper: #d9d7e9;      /* lavender page */
+  --slate: #4a5568;      /* slab text */
+  --ember: #e8481c;      /* primary accent */
+  --ink: #0c0c10;        /* frame border */
+  --accent-sel: #a855f7; /* dynamic selection accent */
+  --gap: clamp(10px, 2.6vmin, 28px);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #cfcde1;
+  padding: var(--gap);
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-weight: 600;
+  color: var(--ink);
+  touch-action: pan-y;
+}
+
+.frame {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--paper);
+  border: clamp(5px, 0.9vmin, 10px) solid var(--ink);
+  border-radius: clamp(18px, 3.4vmin, 36px);
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --------------------------------------------------------------------------
+   HEADER NAVIGATION & STEP INDICATOR
+   -------------------------------------------------------------------------- */
+.select-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(12px, 2.8cqh, 24px) clamp(16px, 4.2cqw, 36px);
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.8cqw, 20px);
+}
+
+.nav-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ink);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: clamp(13px, 1.4cqw, 18px);
+  letter-spacing: 0.08em;
+  padding: 0.5em 1em;
+  border-radius: 0.5em;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.nav-back-btn:hover, .nav-back-btn:focus-visible {
+  background: var(--ember);
+  transform: translateX(-2px);
+  outline: none;
+}
+
+.step-tracker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: clamp(11px, 1.2cqw, 15px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.step-item {
+  color: var(--slate);
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.step-item.active {
+  color: var(--ember);
+  opacity: 1;
+}
+
+.step-item.done {
+  color: var(--ink);
+  opacity: 0.85;
+}
+
+.step-sep {
+  color: var(--slate);
+  opacity: 0.35;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wallet-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(12, 12, 16, 0.08);
+  border: 1.5px solid rgba(12, 12, 16, 0.15);
+  padding: 0.4em 0.85em;
+  border-radius: 999px;
+  font-size: clamp(12px, 1.3cqw, 16px);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   MAIN STAGE / SHOWCASE AREA
+   -------------------------------------------------------------------------- */
+.select-stage {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Background Huge Typography */
+.backdrop-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  width: 90cqw;
+  text-align: center;
+  font-family: "Dela Gothic One", "Arial Black", Impact, sans-serif;
+  font-size: clamp(3rem, 15cqw, 13rem);
+  line-height: 0.85;
+  color: var(--slate);
+  opacity: 0.18;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+  text-transform: uppercase;
+  transition: opacity 0.3s, transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Carousel Viewport */
+.carousel-deck {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: clamp(240px, 48cqh, 480px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1000px;
+}
+
+.carousel-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Shinobi Card */
+.shinobi-card {
+  position: absolute;
+  width: min(44cqw, 360px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
+  will-change: transform, opacity;
+}
+
+.shinobi-cutout-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shinobi-cutout {
+  max-height: 94%;
+  max-width: 94%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+}
+
+/* Breathing float on selected */
+@media (prefers-reduced-motion: no-preference) {
+  .shinobi-card.selected .shinobi-cutout {
+    animation: shinobiFloat 4s ease-in-out infinite;
+  }
+}
+
+@keyframes shinobiFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Realm Showcase Cards */
+.realm-card {
+  position: absolute;
+  width: min(58cqw, 480px);
+  aspect-ratio: 16 / 9;
+  border-radius: clamp(12px, 2cqw, 20px);
+  overflow: hidden;
+  border: clamp(3px, 0.5vmin, 6px) solid var(--ink);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease, border-color 0.3s;
+  background: var(--ink);
+}
+
+.realm-card.selected {
+  border-color: var(--ember);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 0 24px rgba(232, 72, 28, 0.4);
+}
+
+.realm-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Carousel Navigation Arrows */
+.carousel-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 8;
+  width: clamp(36px, 4.4cqw, 56px);
+  height: clamp(36px, 4.4cqw, 56px);
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  font-size: clamp(20px, 2.5cqw, 32px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.18s;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.carousel-nav-btn:hover, .carousel-nav-btn:focus-visible {
+  background: var(--ember);
+  transform: translateY(-50%) scale(1.08);
+  outline: none;
+}
+
+.carousel-nav-btn.prev { left: clamp(12px, 3.5cqw, 32px); }
+.carousel-nav-btn.next { right: clamp(12px, 3.5cqw, 32px); }
+
+/* --------------------------------------------------------------------------
+   FOOTER ACTION & DETAILS DECK
+   -------------------------------------------------------------------------- */
+.select-footer {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(10px, 2.4cqh, 20px) clamp(16px, 4.2cqw, 36px);
+  background: rgba(217, 215, 233, 0.95);
+  border-top: 2px solid rgba(12, 12, 16, 0.12);
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+.details-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta-serial-badge {
+  font-size: clamp(11px, 1.2cqw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--ember);
+}
+
+.meta-main-title {
+  font-family: "Dela Gothic One", sans-serif;
+  font-size: clamp(1.2rem, 2.6cqw, 2.2rem);
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.meta-sub-tag {
+  font-size: clamp(12px, 1.3cqw, 16px);
+  color: var(--slate);
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+/* Stat bar cluster */
+.stats-strip {
+  display: flex;
+  gap: clamp(12px, 2cqw, 24px);
+  align-items: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: clamp(10px, 1.1cqw, 13px);
+  font-weight: 700;
+  color: var(--slate);
+  letter-spacing: 0.1em;
+}
+
+.stat-gauge {
+  width: clamp(60px, 8cqw, 100px);
+  height: 6px;
+  background: rgba(12, 12, 16, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.stat-fill-bar {
+  height: 100%;
+  background: var(--ember);
+  border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Primary CTA */
+.primary-proceed-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.65em 1.4em;
+  border-radius: 0.6em;
+  background: var(--ember);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: clamp(15px, 1.7cqw, 22px);
+  letter-spacing: 0.06em;
+  border: none;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.18s;
+  flex-shrink: 0;
+}
+
+.primary-proceed-btn:hover, .primary-proceed-btn:focus-visible {
+  background: var(--ink);
+  outline: none;
+}
+
+.primary-proceed-btn:active {
+  transform: translateY(1px);
+}
+
+/* --------------------------------------------------------------------------
+   MOBILE & NARROW LAYOUTS
+   -------------------------------------------------------------------------- */
+@container (max-aspect-ratio: 4/5) {
+  .select-header {
+    padding: 12px 16px;
+  }
+  .step-tracker .step-item span {
+    display: none;
+  }
+  .select-footer {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+  .stats-strip {
+    justify-content: space-between;
+  }
+  .primary-proceed-btn {
+    justify-content: center;
+    width: 100%;
+  }
+  .shinobi-card {
+    width: 80cqw;
+  }
+  .realm-card {
+    width: 85cqw;
+  }
+}

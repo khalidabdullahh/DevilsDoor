@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Select Realm — DEVIL'S DOOR</title>
+  <meta name="description" content="Select your realm. 10 dynamic 4K dark-fantasy realms in Devil's Door." />
+  <meta name="theme-color" content="#d9d7e9" />
+  <link rel="icon" type="image/png" sizes="64x64" href="/src/assets/branding/favicon.png" />
+  <link rel="icon" type="image/x-icon" href="/src/assets/branding/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="192x192" href="/src/assets/branding/favicon-192x192.png" />
+  <link rel="preload" href="/website/fonts/dela-gothic-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/website/fonts/barlow-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/website/css/select.css" />
+</head>
+<body>
+  <main class="frame" id="main">
+    <!-- Header -->
+    <header class="select-header">
+      <div class="header-left">
+        <a href="/select/character" class="nav-back-btn" aria-label="Back to Shinobi Select">
+          &larr; <span>SHINOBI</span>
+        </a>
+        <div class="step-tracker">
+          <span class="step-item done">01 <span>SHINOBI</span></span>
+          <span class="step-sep">/</span>
+          <span class="step-item active">02 <span>REALM</span></span>
+          <span class="step-sep">/</span>
+          <span class="step-item">03 <span>PLAY</span></span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="wallet-badge">
+          <span>💎</span> <span id="wallet-points">0</span> <span>PTS</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Stage -->
+    <section class="select-stage" id="stage" aria-label="Realm Selection">
+      <h1 class="backdrop-title" id="backdrop-name" aria-hidden="true">SANCTUARY</h1>
+
+      <div class="carousel-deck" id="carousel-viewport">
+        <div class="carousel-track" id="carousel-track">
+          <!-- Populated by JS -->
+        </div>
+
+        <button class="carousel-nav-btn prev" id="btn-prev" aria-label="Previous Realm">&#8249;</button>
+        <button class="carousel-nav-btn next" id="btn-next" aria-label="Next Realm">&#8250;</button>
+      </div>
+    </section>
+
+    <!-- Footer Action -->
+    <footer class="select-footer">
+      <div class="details-block">
+        <span class="meta-serial-badge" id="realm-serial">REALM 01</span>
+        <h2 class="meta-main-title" id="realm-name">SUNSET SANCTUARY</h2>
+        <span class="meta-sub-tag" id="realm-lore">Where the last sun bleeds before darkness claims the horizon.</span>
+      </div>
+
+      <div class="stats-strip" id="realm-meta-extra">
+        <div class="stat-item">
+          <div class="stat-header"><span>DIFFICULTY</span><span id="realm-diff-stars">★☆☆☆☆</span></div>
+          <div class="stat-gauge"><div class="stat-fill-bar" id="gauge-difficulty" style="width: 20%;"></div></div>
+        </div>
+      </div>
+
+      <button class="primary-proceed-btn" id="btn-proceed">
+        <span>ENTER REALM</span>
+        <span aria-hidden="true">&rarr;</span>
+      </button>
+    </footer>
+  </main>
+
+  <script type="module">
+    import { SCENE_ROSTER } from '/src/js/data/SceneRoster.js';
+    import { loadWindow } from '/src/js/ui/selectLayout.js';
+
+    const STORAGE_KEY_SCENE = 'devils_door_selected_scene';
+    const STORAGE_KEY_PTS = 'devils_door_points';
+
+    const realms = SCENE_ROSTER.map((r, i) => ({
+      id: r.id,
+      number: r.number || `REALM ${String(i + 1).padStart(2, '0')}`,
+      name: r.name,
+      image: `/src/assets/web/realm-${String(i + 1).padStart(2, '0')}.webp`,
+      thumb: `/src/assets/web/realm-${String(i + 1).padStart(2, '0')}-sm.webp`,
+      accent: r.accentColor || '#ef4444',
+      lore: r.lore || 'Survive the endless dark fantasy trials.',
+      difficulty: r.difficulty || 1
+    }));
+
+    const currentId = localStorage.getItem(STORAGE_KEY_SCENE) || 'sunset_torii';
+    let selectedIndex = Math.max(0, realms.findIndex(r => r.id === currentId));
+    if (selectedIndex === -1) selectedIndex = 0;
+
+    const track = document.getElementById('carousel-track');
+    const backdropName = document.getElementById('backdrop-name');
+    const realmSerial = document.getElementById('realm-serial');
+    const realmName = document.getElementById('realm-name');
+    const realmLore = document.getElementById('realm-lore');
+    const diffStars = document.getElementById('realm-diff-stars');
+    const gaugeDiff = document.getElementById('gauge-difficulty');
+    const walletPts = document.getElementById('wallet-points');
+    const btnProceed = document.getElementById('btn-proceed');
+
+    // Load points
+    const points = parseInt(localStorage.getItem(STORAGE_KEY_PTS) || '0', 10);
+    if (walletPts) walletPts.textContent = points.toLocaleString();
+
+    // Render cards
+    track.innerHTML = realms.map((r, i) => `
+      <div class="realm-card" data-index="${i}">
+        <img data-src="${r.image}" data-thumb="${r.thumb}" alt="${r.name}" decoding="async" />
+      </div>
+    `).join('');
+
+    const cards = Array.from(track.querySelectorAll('.realm-card'));
+    cards.forEach((card, idx) => {
+      card.addEventListener('click', () => {
+        if (selectedIndex !== idx) {
+          selectedIndex = idx;
+          update();
+        }
+      });
+    });
+
+    function getStars(num) {
+      const full = Math.min(5, Math.max(1, num));
+      return '★'.repeat(full) + '☆'.repeat(5 - full);
+    }
+
+    function update() {
+      const realm = realms[selectedIndex];
+      backdropName.textContent = realm.name.split(' ').pop() || realm.name;
+      realmSerial.textContent = realm.number;
+      realmName.textContent = realm.name;
+      realmLore.textContent = realm.lore;
+
+      diffStars.textContent = getStars(realm.difficulty);
+      gaugeDiff.style.width = `${(realm.difficulty / 5) * 100}%`;
+      gaugeDiff.style.background = realm.accent;
+
+      document.documentElement.style.setProperty('--accent-sel', realm.accent);
+
+      cards.forEach((card, i) => {
+        const offset = i - selectedIndex;
+        const abs = Math.abs(offset);
+        const dir = offset < 0 ? -1 : 1;
+        const zIndex = 20 - abs;
+
+        if (offset === 0) {
+          card.style.transform = 'translateX(0px) scale(1.08) translateZ(50px)';
+          card.style.opacity = '1';
+        } else if (abs === 1) {
+          card.style.transform = `translateX(${dir * 180}px) scale(0.82) rotateY(${-dir * 14}deg)`;
+          card.style.opacity = '0.6';
+        } else {
+          card.style.transform = `translateX(${offset * 150}px) scale(0.65) rotateY(${-dir * 22}deg)`;
+          card.style.opacity = '0.2';
+        }
+        card.style.zIndex = zIndex;
+        card.classList.toggle('selected', offset === 0);
+      });
+
+      // Lazy load images
+      for (const i of loadWindow(selectedIndex, realms.length, 2)) {
+        const img = cards[i].querySelector('img');
+        if (img && !img.getAttribute('src')) {
+          img.setAttribute('src', img.dataset.src || img.dataset.thumb);
+        }
+      }
+    }
+
+    update();
+
+    // Navigation
+    document.getElementById('btn-prev').addEventListener('click', () => {
+      if (selectedIndex > 0) {
+        selectedIndex--;
+        update();
+      }
+    });
+
+    document.getElementById('btn-next').addEventListener('click', () => {
+      if (selectedIndex < realms.length - 1) {
+        selectedIndex++;
+        update();
+      }
+    });
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' && selectedIndex > 0) {
+        selectedIndex--;
+        update();
+      } else if (e.key === 'ArrowRight' && selectedIndex < realms.length - 1) {
+        selectedIndex++;
+        update();
+      } else if (e.key === 'Enter') {
+        proceed();
+      }
+    });
+
+    // Touch navigation
+    let touchStartX = 0;
+    const viewport = document.getElementById('carousel-viewport');
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', (e) => {
+      const deltaX = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(deltaX) > 40) {
+        if (deltaX < 0 && selectedIndex < realms.length - 1) {
+          selectedIndex++;
+          update();
+        } else if (deltaX > 0 && selectedIndex > 0) {
+          selectedIndex--;
+          update();
+        }
+      }
+    }, { passive: true });
+
+    function proceed() {
+      const realm = realms[selectedIndex];
+      localStorage.setItem(STORAGE_KEY_SCENE, realm.id);
+      window.location.href = '/game';
+    }
+
+    btnProceed.addEventListener('click', proceed);
+  </script>
+</body>
+</html>

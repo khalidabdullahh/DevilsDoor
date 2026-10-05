@@ -2,6 +2,10 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
+    { "source": "/select/character", "destination": "/select/character/index.html" },
+    { "source": "/select/character/", "destination": "/select/character/index.html" },
+    { "source": "/select/realm", "destination": "/select/realm/index.html" },
+    { "source": "/select/realm/", "destination": "/select/realm/index.html" },
     { "source": "/game", "destination": "/game.html" },
     { "source": "/game/", "destination": "/game.html" },
     { "source": "/play", "destination": "/play.html" },

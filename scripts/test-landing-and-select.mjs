@@ -116,5 +116,27 @@ const ok = (name, cond, extra = '') => { (cond ? pass++ : fail++); console.log(`
   ok('no /game or /play rewrite in _redirects (they loop on Cloudflare Pages; the file may be absent)', !exists('/_redirects') || !/^\/(game|play)\s/m.test(read('_redirects')));
 }
 
+// ---- 5. Standalone Select Pages: static integrity & asset verification ----
+{
+  const fs = await import('node:fs');
+  const root = new URL('../', import.meta.url);
+  const read = (p) => fs.readFileSync(new URL(p, root), 'utf8');
+  const exists = (p) => fs.existsSync(new URL('.' + p, root));
+
+  ok('select/character/index.html and select/character.html exist', exists('/select/character/index.html') && exists('/select/character.html'));
+  ok('select/realm/index.html and select/realm.html exist', exists('/select/realm/index.html') && exists('/select/realm.html'));
+  ok('website/css/select.css exists', exists('/website/css/select.css'));
+
+  const charHtml = read('select/character/index.html');
+  const realmHtml = read('select/realm/index.html');
+
+  ok('character select page references all 4 light hero cutouts', [1, 2, 3, 4].every(i => exists(`/src/assets/web/select-hero-0${i}.webp`)));
+  ok('character select page has step-tracker and links to realm select', charHtml.includes('step-tracker') && charHtml.includes('/select/realm'));
+
+  ok('realm select page references all 10 light realm previews', Array.from({ length: 10 }, (_, i) => exists(`/src/assets/web/realm-${String(i + 1).padStart(2, '0')}.webp`)).every(Boolean));
+  ok('realm select page links back to shinobi and forward to game', realmHtml.includes('/select/character') && realmHtml.includes('/game'));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
+

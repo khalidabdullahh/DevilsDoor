@@ -90,7 +90,7 @@ All contributions are subject to review and final authority by **Khalid Abdullah
 - [x] 2. In-game character & realm select overhauled with stat bars, particle aura, lore, difficulty stars, and reactive backdrop.
 - [x] 3. Realm picker lightweight: one big preview + 240px WebP thumbnail strip; only the selected realm and ±1 neighbour preload (`loadWindow`); `SceneRoster.js` derives `preview` / `thumb` / `blur` WebP paths from `image` (files in `src/assets/backgrounds/web/`).
 - [x] 4. UI kit + restyled Shinobi / Realm screens + bevelled touch buttons (section 8).
-- [ ] 5. Dedicated standalone `/select/character` & `/select/realm` routes.
+- [x] 5. Dedicated standalone `/select/character` & `/select/realm` routes with poster aesthetic, stat gauges, and localStorage hand-off to `/game`.
 - [ ] 6. Enemy portrait art (Option C chosen: enemies deferred; later: AI-generated art, same style, transparent cutout -> WebP).
 
 ### 6.3 Cinematic Landing (`cinematic.html`)

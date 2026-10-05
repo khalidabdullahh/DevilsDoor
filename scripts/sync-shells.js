@@ -19,6 +19,23 @@ if (!fs.existsSync(path.join(rootDir, 'play'))) fs.mkdirSync(path.join(rootDir, 
 fs.writeFileSync(path.join(rootDir, 'game/index.html'), srcIndexHtml, 'utf-8');
 fs.writeFileSync(path.join(rootDir, 'play/index.html'), srcIndexHtml, 'utf-8');
 
+// Sync select/character and select/realm
+if (fs.existsSync(path.join(rootDir, 'select/character/index.html'))) {
+  const charHtml = fs.readFileSync(path.join(rootDir, 'select/character/index.html'), 'utf-8');
+  fs.writeFileSync(path.join(rootDir, 'select/character.html'), charHtml, 'utf-8');
+}
+if (fs.existsSync(path.join(rootDir, 'select/realm/index.html'))) {
+  const realmHtml = fs.readFileSync(path.join(rootDir, 'select/realm/index.html'), 'utf-8');
+  fs.writeFileSync(path.join(rootDir, 'select/realm.html'), realmHtml, 'utf-8');
+}
+
+// Sync index.html with website/index.html
+if (fs.existsSync(path.join(rootDir, 'index.html'))) {
+  const rootIndex = fs.readFileSync(path.join(rootDir, 'index.html'), 'utf-8');
+  if (!fs.existsSync(path.join(rootDir, 'website'))) fs.mkdirSync(path.join(rootDir, 'website'), { recursive: true });
+  fs.writeFileSync(path.join(rootDir, 'website/index.html'), rootIndex, 'utf-8');
+}
+
 // 2. Prepare dist-crazygames/src
 const distCrazyGames = path.join(rootDir, 'dist-crazygames');
 const distSrc = path.join(distCrazyGames, 'src');
