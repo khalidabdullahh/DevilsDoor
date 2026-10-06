@@ -6,6 +6,17 @@
  * - #04 Cursed Monk: Floating levitating necromancer, prayer beads, orbiting dark curse orbs.
  * - #05 Crimson Assassin: Split half-red half-black mask, red sash, dual curved Kama blades.
  */
+import { getSprite, getTinted } from '../render/SpriteArt.js';
+
+// Painted portraits used as in-game sprites (visual only; hitboxes / AI / damage are unchanged).
+// h = drawn height as a multiple of the hitbox height; face = which way the artwork looks (+1 right, -1 left).
+// Cursed Monk has no painted art yet, so it keeps its code-drawn body.
+const ENEMY_ART = {
+  ronin:    { url: '/src/assets/web/enemy-01-shadow-ronin.webp',     h: 1.85, face: -1 },
+  assassin: { url: '/src/assets/web/enemy-02-crimson-assassin.webp', h: 1.65, face: -1 },
+  oni:      { url: '/src/assets/web/enemy-03-oni-guard.webp',        h: 1.9,  face: 1 },
+};
+
 export class ShadowNinjaEnemy {
   constructor(x = 720, y = 506, patrolMin = 600, patrolMax = 840, type = 'ronin') {
     this.x = x;
@@ -253,6 +264,9 @@ export class ShadowNinjaEnemy {
       ctx.restore();
     }
 
+    // Painted sprite (falls back to the code-drawn body below until the image has loaded)
+    if (this._drawPainted(ctx, sx, sy)) return;
+
     ctx.save();
     ctx.translate(sx + this.width / 2, sy + this.height / 2);
     ctx.scale(this.facing, 1);
@@ -471,5 +485,61 @@ export class ShadowNinjaEnemy {
     }
 
     ctx.restore();
+  }
+
+  /**
+   * Draws the painted portrait with state-driven motion (transform only, no per-frame filters):
+   * patrol/chase = bob + lean, windup = lean back + red telegraph, attack = lunge, hurt = recoil + white flash.
+   * Returns true when it drew something.
+   */
+  _drawPainted(ctx, sx, sy) {
+    const cfg = ENEMY_ART[this.type];
+    if (!cfg) return false;
+    const art = getSprite(cfg.url);
+    if (!art.ready) return false;
+
+    const nw = art.img.naturalWidth, nh = art.img.naturalHeight;
+    const dh = this.height * cfg.h;
+    const dw = dh * (nw / nh);
+    const moving = this.state === 'patrol' || this.state === 'chase';
+    const bob = moving ? Math.abs(Math.sin(this.animTime)) * 3 : Math.sin(this.animTime * 0.3) * 1.2;
+
+    let lean = this.state === 'chase' ? 0.07 : 0;
+    let lunge = 0;
+    let sx2 = 1, sy2 = 1;
+    let tint = null, tintAlpha = 0;
+    if (this.state === 'windup') {
+      lean = -0.12; sx2 = 1.04; sy2 = 0.96;
+      tint = 'red'; tintAlpha = 0.14 + 0.16 * Math.abs(Math.sin(this.animTime * 2));
+    } else if (this.state === 'attack') {
+      lean = 0.17; lunge = 10;
+    } else if (this.state === 'hurt') {
+      lean = -0.09; tint = 'white'; tintAlpha = 0.6;
+    }
+
+    const cx = sx + this.width / 2;
+    const feetY = sy + this.height + 3;
+
+    // ground shadow
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath();
+    ctx.ellipse(cx, feetY, dw * 0.28, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(cx, feetY - bob);
+    ctx.scale(this.facing * cfg.face, 1);   // artwork direction -> this.facing
+    ctx.translate(lunge, 0);
+    ctx.rotate(lean);
+    ctx.scale(sx2, sy2);
+    ctx.drawImage(art.img, -dw / 2, -dh, dw, dh);
+    if (tint) {
+      const t = getTinted(art, tint, tint === 'red' ? '#ff2a2a' : '#ffffff');
+      if (t) { ctx.globalAlpha = tintAlpha; ctx.drawImage(t, -dw / 2, -dh, dw, dh); }
+    }
+    ctx.restore();
+    return true;
   }
 }

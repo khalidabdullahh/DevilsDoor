@@ -83,3 +83,21 @@ Premium mobile-game UI button asset, realistic-cartoon style: a single round gam
 - **Dash** (cyan rim): `A double chevron pointing right with short speed lines, cyan glowing rim, white icon.`
 - Optional small HUD buttons (settings gear, sound, restart, fullscreen): same recipe, silver/gold rim.
 Hand-off: upload the 5 PNGs; developer keys out green, trims, exports ~192 px WebP, mirrors Left -> Right, and swaps them into the CSS backgrounds (CSS bevel stays as fallback; press / cooldown effects stay in CSS).
+
+## 9. PAINTED HERO SPRITES FOR GAMEPLAY (the 4 shinobi, same style as the enemies)
+The current hero sketches have chalk-ground scribbles and paper specks, so they cannot be used in gameplay. Generate clean painted ones instead (one image per hero, 1:1 or 2:3, same tool/session, upload an enemy image as the style reference).
+**Pose rule:** side view, facing RIGHT, mid-stride ready/running pose, full body, both feet visible, weapon held low, no floor, no ground shadow.
+
+**GAMEPLAY HERO STYLE BLOCK** (paste first):
+```
+Premium mobile-game character art, realistic-cartoon style: stylized semi-realistic proportions, bold clean ink outlines of varied line weight, painterly cel-shading, rich material detail, dark Japanese dark-fantasy mood, charcoal and obsidian palette with ONE strong accent colour, thin cool rim light on the edges. Side view facing right, mid-stride ready pose, full body with both feet visible. Flat pure green (#00FF00) background, no floor, no ground shadow, no text, no watermark. Full subject centered with margin, nothing cropped.
+```
+- **Kage-Ryu** (accent purple): `A hooded shadow ninja in black plate-and-cloth armor, long red scarf flowing behind, three katanas strapped to the back, glowing red eyes, faint violet energy around the fists.`
+- **Ryujin** (accent orange): `A dark samurai in tattered horned-helmet armor with an oni-style mask, holding a katana whose blade burns with orange flame.`
+- **Raijin** (accent cyan): `A wandering swordsman in a conical straw kasa hat and a tattered black cloak, long katana, cyan lightning glowing in the eyes and along the blade.`
+- **Tsukuyomi** (accent crimson): `A masked agile kunoichi in light silver-grey and black armor, red ribbons trailing from the arms, two curved kama sickles held in reverse grip, running pose.`
+Hand-off: upload the 4 PNGs. Developer runs `python3 scripts/key-art.py IN src/assets/web/play-<id>.webp --kind enemy --max 640` (ids: `kage_ryu`, `ryujin`, `raijin`, `tsukuyomi`), then sets `playSprite: '/src/assets/web/play-<id>.webp'` (and `playFace: 1`) on the matching `CHARACTER_ROSTER` entry. Until then the code-drawn shinobi is used.
+
+## 10. MORE ENEMIES / BOSS (still missing)
+- **Cursed Monk** (in-game enemy type `monk`): needs side view, facing right, floating pose. Use the E3 prompt in section 4 plus the side-view/right-facing rule.
+- **Oni Boss** (`OniBossEnemy`, ~182 lines): large boss art, 16:9 or 2:3, facing left, E6 prompt in section 4.

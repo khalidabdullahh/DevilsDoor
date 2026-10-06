@@ -1,3 +1,5 @@
+import { getSprite } from '../render/SpriteArt.js';
+import { CHARACTER_ROSTER } from '../data/CharacterRoster.js';
 import { Shuriken } from './Shuriken.js';
 
 /**
@@ -868,7 +870,10 @@ export class NinjaArashiPlayer {
     const isRunning = this.isGrounded && Math.abs(this.vx) > 20;
     const stride = isRunning ? Math.sin(this.animTime) : 0;
     const bobbing = isRunning ? Math.abs(Math.sin(this.animTime)) * 3.5 : 0;
-    const leanAngle = isRunning ? 0.28 : (this.isDashing ? 0.46 : (this.isSlashing ? 0.22 : 0));
+    const painted = !!this._paintedHero();   // painted art is a full pose already, so it needs far less lean than the vector model
+    const leanAngle = painted
+      ? (isRunning ? 0.08 : (this.isDashing ? 0.2 : (this.isSlashing ? 0.1 : 0)))
+      : (isRunning ? 0.28 : (this.isDashing ? 0.46 : (this.isSlashing ? 0.22 : 0)));
 
     ctx.translate(0, -bobbing);
     ctx.rotate(leanAngle);
@@ -892,10 +897,33 @@ export class NinjaArashiPlayer {
     this._drawSlashArc(ctx, px, py);
   }
 
+  // Painted hero art (optional): set `playSprite` (+ `playFace`) on a CHARACTER_ROSTER entry and it is used in gameplay.
+  // Until then (or while loading) the vector shinobi below is drawn, so gameplay never breaks.
+  _paintedHero() {
+    const entry = CHARACTER_ROSTER.find((c) => c.id === this.heroType);
+    if (!entry || !entry.playSprite) return null;
+    const sp = getSprite(entry.playSprite);
+    return sp.ready ? { sp, face: entry.playFace || 1, k: entry.playScale || 1.45 } : null;
+  }
+
+  _drawPaintedHero(ctx, art) {
+    const { sp, face, k } = art;
+    const dh = this.height * k;
+    const dw = dh * (sp.img.naturalWidth / sp.img.naturalHeight);
+    const stretch = !this.isGrounded ? (this.vy < 0 ? 1.05 : 0.97) : 1;      // tiny squash/stretch in the air
+    const wide = this.isDashing ? 1.12 : 1;
+    ctx.save();
+    ctx.scale(face * wide, stretch);                                            // artwork direction -> this.facing (outer ctx already flips)
+    ctx.drawImage(sp.img, -dw / 2, this.height / 2 + 2 - dh, dw, dh);          // feet on the hitbox bottom
+    ctx.restore();
+  }
+
   /**
    * High-Precision Procedural Shinobi Silhouette & Vector Anatomical Renderer
    */
   _renderShinobiModel(ctx, stride, isRunning) {
+    const art = this._paintedHero();
+    if (art) { this._drawPaintedHero(ctx, art); return; }
     const isAir = !this.isGrounded;
     const isAscending = isAir && this.vy < 0;
     const isDescending = isAir && this.vy >= 0;
