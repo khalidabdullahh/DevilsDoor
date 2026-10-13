@@ -3,7 +3,7 @@
 > **REACH THE DOOR. TRUST NOTHING.**  
 > *FROM THE CREATORS OF AUREX*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-crimson.svg)](LICENSE)
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-crimson.svg)](LICENSE)
 [![CI Status](https://img.shields.io/badge/CI-Passing-emerald.svg)](.github/workflows/ci.yml)
 [![Founder](https://img.shields.io/badge/Founder-Khalid%20Abdullah-blueviolet.svg)](https://github.com/khalidabdullahh)
 [![Live Game](https://img.shields.io/badge/Live%20Demo-devilsdoor.js.org-brightgreen.svg)](https://devilsdoor.js.org/)
