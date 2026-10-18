@@ -81,10 +81,14 @@ function bootGame() {
 
 // Safety timeout: Guarantee loader removal within 1.2s
 setTimeout(() => {
-  const loader = document.getElementById('loading-overlay');
-  if (loader && !loader.classList.contains('hidden')) {
-    loader.classList.add('fade-out');
-    setTimeout(() => loader.classList.add('hidden'), 350);
+  if (typeof window.ddDismissLoader === 'function') {
+    window.ddDismissLoader();
+  } else {
+    const loader = document.getElementById('loading-overlay');
+    if (loader && !loader.classList.contains('hidden')) {
+      loader.classList.add('fade-out');
+      setTimeout(() => loader.classList.add('hidden'), 350);
+    }
   }
 }, 1200);
 

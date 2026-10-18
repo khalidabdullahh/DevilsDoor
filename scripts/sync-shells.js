@@ -74,7 +74,9 @@ let distIndexHtml = srcIndexHtml
   .replace('<script src="/src/js/immersive.js" defer></script>', '<script src="./src/js/immersive.js" defer></script>')
   .replace('<link rel="manifest" href="/manifest.webmanifest" />\n  ', '')
   .replace('<link rel="stylesheet" href="/src/css/ui-kit.css" />', '<link rel="stylesheet" href="./src/css/ui-kit.css" />')
-  .replace('<script type="module" src="/src/js/main.js"></script>', '<script type="module" src="./src/js/main.js"></script>');
+  .replace('<script type="module" src="/src/js/main.js"></script>', '<script type="module" src="./src/js/main.js"></script>')
+  .replaceAll('src="/src/assets/', 'src="./src/assets/')
+  .replaceAll('href="/src/assets/', 'href="./src/assets/');
 
 fs.writeFileSync(path.join(distCrazyGames, 'index.html'), distIndexHtml, 'utf-8');
 

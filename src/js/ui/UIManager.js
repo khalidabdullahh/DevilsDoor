@@ -35,7 +35,7 @@ export class UIManager {
     this.btnModalHome = document.getElementById('btn-modal-home');
 
     this.loadingOverlay = document.getElementById('loading-overlay');
-    if (this.loadingOverlay) {
+    if (this.loadingOverlay && !this.loadingOverlay.querySelector('.loader-art-container')) {
       const foe = randomEnemy();
       const img = document.createElement('img');
       img.className = 'dd-loading-foe'; img.src = foe.portrait; img.alt = ''; img.decoding = 'async'; img.draggable = false;
@@ -232,6 +232,10 @@ export class UIManager {
   }
 
   hideLoading() {
+    if (typeof window.ddDismissLoader === 'function') {
+      window.ddDismissLoader();
+      return;
+    }
     if (this.loadingOverlay) {
       this.loadingOverlay.classList.add('fade-out');
       setTimeout(() => {

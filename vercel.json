@@ -10,6 +10,11 @@
     { "source": "/game/", "destination": "/game.html" },
     { "source": "/play", "destination": "/play.html" },
     { "source": "/play/", "destination": "/play.html" },
+    { "source": "/hub", "destination": "/hub.html" },
+    { "source": "/hub/", "destination": "/hub.html" },
+    { "source": "/games", "destination": "/hub.html" },
+    { "source": "/games/", "destination": "/hub.html" },
+    { "source": "/spiderman-legacy.apk", "destination": "/SpidermanLegacyMobile(BETA-test).apk" },
     { "source": "/", "destination": "/index.html" }
   ],
   "headers": [

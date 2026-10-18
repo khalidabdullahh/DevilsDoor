@@ -7,10 +7,10 @@
   <meta name="description" content="An endless dark fantasy ninja action-platformer. Procedural chunks, 3-minute dynamic biome cycles, and infinite shadow combat. Reach the door. Trust nothing." />
   <meta name="theme-color" content="#07090e" />
   <!-- Favicon & Touch Icons -->
-  <link rel="icon" type="image/png" sizes="64x64" href="/src/assets/branding/favicon.png" />
-  <link rel="icon" type="image/x-icon" href="/src/assets/branding/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="192x192" href="/src/assets/branding/favicon-192x192.png" />
-  <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/branding/favicon-512x512.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./src/assets/branding/favicon.png" />
+  <link rel="icon" type="image/x-icon" href="./src/assets/branding/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="192x192" href="./src/assets/branding/favicon-192x192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="./src/assets/branding/favicon-512x512.png" />
   <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
   <link rel="stylesheet" href="./src/css/game.css" />
   <link rel="stylesheet" href="./src/css/ui-kit.css" />
@@ -130,10 +130,126 @@
 
     <!-- Loading Overlay -->
     <div id="loading-overlay">
-      <h1 class="loading-title">DEVIL'S DOOR</h1>
-      <div class="loading-spinner"></div>
-      <p class="loading-subtitle">ENTERING THE ENDLESS SHADOWS...</p>
+      <div class="loader-bg-ambient"></div>
+      <div class="loader-art-container">
+        <img src="./src/assets/web/select-hero-01.webp" alt="Shinobi Assassin" class="loader-hero-img" decoding="async" />
+      </div>
+      <div class="loader-content">
+        <div class="loader-branding">
+          <div class="loader-badge">
+            <span class="badge-dot" style="display:inline-block;width:7px;height:7px;background:#00f0ff;border-radius:50%;box-shadow:0 0 8px #00f0ff;"></span>
+            DEVIL'S DOOR UNIVERSE
+          </div>
+          <h1 class="loader-title">SHADOW ASSASSIN</h1>
+          <div class="loader-edition">DESCENT OF SHINOBI • FLAGSHIP EDITION</div>
+        </div>
+
+        <div class="loader-progress-wrap">
+          <div class="loader-status-row">
+            <span id="loader-status-text" class="loader-status">INITIALIZING SHADOW SHADER ENGINE...</span>
+            <span id="loader-percent" class="loader-percent">0%</span>
+          </div>
+          <div class="loader-track">
+            <div id="loader-fill" class="loader-fill" style="width: 0%;">
+              <div class="loader-shimmer"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="loader-tip-card">
+          <div class="loader-tip-tag">⚔️ SHINOBI PRO-TIP</div>
+          <p id="loader-tip-text" class="loader-tip-text">Chain wall-runs and dashes to evade descending brimstone traps.</p>
+        </div>
+      </div>
     </div>
+    <script>
+      (function() {
+        const tips = [
+          "Chain wall-runs and double jumps to bypass spike corridors.",
+          "Deflect incoming shurikens by striking at the exact moment of impact.",
+          "Shadow Orbs restore focus and grant momentary invulnerability.",
+          "Execute air dashes to reach hidden shrines across the 10 Torii realms."
+        ];
+        const stages = [
+          { p: 15, msg: "INITIALIZING SHADOW SHADER ENGINE..." },
+          { p: 40, msg: "CALIBRATING KATANA PHYSICS & AUDIO..." },
+          { p: 70, msg: "SYNCHRONIZING 4K TORII REALM GATES..." },
+          { p: 92, msg: "ENGAGING SHINOBI COMBAT PROTOCOL..." },
+          { p: 100, msg: "READY FOR COMBAT" }
+        ];
+
+        let currentProgress = 0;
+        let isDismissed = false;
+        let tipIdx = 0;
+
+        const fillEl = document.getElementById('loader-fill');
+        const percentEl = document.getElementById('loader-percent');
+        const statusEl = document.getElementById('loader-status-text');
+        const tipEl = document.getElementById('loader-tip-text');
+        const overlayEl = document.getElementById('loading-overlay');
+
+        function updateProgress(target) {
+          if (target > currentProgress) {
+            currentProgress = target;
+            if (fillEl) fillEl.style.width = currentProgress + '%';
+            if (percentEl) percentEl.textContent = Math.round(currentProgress) + '%';
+            
+            for (let i = stages.length - 1; i >= 0; i--) {
+              if (currentProgress >= stages[i].p && statusEl) {
+                statusEl.textContent = stages[i].msg;
+                break;
+              }
+            }
+          }
+        }
+
+        // Fast immediate progress simulation
+        const progressTimer = setInterval(function() {
+          if (isDismissed) return;
+          if (currentProgress < 92) {
+            const step = Math.max(2, Math.floor((92 - currentProgress) * 0.22));
+            updateProgress(currentProgress + step);
+          }
+        }, 50);
+
+        // Rotating tips
+        const tipTimer = setInterval(function() {
+          if (isDismissed || !tipEl) return;
+          tipIdx = (tipIdx + 1) % tips.length;
+          tipEl.style.opacity = '0';
+          setTimeout(function() {
+            if (tipEl) {
+              tipEl.textContent = tips[tipIdx];
+              tipEl.style.opacity = '1';
+            }
+          }, 200);
+        }, 2200);
+
+        window.ddDismissLoader = function(forced) {
+          if (isDismissed) return;
+          isDismissed = true;
+          clearInterval(progressTimer);
+          clearInterval(tipTimer);
+          updateProgress(100);
+
+          setTimeout(function() {
+            if (overlayEl) {
+              overlayEl.classList.add('fade-out');
+              setTimeout(function() {
+                overlayEl.classList.add('hidden');
+              }, 400);
+            }
+          }, 150);
+        };
+
+        // Safety anti-hang timeout: ensure dismissal within 1.2s
+        setTimeout(function() {
+          if (!isDismissed) {
+            window.ddDismissLoader(true);
+          }
+        }, 1200);
+      })();
+    </script>
 
     <!-- Mobile Touch Controls Overlay with Realistic Action Buttons -->
     <div id="touch-controls" class="touch-overlay hidden">

@@ -107,9 +107,45 @@
 
     <p class="tag">REACH THE DOOR.<br />TRUST NOTHING.</p>
 
+    <div class="hub-transit-bar" id="hub-transit-bar">
+      <span>Entering <strong>Gaming Hub</strong> in <strong id="transit-timer">3</strong>s</span>
+      <a href="/hub.html" class="hub-transit-go">Enter Now &rarr;</a>
+      <button type="button" class="hub-transit-cancel" id="transit-cancel" title="Stay on landing poster">&times; Stay</button>
+    </div>
+
+    <a class="hub-gateway-btn" href="/hub.html">ENTER GAMING HUB <span class="hub-tag">MARKETPLACE 2.0</span> &rarr;</a>
+
     <p class="blurb">Four shinobi. Ten realms. An endless dark-fantasy descent where every death teaches something.</p>
 
     <a class="play" href="/game">PLAY NOW<span class="arr" aria-hidden="true">&rarr;</span></a>
   </main>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var bar = document.getElementById('hub-transit-bar');
+      if (params.get('stay') === '1') {
+        if (bar) bar.style.display = 'none';
+        return;
+      }
+      var seconds = 3;
+      var timerEl = document.getElementById('transit-timer');
+      var cancelBtn = document.getElementById('transit-cancel');
+      var timer = setInterval(function () {
+        seconds--;
+        if (timerEl) timerEl.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          location.href = '/hub.html';
+        }
+      }, 1000);
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', function () {
+          clearInterval(timer);
+          if (bar) bar.style.display = 'none';
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

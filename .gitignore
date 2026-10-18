@@ -20,6 +20,7 @@ build/
 .cache/
 *.zip
 *.tar.gz
+*.apk
 
 # Environment
 .env
