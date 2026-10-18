@@ -30,23 +30,23 @@
     },
     {
       id: 'spiderman-legacy',
-      title: "Spider-Man: Legacy Mobile (Beta)",
-      subtitle: "Unreal Engine 3D Open World",
+      title: "Spider-Man: Legacy",
+      subtitle: "3D Manhattan Web-Swinging",
       genre: "3D Superhero Action Adventure",
       category: "action",
       author: "Khalid Abdullah",
       rating: "4.9",
-      players: "Android Beta",
-      badge: "Exclusive Beta",
-      badgeClass: "badge-free",
-      status: "DOWNLOAD APK",
-      desc: "High-octane mobile superhero action powered by Unreal Engine. Experience dynamic web-slinging, acrobatic aerial combat, and open-city exploration on Android.",
+      players: "1 Player (Web 3D + APK)",
+      badge: "Playable Web 3D",
+      badgeClass: "badge-hot",
+      status: "PLAY NOW",
+      desc: "High-octane 3D web-slinging superhero action. Experience dynamic pendulum physics, acrobatic aerial dives, and open Manhattan exploration directly in your browser or on Android.",
       thumb: "/src/assets/web/spiderman-icon.png",
-      playUrl: "/spiderman-legacy.apk",
+      playUrl: "/spiderman.html",
       downloadUrl: "/spiderman-legacy.apk",
       apkSize: "183.1 MB",
       isOfficial: true,
-      type: "apk"
+      type: "html5"
     }
   ];
 
@@ -189,11 +189,7 @@
         const game = all.find(g => g.id === id);
         if (!game) return;
 
-        if (game.id === 'spiderman-legacy') {
-          openSpidermanModal();
-        } else {
-          launchGame(game);
-        }
+        launchGame(game);
       });
     });
   }
@@ -208,7 +204,7 @@
             <span class="hub-tag-sm ${game.badgeClass || 'badge-featured'}">${game.badge || 'Game'}</span>
           </div>
           <div class="hub-card-play-overlay">
-            <div class="hub-circle-play">${isSpiderman ? '&#8659;' : '&#9658;'}</div>
+            <div class="hub-circle-play">&#9658;</div>
           </div>
         </div>
         <div class="hub-card-content">
@@ -322,6 +318,13 @@
   if (spidermanModal) {
     spidermanModal.addEventListener('click', (e) => {
       if (e.target === spidermanModal) closeSpidermanModal();
+    });
+  }
+  const btnSpidermanPlayWeb = document.getElementById('btn-spiderman-play-web');
+  if (btnSpidermanPlayWeb) {
+    btnSpidermanPlayWeb.addEventListener('click', () => {
+      closeSpidermanModal();
+      launchGame(OFFICIAL_GAMES[1]);
     });
   }
 
