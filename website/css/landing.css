@@ -64,51 +64,6 @@ body{background:#cfcde1;padding:var(--gap);font-family:"Barlow Condensed","Arial
 .play:hover .arr,.play:focus-visible .arr{transform:translateX(.3em)}
 .play:active{transform:translateY(1px)}
 
-/* Gaming Hub Gateway CTA button */
-.hub-gateway-btn{
-  position:absolute;left:4.2cqw;bottom:calc(6cqh + 46px);z-index:5;
-  display:inline-flex;align-items:center;gap:.6em;
-  padding:.55em 1.2em;border-radius:.6em;
-  background:var(--ink);color:#00f0ff;text-decoration:none;
-  font-weight:700;font-size:clamp(13px,1.4cqw,19px);letter-spacing:.05em;
-  border:1.5px solid rgba(0,240,255,0.45);box-shadow:0 0 16px rgba(0,240,255,0.28);
-  transition:all .18s ease;
-}
-.hub-gateway-btn:hover,.hub-gateway-btn:focus-visible{
-  background:#00f0ff;color:#05060b;box-shadow:0 0 24px rgba(0,240,255,0.7);
-  transform:translateY(-2px);
-}
-.hub-gateway-btn .hub-tag{
-  background:rgba(0,240,255,0.2);color:#fff;font-size:.8em;padding:.15em .5em;border-radius:.35em;letter-spacing:.02em;
-}
-
-/* Floating Transit Countdown Bar */
-.hub-transit-bar{
-  position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:10;
-  display:flex;align-items:center;gap:12px;
-  background:rgba(12,12,16,0.92);backdrop-filter:blur(10px);
-  padding:8px 18px;border-radius:50px;
-  border:1px solid rgba(0,240,255,0.4);box-shadow:0 0 20px rgba(0,240,255,0.25);
-  font-size:clamp(12px,1.2cqw,14px);color:#f8fafc;
-  animation:slideDown .4s ease;
-  white-space:nowrap;
-}
-.hub-transit-bar strong{color:#00f0ff}
-.hub-transit-go{
-  background:linear-gradient(135deg,#00f0ff,#0088ff);
-  color:#05060b;text-decoration:none;font-weight:800;
-  padding:4px 12px;border-radius:20px;font-size:12px;
-  box-shadow:0 0 10px rgba(0,240,255,0.5);
-  transition:transform .15s ease;
-}
-.hub-transit-go:hover{transform:scale(1.05)}
-.hub-transit-cancel{
-  background:none;border:none;color:#94a3b8;cursor:pointer;
-  font-size:12px;font-weight:600;padding:2px 6px;
-}
-.hub-transit-cancel:hover{color:#fff}
-@keyframes slideDown{from{transform:translate(-50%,-100%);opacity:0}to{transform:translate(-50%,0);opacity:1}}
-
 /* one page-load moment: the lines rise out of their masks, then the portrait */
 @media (prefers-reduced-motion:no-preference){
   .headline .ln>span{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
@@ -129,7 +84,6 @@ body{background:#cfcde1;padding:var(--gap);font-family:"Barlow Condensed","Arial
   .blurb{display:none}
   .vtext{display:none}
   .tag{font-size:clamp(12px,3.6cqw,16px);bottom:5cqh;left:6cqw}
-  .hub-gateway-btn{left:6cqw;bottom:calc(5cqh + 46px);font-size:clamp(12px,3.6cqw,17px)}
   .play{right:6cqw;bottom:4.2cqh;font-size:clamp(14px,4.2cqw,20px)}
 }
 
