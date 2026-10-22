@@ -1,7 +1,7 @@
 /* play.js — landing "PLAY NOW".
    Fullscreen is lost whenever the browser navigates to a new page. So on touch devices we do NOT navigate:
    we open the game in a full-viewport frame inside this same document, which keeps the single fullscreen
-   the player already granted. Desktop (mouse) still does a normal navigation to /game. */
+   the player already granted. Desktop (mouse) still does a normal navigation to /slice/. */
 (function () {
   'use strict';
   var link = document.querySelector('a.play');
@@ -22,7 +22,7 @@
     if (window.DDImmersive && !window.DDImmersive.isFullscreen()) window.DDImmersive.enter();
     if (frame) return;
     frame = document.createElement('iframe');
-    frame.src = '/game';
+    frame.src = '/slice/';
     frame.title = "Devil's Door";
     frame.setAttribute('allow', 'fullscreen; autoplay; gamepad');
     frame.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;border:0;background:#05060b;z-index:2147482000';

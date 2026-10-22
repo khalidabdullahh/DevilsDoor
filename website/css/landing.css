@@ -25,6 +25,7 @@ body{background:#cfcde1;padding:var(--gap);font-family:"Barlow Condensed","Arial
 /* corner furniture */
 .mark{position:absolute;left:4.2cqw;top:6cqh;color:var(--ember);line-height:0;z-index:4}
 .mark svg{width:clamp(26px,3.6cqw,44px);height:auto}
+.mark img{display:block;width:clamp(54px,7.6cqw,108px);height:auto;filter:drop-shadow(0 3px 8px rgba(18,6,12,.35))}
 .mark:focus-visible,.play:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
 .bars{position:absolute;right:4.2cqw;top:6.4cqh;width:clamp(26px,3.4cqw,42px);z-index:4}
 .bars i{display:block;height:3px;background:var(--ember);margin-bottom:6px}
