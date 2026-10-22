@@ -61,12 +61,12 @@ export class MenuScene extends Phaser.Scene {
     hero.play('ninja_idle');
     this.add.image(0, 0, 'vignette').setOrigin(0).setDepth(50);
     this.add.rectangle(0, 650, W, 120, 0x07040b).setOrigin(0).setDepth(9);
-    const logo = this.add.image(W * 0.68, 250, 'logo').setDepth(60); logo.setScale(560 / logo.width);
-    this.tweens.add({ targets: logo, y: 258, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    this.add.text(W * 0.68, 440, 'SUNSET SHRINE  ·  VERTICAL SLICE', { fontFamily: FONT, fontSize: '20px', color: '#ffb48a', letterSpacing: 6 }).setOrigin(0.5).setDepth(60);
-    const go = this.add.text(W * 0.68, 500, this.sys.game.device.input.touch ? 'TAP TO BEGIN' : 'PRESS ANY KEY', { fontFamily: FONT, fontSize: '30px', color: '#ffffff' }).setOrigin(0.5).setDepth(60);
+    const logo = this.add.image(W * 0.68, 262, 'logo').setDepth(60); logo.setScale(620 / logo.width);
+    this.tweens.add({ targets: logo, y: 270, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.add.text(W * 0.68, 478, 'SUNSET SHRINE  ·  VERTICAL SLICE', { fontFamily: FONT, fontSize: '20px', color: '#ffb48a', letterSpacing: 6 }).setOrigin(0.5).setDepth(60);
+    const go = this.add.text(W * 0.68, 535, this.sys.game.device.input.touch ? 'TAP TO BEGIN' : 'PRESS ANY KEY', { fontFamily: FONT, fontSize: '30px', color: '#ffffff' }).setOrigin(0.5).setDepth(60);
     this.tweens.add({ targets: go, alpha: 0.25, duration: 900, yoyo: true, repeat: -1 });
-    this.add.text(W * 0.68, 570, 'MOVE A/D · JUMP W/SPACE (x2, wall-jump) · SLASH J · DASH K · SHURIKEN L', { fontFamily: 'system-ui, sans-serif', fontSize: '15px', color: '#e8c4b0' }).setOrigin(0.5).setDepth(60);
+    this.add.text(W * 0.68, 595, 'MOVE A/D · JUMP W/SPACE (x2, wall-jump) · SLASH J · DASH K · SHURIKEN L', { fontFamily: 'system-ui, sans-serif', fontSize: '15px', color: '#e8c4b0' }).setOrigin(0.5).setDepth(60);
     const start = () => { initAudio(); this.scene.start('Game', {}); };
     this.input.keyboard.once('keydown', start); this.input.once('pointerdown', start);
     this.cameras.main.fadeIn(600);
@@ -323,6 +323,8 @@ export class UIScene extends Phaser.Scene {
     this.timer = this.add.text(W - 22, 20, '0:00', { fontFamily: FONT, fontSize: '24px', color: '#ffe8d4', stroke: '#1a0a0a', strokeThickness: 4 }).setOrigin(1, 0);
     const hint = this.add.text(W / 2, H - 28, 'A/D move · W/Space jump (x2) · wall-jump on walls · J slash (x3) · K dash · L shuriken · slash into an enemy attack to PARRY', { fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#f2d4c0', stroke: '#14060c', strokeThickness: 3 }).setOrigin(0.5);
     this.tweens.add({ targets: hint, alpha: 0, delay: 9000, duration: 1500 });
+    const home = this.add.text(W - 120, 20, '\u2302 HOME', { fontFamily: FONT, fontSize: '20px', color: '#ffe8d4', stroke: '#1a0a0a', strokeThickness: 4 }).setOrigin(1, 0).setInteractive({ useHandCursor: true }).setDepth(20);
+    home.on('pointerdown', () => { try { if (window.parent !== window) window.parent.postMessage({ type: 'dd-home' }, location.origin); else location.href = '/'; } catch (e) { location.href = '/'; } });
     this.hp = g.player ? g.player.hp : 3; this.drawHearts();
     g.events.on('hp', (v) => { this.hp = v; this.drawHearts(); });
     g.events.on('orbs', (n, t) => this.orbText.setText(n + ' / ' + t));
