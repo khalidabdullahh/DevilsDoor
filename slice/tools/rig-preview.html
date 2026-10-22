@@ -1,0 +1,15 @@
+<!doctype html><body style="margin:0;background:linear-gradient(#5a2040,#e0702c)"><canvas id=c></canvas>
+<script type="module">
+import {drawRig,NINJA,NINJA_SPECS,RONIN,RONIN_SPECS,ARCHER,ARCHER_SPECS,ONI,ONI_SPECS} from '../js/rig.js';
+const sets=[[NINJA,NINJA_SPECS,192],[RONIN,RONIN_SPECS,192],[ARCHER,ARCHER_SPECS,192],[ONI,ONI_SPECS,340]];
+const c=document.getElementById('c'); const x=c.getContext('2d');
+const COLS=12; let W=COLS*100, rows=[]; let H=0;
+const cells=[]; for(const [st,specs,fw] of sets){ for(const sp of specs){ for(let i=0;i<sp.n;i++) cells.push([st,sp,i,fw]); } }
+const cs=170; const per=COLS; c.width=per*cs; c.height=Math.ceil(cells.length/per)*cs+10;
+const tmp=document.createElement('canvas'), t=tmp.getContext('2d');
+cells.forEach(([st,sp,i,fw],k)=>{ tmp.width=fw; tmp.height=fw; t.clearRect(0,0,fw,fw); drawRig(t,sp.pose(i,sp.n),st,fw,fw);
+ const b=document.createElement('canvas'); b.width=fw;b.height=fw; const bb=b.getContext('2d'); bb.drawImage(tmp,0,0); bb.globalCompositeOperation='source-in'; bb.fillStyle=st.rim||'rgba(255,150,80,.9)'; bb.fillRect(0,0,fw,fw);
+ const cx=(k%per)*cs, cy=Math.floor(k/per)*cs; const sc=cs/fw*(fw>200?1.0:1.0);
+ x.drawImage(b,cx+1.5*sc,cy-1.2*sc,cs,cs); x.drawImage(tmp,cx,cy,cs,cs); });
+document.title='done';
+</script>
