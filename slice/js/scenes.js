@@ -43,14 +43,14 @@ function buildBackground(scene) {
   return L;
 }
 function updateBackground(L, cam, t) {
-  const k = (BOUNDS_H - H) - cam.scrollY, x = cam.scrollX;
-  L.far.tilePositionX = x * 0.06; L.far.y = 50 + k * 0.1;
-  L.mid.tilePositionX = x * 0.14; L.mid.y = 60 + k * 0.18;
-  L.near.tilePositionX = x * 0.26; L.near.y = 70 + k * 0.3;
-  L.trees.tilePositionX = x * 0.42; L.trees.y = -50 + k * 0.55;
-  L.fill.y = 468 + k * 0.55;
-  L.fog.tilePositionX = x * 0.5 + t * 0.012; L.fog.y = 330 + k * 0.6;
-  L.fog2.tilePositionX = x * 1.1 - t * 0.02; L.fog2.y = 420 + k * 1.0;
+  const k = (BOUNDS_H - H) - cam.scrollY, x = cam.scrollX, o = (G * TILE - (BOUNDS_H - H)) - 464; // layers were authored for a ground line at y=464
+  L.far.tilePositionX = x * 0.06; L.far.y = 50 + o + k * 0.1;
+  L.mid.tilePositionX = x * 0.14; L.mid.y = 60 + o + k * 0.18;
+  L.near.tilePositionX = x * 0.26; L.near.y = 70 + o + k * 0.3;
+  L.trees.tilePositionX = x * 0.42; L.trees.y = -50 + o + k * 0.55;
+  L.fill.y = 468 + o + k * 0.55;
+  L.fog.tilePositionX = x * 0.5 + t * 0.012; L.fog.y = 330 + o + k * 0.6;
+  L.fog2.tilePositionX = x * 1.1 - t * 0.02; L.fog2.y = 420 + o + k * 1.0;
   L.fg.tilePositionX = x * 1.35; L.fg.y = H - 190 + k;
 }
 
@@ -325,7 +325,7 @@ export class UIScene extends Phaser.Scene {
     this.bossName = this.add.text(W / 2, 44, '', { fontFamily: FONT, fontSize: '24px', color: '#ffd9b0', stroke: '#2a0610', strokeThickness: 6, letterSpacing: 5 }).setOrigin(0.5).setVisible(false);
     this.timer = this.add.text(W - 22, 20, '0:00', { fontFamily: FONT, fontSize: '24px', color: '#ffe8d4', stroke: '#1a0a0a', strokeThickness: 4 }).setOrigin(1, 0);
     const hint = this.add.text(W / 2, H - 28, 'A/D move · W/Space jump (x2) · wall-jump on walls · J slash (x3) · K dash · L shuriken · slash into an enemy attack to PARRY', { fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#f2d4c0', stroke: '#14060c', strokeThickness: 3 }).setOrigin(0.5);
-    this.tweens.add({ targets: hint, alpha: 0, delay: 9000, duration: 1500 });
+    if (this.sys.game.device.input.touch) hint.setVisible(false); else this.tweens.add({ targets: hint, alpha: 0, delay: 9000, duration: 1500 });
     const home = this.add.text(W - 120, 20, '\u2302 HOME', { fontFamily: FONT, fontSize: '20px', color: '#ffe8d4', stroke: '#1a0a0a', strokeThickness: 4 }).setOrigin(1, 0).setInteractive({ useHandCursor: true }).setDepth(20);
     home.on('pointerdown', () => { try { if (window.parent !== window) window.parent.postMessage({ type: 'dd-home' }, location.origin); else location.href = '/'; } catch (e) { location.href = '/'; } });
     this.hp = g.player ? g.player.hp : 3; this.drawHearts();
@@ -372,9 +372,9 @@ export class UIScene extends Phaser.Scene {
   buildTouch() {
     this.input.addPointer(3);
     const defs = [
-      ['left', 112, H - 96, 58, '◀', 0xffffff], ['right', 264, H - 96, 58, '▶', 0xffffff],
-      ['attack', W - 112, H - 104, 68, '⚔', 0xff6a5a], ['jump', W - 266, H - 66, 54, '⤒', 0x8fd4ff],
-      ['dash', W - 258, H - 182, 44, '≫', 0xffe08a], ['throw', W - 120, H - 214, 40, '✦', 0xd0d8f0],
+      ['left', 98, H - 62, 46, '◀', 0xffffff], ['right', 222, H - 62, 46, '▶', 0xffffff],
+      ['attack', W - 96, H - 84, 56, '⚔', 0xff6a5a], ['jump', W - 208, H - 56, 46, '⤒', 0x8fd4ff],
+      ['dash', W - 214, H - 150, 38, '≫', 0xffe08a], ['throw', W - 100, H - 182, 34, '✦', 0xd0d8f0],
     ];
     this.btns = defs.map(([id, x, y, r, label, col]) => {
       const c = this.add.circle(x, y, r, col, 0.16).setStrokeStyle(3, col, 0.55).setDepth(30);
