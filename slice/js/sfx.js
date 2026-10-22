@@ -50,13 +50,10 @@ export const sfx = {
   gate() { tone('sine', 70, 40, 1.2, 0.5); noise(1.0, 300, 80, 0.3, 0.6, 'lowpass'); },
 };
 
-// Hirajoshi scale koto plucks + wind + (boss) taiko
+// Hirajoshi scale koto plucks + (boss) taiko. No wind/noise bed: it was heard as a constant "sho sho".
 function startMusic() {
   if (!ctx) return;
-  const wind = ctx.createBufferSource(), wf = ctx.createBiquadFilter(), wg = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
-  wind.buffer = noiseBuf; wind.loop = true; wf.type = 'bandpass'; wf.frequency.value = 520; wf.Q.value = 0.7; wg.gain.value = 0.05;
-  lfo.frequency.value = 0.12; lg.gain.value = 200; lfo.connect(lg); lg.connect(wf.frequency);
-  wind.connect(wf); wf.connect(wg); wg.connect(master); wind.start(); lfo.start();
+
   const scale = [0, 2, 3, 7, 8], root = 146.8; // D3
   const step = () => {
     if (!ctx) return;
@@ -68,7 +65,7 @@ function startMusic() {
         if (beat % 4 === 0) { const n = scale[(Math.random() * 5) | 0]; tone('triangle', root * 2 * Math.pow(2, n / 12), root * 2 * Math.pow(2, n / 12), 0.6, 0.1); }
       } else {
         if (beat % 6 === 1) tone('sine', root / 2, root / 2, 2.6, 0.08);
-        if (Math.random() < 0.55) { const n = scale[(Math.random() * 5) | 0] + (Math.random() < 0.3 ? 12 : 0), f = root * 2 * Math.pow(2, n / 12); tone('triangle', f, f * 0.995, 1.1, 0.07); }
+        if (Math.random() < 0.55) { const n = scale[(Math.random() * 5) | 0] + (Math.random() < 0.3 ? 12 : 0), f = root * 2 * Math.pow(2, n / 12); tone('triangle', f, f * 0.995, 1.1, 0.05); }
       }
     }
     musicTimer = setTimeout(step, bossMode ? 540 : 900 + Math.random() * 500);

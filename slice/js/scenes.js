@@ -6,7 +6,9 @@ import { Ronin, Archer, Oni } from './foes.js';
 import { makeKeys, pressedKey, touch } from './input.js';
 import { initAudio, sfx, toggleMute, setBossMode } from './sfx.js';
 
-const W = 1280, H = 720, WORLD_W = COLS * TILE, WORLD_H = ROWS * TILE;
+import { W, H, BOUNDS_H } from './view.js';
+import { goImmersive } from './immersive.js';
+const WORLD_W = COLS * TILE, WORLD_H = ROWS * TILE;
 const R = (x, y, w, h) => new Phaser.Geom.Rectangle(x, y, w, h);
 const FONT = 'Georgia, "Hiragino Mincho ProN", "Noto Serif", serif';
 const SECTIONS = { start: 3, chimney: 48, spikes: 62, combat: 73, pit: 93, gauntlet: 108, boss: 121, door: 140 };
@@ -30,18 +32,18 @@ export class BootScene extends Phaser.Scene {
 // ============================================================ BACKGROUND
 function buildBackground(scene) {
   const L = {};
-  scene.add.image(0, 0, 'sky').setOrigin(0).setScrollFactor(0).setDepth(-100);
+  scene.add.image(0, 0, 'sky').setOrigin(0).setScrollFactor(0).setDepth(-100).setDisplaySize(W, H);
   const ts = (key, y, h, depth, a = 1) => scene.add.tileSprite(0, y, W, h, key).setOrigin(0).setScrollFactor(0).setDepth(depth).setAlpha(a);
   L.far = ts('mtn_far', 50, 420, -90); L.mid = ts('mtn_mid', 60, 420, -80); L.near = ts('mtn_near', 70, 420, -70);
   L.fill = scene.add.rectangle(0, 468, W, 500, 0x150a1e).setOrigin(0).setScrollFactor(0).setDepth(-69);
   L.trees = ts('trees', -50, 520, -60);
   L.fog = ts('fog', 330, 260, -50, 0.9);
   L.fog2 = ts('fog', 420, 260, 6, 0.5);
-  L.fg = ts('fg', 530, 190, 30);
+  L.fg = ts('fg', H - 190, 190, 30);
   return L;
 }
 function updateBackground(L, cam, t) {
-  const k = 304 - cam.scrollY, x = cam.scrollX;
+  const k = (BOUNDS_H - H) - cam.scrollY, x = cam.scrollX;
   L.far.tilePositionX = x * 0.06; L.far.y = 50 + k * 0.1;
   L.mid.tilePositionX = x * 0.14; L.mid.y = 60 + k * 0.18;
   L.near.tilePositionX = x * 0.26; L.near.y = 70 + k * 0.3;
@@ -49,7 +51,7 @@ function updateBackground(L, cam, t) {
   L.fill.y = 468 + k * 0.55;
   L.fog.tilePositionX = x * 0.5 + t * 0.012; L.fog.y = 330 + k * 0.6;
   L.fog2.tilePositionX = x * 1.1 - t * 0.02; L.fog2.y = 420 + k * 1.0;
-  L.fg.tilePositionX = x * 1.35; L.fg.y = 530 + k;
+  L.fg.tilePositionX = x * 1.35; L.fg.y = H - 190 + k;
 }
 
 // ============================================================ MENU
@@ -57,21 +59,21 @@ export class MenuScene extends Phaser.Scene {
   constructor() { super('Menu'); }
   create() {
     this.bg = buildBackground(this);
-    const hero = this.add.sprite(300, 640, 'ninja').setOrigin(0.5, 184 / 192).setScale(1.5).setDepth(10);
+    const hero = this.add.sprite(W * 0.23, H - 62, 'ninja').setOrigin(0.5, 184 / 192).setScale(1.35).setDepth(10);
     hero.play('ninja_idle');
-    this.add.image(0, 0, 'vignette').setOrigin(0).setDepth(50);
-    this.add.rectangle(0, 650, W, 120, 0x07040b).setOrigin(0).setDepth(9);
-    const logo = this.add.image(W * 0.68, 262, 'logo').setDepth(60); logo.setScale(620 / logo.width);
-    this.tweens.add({ targets: logo, y: 270, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    this.add.text(W * 0.68, 478, 'SUNSET SHRINE  ·  VERTICAL SLICE', { fontFamily: FONT, fontSize: '20px', color: '#ffb48a', letterSpacing: 6 }).setOrigin(0.5).setDepth(60);
-    const go = this.add.text(W * 0.68, 535, this.sys.game.device.input.touch ? 'TAP TO BEGIN' : 'PRESS ANY KEY', { fontFamily: FONT, fontSize: '30px', color: '#ffffff' }).setOrigin(0.5).setDepth(60);
+    this.add.image(0, 0, 'vignette').setOrigin(0).setDepth(50).setDisplaySize(W, H);
+    this.add.rectangle(0, H - 62, W, 120, 0x07040b).setOrigin(0).setDepth(9);
+    const logo = this.add.image(W * 0.68, H * 0.37, 'logo').setDepth(60); logo.setScale(540 / logo.width);
+    this.tweens.add({ targets: logo, y: H * 0.385, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.add.text(W * 0.68, H * 0.675, 'SUNSET SHRINE  ·  VERTICAL SLICE', { fontFamily: FONT, fontSize: '20px', color: '#ffb48a', letterSpacing: 6 }).setOrigin(0.5).setDepth(60);
+    const go = this.add.text(W * 0.68, H * 0.765, this.sys.game.device.input.touch ? 'TAP TO BEGIN' : 'PRESS ANY KEY', { fontFamily: FONT, fontSize: '30px', color: '#ffffff' }).setOrigin(0.5).setDepth(60);
     this.tweens.add({ targets: go, alpha: 0.25, duration: 900, yoyo: true, repeat: -1 });
-    this.add.text(W * 0.68, 595, 'MOVE A/D · JUMP W/SPACE (x2, wall-jump) · SLASH J · DASH K · SHURIKEN L', { fontFamily: 'system-ui, sans-serif', fontSize: '15px', color: '#e8c4b0' }).setOrigin(0.5).setDepth(60);
-    const start = () => { initAudio(); this.scene.start('Game', {}); };
+    this.add.text(W * 0.68, H * 0.855, 'MOVE A/D · JUMP W/SPACE (x2, wall-jump) · SLASH J · DASH K · SHURIKEN L', { fontFamily: 'system-ui, sans-serif', fontSize: '15px', color: '#e8c4b0' }).setOrigin(0.5).setDepth(60);
+    const start = () => { initAudio(); goImmersive(); this.scene.start('Game', {}); };
     this.input.keyboard.once('keydown', start); this.input.once('pointerdown', start);
     this.cameras.main.fadeIn(600);
   }
-  update(t) { updateBackground(this.bg, { scrollX: t * 0.04, scrollY: 304 }, t); }
+  update(t) { updateBackground(this.bg, { scrollX: t * 0.04, scrollY: BOUNDS_H - H }, t); }
 }
 
 // ============================================================ GAME
@@ -85,7 +87,7 @@ export class GameScene extends Phaser.Scene {
     this.physics.world.gravity.y = 1800;
     this.physics.world.setBounds(0, -400, WORLD_W, WORLD_H + 800);
     this.physics.world.setBoundsCollision(true, true, false, false);
-    this.cameras.main.setBounds(0, 0, WORLD_W, WORLD_H);
+    this.cameras.main.setBounds(0, 0, WORLD_W, BOUNDS_H);
 
     this.bg = buildBackground(this);
     this.gfx = this.add.graphics().setDepth(45);
@@ -97,7 +99,7 @@ export class GameScene extends Phaser.Scene {
     this.spawnEntities();
 
     // vignette + flash overlays are drawn in the UI scene's layer via depth on this camera too
-    this.add.image(0, 0, 'vignette').setOrigin(0).setScrollFactor(0).setDepth(80);
+    this.add.image(0, 0, 'vignette').setOrigin(0).setScrollFactor(0).setDepth(80).setDisplaySize(W, H);
     this.flashRect = this.add.rectangle(0, 0, W, H, 0xffffff).setOrigin(0).setScrollFactor(0).setDepth(90).setAlpha(0);
 
     // collisions
@@ -114,6 +116,7 @@ export class GameScene extends Phaser.Scene {
     const at = data && data.at ? SECTIONS[data.at] : null;
     if (at) { this.player.body.reset(at * TILE, (G * TILE) - 4); if (data.at === 'door') this.boss.dead = true; this.checkpoint = { x: at * TILE, y: G * TILE - 4 }; cam.centerOn(at * TILE, G * TILE - 44); for (const c of this.cps) if (c.x < at * TILE - 60) { c.on = true; c.s.setTexture('cp_on'); } }
     if (!this.scene.isActive('UI')) this.scene.launch('UI'); else this.scene.get('UI').scene.restart();
+    if (this.sys.game.device.input.touch) this.input.once('pointerdown', () => goImmersive());
     window.__dd = this;
   }
 
@@ -291,7 +294,7 @@ export class GameScene extends Phaser.Scene {
 
     // hazards + pits
     for (const h of this.hazards) if (Phaser.Geom.Intersects.RectangleToRectangle(h, pr) && !pl.dead && pl.invul <= 0) { this.hazardRespawn(); break; }
-    if (pl.y > WORLD_H + 140 && !pl.dead) this.hazardRespawn();
+    if (pl.y > BOUNDS_H + 120 && !pl.dead) this.hazardRespawn();
 
     // orbs, checkpoints, arena, door
     for (let i = this.orbs.length - 1; i >= 0; i--) { const o = this.orbs[i]; if (Math.abs(o.x - pl.x) < 46 && Math.abs(o.y - (pl.y - 44)) < 60) { this.orbsGot++; sfx.orb(); this.fx.burst(o.x, o.y, 6, 0xffa030); o.destroy(); this.orbs.splice(i, 1); this.events.emit('orbs', this.orbsGot, this.totalOrbs); } }
@@ -349,14 +352,15 @@ export class UIScene extends Phaser.Scene {
   showWin(r) {
     const m = Math.floor(r.time / 60), s = Math.floor(r.time % 60).toString().padStart(2, '0');
     this.add.rectangle(0, 0, W, H, 0x07020c, 0.72).setOrigin(0).setDepth(40);
-    this.add.text(W / 2, 150, 'THE DOOR IS OPEN', { fontFamily: FONT, fontSize: '70px', color: '#fff0dc', stroke: '#3a0814', strokeThickness: 10, fontStyle: 'bold', padding: { x: 40, y: 40 } }).setOrigin(0.5).setDepth(41).setShadow(0, 0, '#ff3a2a', 24, true, true);
-    this.add.text(W / 2, 250, '★'.repeat(r.stars) + '☆'.repeat(3 - r.stars), { fontFamily: 'system-ui', fontSize: '72px', color: '#ffcc55' }).setOrigin(0.5).setDepth(41);
-    this.add.text(W / 2, 360, `Time ${m}:${s}     Orbs ${r.orbs}/${r.total}     Foes ${r.kills}     Deaths ${r.deaths}`, { fontFamily: FONT, fontSize: '28px', color: '#ffe8d4' }).setOrigin(0.5).setDepth(41);
-    const t = this.add.text(W / 2, 470, this.sys.game.device.input.touch ? 'TAP TO PLAY AGAIN' : 'PRESS R TO PLAY AGAIN', { fontFamily: FONT, fontSize: '28px', color: '#ffffff' }).setOrigin(0.5).setDepth(41);
+    this.add.text(W / 2, H * 0.22, 'THE DOOR IS OPEN', { fontFamily: FONT, fontSize: '70px', color: '#fff0dc', stroke: '#3a0814', strokeThickness: 10, fontStyle: 'bold', padding: { x: 40, y: 40 } }).setOrigin(0.5).setDepth(41).setShadow(0, 0, '#ff3a2a', 24, true, true);
+    this.add.text(W / 2, H * 0.37, '★'.repeat(r.stars) + '☆'.repeat(3 - r.stars), { fontFamily: 'system-ui', fontSize: '72px', color: '#ffcc55' }).setOrigin(0.5).setDepth(41);
+    this.add.text(W / 2, H * 0.52, `Time ${m}:${s}     Orbs ${r.orbs}/${r.total}     Foes ${r.kills}     Deaths ${r.deaths}`, { fontFamily: FONT, fontSize: '28px', color: '#ffe8d4' }).setOrigin(0.5).setDepth(41);
+    const t = this.add.text(W / 2, H * 0.67, this.sys.game.device.input.touch ? 'TAP TO PLAY AGAIN' : 'PRESS R TO PLAY AGAIN', { fontFamily: FONT, fontSize: '28px', color: '#ffffff' }).setOrigin(0.5).setDepth(41);
     this.tweens.add({ targets: t, alpha: 0.3, duration: 800, yoyo: true, repeat: -1 });
     this.input.once('pointerdown', () => this.g.scene.restart());
   }
   update() {
+    if (this.btns) this.pollTouch();
     const g = this.g; if (!g || !g.runT) return;
     const t = g.runT, m = Math.floor(t / 60), s = Math.floor(t % 60).toString().padStart(2, '0'); this.timer.setText(m + ':' + s);
     const bb = this.bossBar; bb.clear();
@@ -367,17 +371,41 @@ export class UIScene extends Phaser.Scene {
   }
   buildTouch() {
     this.input.addPointer(3);
-    const mk = (x, y, r, label, on, off, col = 0xffffff) => {
-      const c = this.add.circle(x, y, r, col, 0.16).setStrokeStyle(3, col, 0.5).setInteractive().setDepth(30);
-      this.add.text(x, y, label, { fontFamily: 'system-ui', fontSize: Math.round(r * 0.5) + 'px', color: '#fff' }).setOrigin(0.5).setAlpha(0.8).setDepth(31);
-      c.on('pointerdown', () => { c.setFillStyle(col, 0.4); on(); }); const up = () => { c.setFillStyle(col, 0.16); off && off(); };
-      c.on('pointerup', up); c.on('pointerout', up);
-    };
-    mk(120, H - 110, 62, '◀', () => (touch.left = true), () => (touch.left = false));
-    mk(280, H - 110, 62, '▶', () => (touch.right = true), () => (touch.right = false));
-    mk(W - 120, H - 120, 74, '⚔', () => (touch.edge.attack = true), null, 0xff6a5a);
-    mk(W - 290, H - 80, 58, '⤒', () => { touch.edge.jump = true; touch.jumpHeld = true; }, () => (touch.jumpHeld = false), 0x8fd4ff);
-    mk(W - 280, H - 210, 48, '≫', () => (touch.edge.dash = true), null, 0xffe08a);
-    mk(W - 130, H - 250, 44, '✦', () => (touch.edge.throw = true), null, 0xd0d8f0);
+    const defs = [
+      ['left', 112, H - 96, 58, '◀', 0xffffff], ['right', 264, H - 96, 58, '▶', 0xffffff],
+      ['attack', W - 112, H - 104, 68, '⚔', 0xff6a5a], ['jump', W - 266, H - 66, 54, '⤒', 0x8fd4ff],
+      ['dash', W - 258, H - 182, 44, '≫', 0xffe08a], ['throw', W - 120, H - 214, 40, '✦', 0xd0d8f0],
+    ];
+    this.btns = defs.map(([id, x, y, r, label, col]) => {
+      const c = this.add.circle(x, y, r, col, 0.16).setStrokeStyle(3, col, 0.55).setDepth(30);
+      this.add.text(x, y, label, { fontFamily: 'system-ui', fontSize: Math.round(r * 0.55) + 'px', color: '#fff' }).setOrigin(0.5).setAlpha(0.85).setDepth(31);
+      return { id, x, y, r, col, c, was: false };
+    });
+    this.jumpAt = -1e9;
+  }
+  // every frame: which buttons are under which fingers (1.5x forgiving radius, thumbs may slide between buttons)
+  pollTouch() {
+    const held = {};
+    for (const p of this.input.manager.pointers) {
+      if (!p.isDown) continue;
+      let best = null, bd = 1e9;
+      for (const b of this.btns) { const d = Math.hypot(p.x - b.x, p.y - b.y); if (d <= b.r * 1.5 && d < bd) { best = b; bd = d; } }
+      if (best) held[best.id] = true;
+    }
+    const now = this.time.now;
+    touch.left = !!held.left; touch.right = !!held.right;
+    for (const b of this.btns) {
+      const on = !!held[b.id];
+      if (on && !b.was) {
+        if (b.id === 'jump') { touch.edge.jump = true; this.jumpAt = now; }
+        else if (b.id === 'attack') touch.edge.attack = true;
+        else if (b.id === 'dash') touch.edge.dash = true;
+        else if (b.id === 'throw') touch.edge.throw = true;
+      }
+      if (on !== b.was) b.c.setFillStyle(b.col, on ? 0.42 : 0.16);
+      b.was = on;
+    }
+    // a quick tap still gives a proper jump: treat the button as held for 340ms minimum (~full jump)
+    touch.jumpHeld = !!held.jump || now - this.jumpAt < 340;
   }
 }
