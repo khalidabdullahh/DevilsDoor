@@ -6,7 +6,7 @@
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-crimson.svg)](LICENSE)
 [![CI Status](https://img.shields.io/badge/CI-Passing-emerald.svg)](.github/workflows/ci.yml)
 [![Founder](https://img.shields.io/badge/Founder-Khalid%20Abdullah-blueviolet.svg)](https://github.com/khalidabdullahh)
-[![Live Game](https://img.shields.io/badge/Live%20Demo-devilsdoor.js.org-brightgreen.svg)](https://devilsdoor.js.org/)
+[![Live Game](https://img.shields.io/badge/Live%20Demo-devilsdoor.pages.dev-brightgreen.svg)](https://devilsdoor.pages.dev/)
 [![Engine](https://img.shields.io/badge/Engine-2.5D%20Silhouette%20Canvas-orange.svg)](src/)
 
 ---
