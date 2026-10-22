@@ -1,7 +1,7 @@
 import { readIntent } from './input.js';
 import { sfx } from './sfx.js';
 
-const RUN = 335, JUMP_V = -830, DJUMP_V = -720, WALL_V = -790, WALL_VX = 350, DASH_V = 760, DASH_T = 0.17;
+const RUN = 410, JUMP_V = -850, DJUMP_V = -720, WALL_V = -790, WALL_VX = 350, DASH_V = 760, DASH_T = 0.17;
 const ATK = [{ dur: 0.26, reach: 96, dmg: 1, lunge: 150 }, { dur: 0.26, reach: 100, dmg: 1, lunge: 150 }, { dur: 0.36, reach: 130, dmg: 2, lunge: 300 }];
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
@@ -34,8 +34,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const inp = this.dead ? { x: 0, down: false, jump: false, jumpHeld: false, attack: false, dash: false, throw: false } : readIntent(keys);
     const ground = b.blocked.down || b.touching.down;
     this.invul = Math.max(0, this.invul - dt); this.dashCd -= dt; this.atkCd -= dt; this.thrCd -= dt; this.comboWin -= dt; this.lock -= dt;
-    this.coyote = ground ? 0.1 : this.coyote - dt;
-    this.jbuf = inp.jump ? 0.13 : this.jbuf - dt;
+    this.coyote = ground ? 0.12 : this.coyote - dt;
+    this.jbuf = inp.jump ? 0.17 : this.jbuf - dt;
     if (ground) { this.airJumps = 1; this.airDash = true; this.cutting = false; }
 
     // landing
@@ -86,7 +86,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         else if (this.airJumps > 0) { this.airJumps--; this.doJump(DJUMP_V); s.fx.ring(this.x, this.y - 6, 0.55); }
       }
       // variable jump height
-      if (!inp.jumpHeld && b.velocity.y < -260 && this.cutting) { b.setVelocityY(b.velocity.y * 0.5); this.cutting = false; }
+      if (!inp.jumpHeld && b.velocity.y < -260 && this.cutting) { b.setVelocityY(b.velocity.y * 0.58); this.cutting = false; }
       // dash
       if (inp.dash && this.dashCd <= 0 && this.state !== 'attack' && (ground || this.airDash)) this.startDash();
       // attack
