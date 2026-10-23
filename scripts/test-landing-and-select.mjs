@@ -66,9 +66,11 @@ const ok = (name, cond, extra = '') => { (cond ? pass++ : fail++); console.log(`
   const decode = (t) => t.replace(/&#39;/g, "'").replace(/&amp;/g, '&');
   const html = read('cinematic.html'), css = read('website/css/cinema.css'), main = read('website/js/cinema/main.js'), world = read('website/js/cinema/world.js');
 
-  ok('website/index.html is an exact copy of index.html', read('index.html') === read('website/index.html'));
-  const lp = read('index.html');
-  ok('landing: one <h1>, Play Now points at /slice/, portrait + fonts exist', (lp.match(/<h1[\s>]/g) || []).length === 1 && /class="play" href="\/slice\/"/.test(lp) && exists('/src/assets/web/landing-khalid.webp') && exists('/website/fonts/dela-gothic-one-latin-400-normal.woff2'));
+  // The landing page is gone: the site root IS the game (black loading screen -> straight into the game).
+  const root_ = read('index.html');
+  ok('site root serves the game directly (loader + /slice/ entry, no landing markup)', /id="boot"/.test(root_) && /\/slice\/js\/main\.js/.test(root_) && !/<h1[\s>]/.test(root_) && !exists('/website/index.html'));
+  ok('root index.html and slice/index.html are the same page', root_ === read('slice/index.html'));
+  ok('_redirects forwards the old routes (/game /play /select/*) to the game root', ['/game', '/play', '/select/character', '/select/realm'].every((r) => new RegExp('^' + r + '\\s+/\\s+302', 'm').test(read('_redirects'))));
   ok('exactly one <h1>', (html.match(/<h1[\s>]/g) || []).length === 1);
   ok('6 scroll scenes and an 8-chapter HUD rail', (html.match(/data-scene="/g) || []).length === 6 && (html.match(/data-ch="/g) || []).length === 8);
   ok('PLAY GAME / ENTER THE GAME all point at /game', (html.match(/href="\/game"/g) || []).length >= 3);

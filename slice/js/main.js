@@ -1,4 +1,6 @@
-import { BootScene, MenuScene, GameScene, UIScene } from './scenes.js';
+window.__bp && window.__bp(0.5);
+import { BootScene, GameScene } from './scenes.js';
+import { UIScene } from './ui.js';
 import { W, H, aspectW } from './view.js';
 
 const game = new Phaser.Game({
@@ -10,7 +12,7 @@ const game = new Phaser.Game({
   physics: { default: 'arcade', arcade: { gravity: { y: 1800 }, debug: new URLSearchParams(location.search).has('debug') } },
   render: { antialias: true, powerPreference: 'high-performance' },
   input: { activePointers: 4 },
-  scene: [BootScene, MenuScene, GameScene, UIScene],
+  scene: [BootScene, GameScene, UIScene],
 });
 window.__game = game;
 

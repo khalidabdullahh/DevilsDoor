@@ -1,4 +1,5 @@
 import { makeWorldArt } from './world_art.js';
+import { makeUiArt } from './ui_art.js';
 import { makeSheet, NINJA, NINJA_SPECS, RONIN, RONIN_SPECS, ARCHER, ARCHER_SPECS, ONI, ONI_SPECS } from './rig.js';
 import { buildLevel, TILE, COLS, ROWS, G, ARENA_START, DOOR_COL } from './level.js';
 import { Player } from './player.js';
@@ -6,7 +7,7 @@ import { Ronin, Archer, Oni } from './foes.js';
 import { makeKeys, pressedKey, touch } from './input.js';
 import { initAudio, sfx, toggleMute, setBossMode } from './sfx.js';
 
-import { W, H, BOUNDS_H } from './view.js';
+import { W, H, BOUNDS_H, REALM } from './view.js';
 import { goImmersive } from './immersive.js';
 const WORLD_W = COLS * TILE, WORLD_H = ROWS * TILE;
 const R = (x, y, w, h) => new Phaser.Geom.Rectangle(x, y, w, h);
@@ -16,26 +17,33 @@ const SECTIONS = { start: 3, chimney: 48, spikes: 62, combat: 73, pit: 93, gaunt
 // ============================================================ BOOT
 export class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }
-  preload() { this.load.image('logo', '/brand/png/devils-door-logo.png'); this.load.image('mark', '/brand/png/devils-door-mark-512.png'); }
+  preload() {
+    this.load.on('progress', (v) => window.__bp && window.__bp(0.55 + v * 0.2));
+    this.load.image('logo', '/brand/png/devils-door-logo.png'); this.load.image('mark', '/brand/png/devils-door-mark-512.png');
+  }
   create() {
-    makeWorldArt(this);
-    makeSheet(this, 'ninja', NINJA, NINJA_SPECS, 192, 192);
-    makeSheet(this, 'ronin', RONIN, RONIN_SPECS, 192, 192);
-    makeSheet(this, 'archer', ARCHER, ARCHER_SPECS, 192, 192);
-    makeSheet(this, 'oni', ONI, ONI_SPECS, 340, 340);
+    window.__bp && window.__bp(0.8);
+    makeWorldArt(this, REALM);
+    const rim = REALM === 'moon' ? 'rgba(125,205,255,0.92)' : undefined;   // cold moonlight vs warm sunset edge light
+    makeSheet(this, 'ninja', { ...NINJA, rim }, NINJA_SPECS, 192, 192);
+    makeSheet(this, 'ronin', { ...RONIN, rim }, RONIN_SPECS, 192, 192);
+    makeSheet(this, 'archer', { ...ARCHER, rim }, ARCHER_SPECS, 192, 192);
+    makeSheet(this, 'oni', { ...ONI, rim: REALM === 'moon' ? 'rgba(110,185,255,0.95)' : ONI.rim }, ONI_SPECS, 340, 340);
+    makeUiArt(this);
+    window.__bp && window.__bp(0.95);
     const q = new URLSearchParams(location.search);
-    document.getElementById('boot')?.remove();
-    this.scene.start(q.has('go') || q.has('at') ? 'Game' : 'Menu', { at: q.get('at') });
+    this.scene.start('Game', { at: q.get('at') });   // no menu: loading screen -> straight into the game
   }
 }
 
 // ============================================================ BACKGROUND
 function buildBackground(scene) {
   const L = {};
-  scene.add.image(0, 0, 'sky').setOrigin(0).setScrollFactor(0).setDepth(-100).setDisplaySize(W, H);
+  const sky = scene.add.image(0, 0, 'sky').setOrigin(0).setScrollFactor(0).setDepth(-100);
+  if (scene.textures.get('sky').getSourceImage().width === 1280) sky.setDisplaySize(W, H);
   const ts = (key, y, h, depth, a = 1) => scene.add.tileSprite(0, y, W, h, key).setOrigin(0).setScrollFactor(0).setDepth(depth).setAlpha(a);
   L.far = ts('mtn_far', 50, 420, -90); L.mid = ts('mtn_mid', 60, 420, -80); L.near = ts('mtn_near', 70, 420, -70);
-  L.fill = scene.add.rectangle(0, 468, W, 500, 0x150a1e).setOrigin(0).setScrollFactor(0).setDepth(-69);
+  L.fill = scene.add.rectangle(0, 468, W, 500, REALM === 'moon' ? 0x07131d : 0x150a1e).setOrigin(0).setScrollFactor(0).setDepth(-69);
   L.trees = ts('trees', -50, 520, -60);
   L.fog = ts('fog', 330, 260, -50, 0.9);
   L.fog2 = ts('fog', 420, 260, 6, 0.5);
@@ -52,28 +60,6 @@ function updateBackground(L, cam, t) {
   L.fog.tilePositionX = x * 0.5 + t * 0.012; L.fog.y = 330 + o + k * 0.6;
   L.fog2.tilePositionX = x * 1.1 - t * 0.02; L.fog2.y = 420 + o + k * 1.0;
   L.fg.tilePositionX = x * 1.35; L.fg.y = H - 190 + k;
-}
-
-// ============================================================ MENU
-export class MenuScene extends Phaser.Scene {
-  constructor() { super('Menu'); }
-  create() {
-    this.bg = buildBackground(this);
-    const hero = this.add.sprite(W * 0.23, H - 62, 'ninja').setOrigin(0.5, 184 / 192).setScale(1.35).setDepth(10);
-    hero.play('ninja_idle');
-    this.add.image(0, 0, 'vignette').setOrigin(0).setDepth(50).setDisplaySize(W, H);
-    this.add.rectangle(0, H - 62, W, 120, 0x07040b).setOrigin(0).setDepth(9);
-    const logo = this.add.image(W * 0.68, H * 0.37, 'logo').setDepth(60); logo.setScale(540 / logo.width);
-    this.tweens.add({ targets: logo, y: H * 0.385, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    this.add.text(W * 0.68, H * 0.675, 'SUNSET SHRINE  ·  VERTICAL SLICE', { fontFamily: FONT, fontSize: '20px', color: '#ffb48a', letterSpacing: 6 }).setOrigin(0.5).setDepth(60);
-    const go = this.add.text(W * 0.68, H * 0.765, this.sys.game.device.input.touch ? 'TAP TO BEGIN' : 'PRESS ANY KEY', { fontFamily: FONT, fontSize: '30px', color: '#ffffff' }).setOrigin(0.5).setDepth(60);
-    this.tweens.add({ targets: go, alpha: 0.25, duration: 900, yoyo: true, repeat: -1 });
-    this.add.text(W * 0.68, H * 0.855, 'MOVE A/D · JUMP W/SPACE (x2, wall-jump) · SLASH J · DASH K · SHURIKEN L', { fontFamily: 'system-ui, sans-serif', fontSize: '15px', color: '#e8c4b0' }).setOrigin(0.5).setDepth(60);
-    const start = () => { initAudio(); goImmersive(); this.scene.start('Game', {}); };
-    this.input.keyboard.once('keydown', start); this.input.once('pointerdown', start);
-    this.cameras.main.fadeIn(600);
-  }
-  update(t) { updateBackground(this.bg, { scrollX: t * 0.04, scrollY: BOUNDS_H - H }, t); }
 }
 
 // ============================================================ GAME
@@ -116,7 +102,9 @@ export class GameScene extends Phaser.Scene {
     const at = data && data.at ? SECTIONS[data.at] : null;
     if (at) { this.player.body.reset(at * TILE, (G * TILE) - 4); if (data.at === 'door') this.boss.dead = true; this.checkpoint = { x: at * TILE, y: G * TILE - 4 }; cam.centerOn(at * TILE, G * TILE - 44); for (const c of this.cps) if (c.x < at * TILE - 60) { c.on = true; c.s.setTexture('cp_on'); } }
     if (!this.scene.isActive('UI')) this.scene.launch('UI'); else this.scene.get('UI').scene.restart();
-    if (this.sys.game.device.input.touch) this.input.once('pointerdown', () => goImmersive());
+    const unlock = () => { initAudio(); if (this.sys.game.device.input.touch) goImmersive(); };
+    this.input.once('pointerdown', unlock); this.input.keyboard.once('keydown', unlock);
+    window.__ddReady && window.__ddReady();
     window.__dd = this;
   }
 
@@ -129,7 +117,7 @@ export class GameScene extends Phaser.Scene {
     this.pEmber = em('dot', { lifespan: { min: 500, max: 1100 }, speed: { min: 80, max: 380 }, angle: { min: 0, max: 360 }, scale: { start: 0.9, end: 0 }, alpha: { start: 1, end: 0 }, tint: 0xffa040, gravityY: -80, blendMode: 'ADD' }, 24);
     this.pSpark = em('spark', { lifespan: { min: 120, max: 260 }, speed: { min: 260, max: 620 }, angle: { min: 0, max: 360 }, scale: { start: 1, end: 0.2 }, alpha: { start: 1, end: 0 }, rotate: { min: 0, max: 360 }, blendMode: 'ADD' }, 26);
     // ambient drifting embers across the whole screen
-    this.add.particles(0, 0, 'dot', { x: { min: 0, max: W }, y: H + 10, lifespan: 7000, speedY: { min: -70, max: -30 }, speedX: { min: -25, max: 25 }, scale: { start: 0.55, end: 0 }, alpha: { start: 0.8, end: 0 }, tint: 0xffa862, blendMode: 'ADD', frequency: 130 }).setScrollFactor(0).setDepth(28);
+    this.add.particles(0, 0, 'dot', { x: { min: 0, max: W }, y: H + 10, lifespan: 7000, speedY: { min: -70, max: -30 }, speedX: { min: -25, max: 25 }, scale: { start: 0.55, end: 0 }, alpha: { start: 0.8, end: 0 }, tint: REALM === 'moon' ? 0xbfe6ff : 0xffa862, blendMode: 'ADD', frequency: 130 }).setScrollFactor(0).setDepth(28);
     const self = this;
     this.fx = {
       dust: (x, y, n = 4) => self.pDust.emitParticleAt(x, y, n),
@@ -311,101 +299,5 @@ export class GameScene extends Phaser.Scene {
     const s = pl.lastSafe, hurt = pl.hurt(1, pl.x);
     if (!pl.dead) { pl.body.reset(s.x, s.y); pl.body.setVelocity(0, 0); pl.state = 'idle'; pl.invul = Math.max(pl.invul, 1.1); }
     void hurt;
-  }
-}
-
-// ============================================================ UI
-export class UIScene extends Phaser.Scene {
-  constructor() { super('UI'); }
-  create() {
-    const g = this.scene.get('Game'); this.g = g;
-    this.hearts = this.add.graphics().setDepth(10); this.bossBar = this.add.graphics().setDepth(10);
-    this.orbIcon = this.add.image(36, 92, 'orb').setScale(0.7).setBlendMode('ADD');
-    this.orbText = this.add.text(58, 80, '0 / ' + (g.totalOrbs || 0), { fontFamily: FONT, fontSize: '24px', color: '#d8f8ff', stroke: '#06121a', strokeThickness: 4 });
-    this.bossName = this.add.text(W / 2, 44, '', { fontFamily: FONT, fontSize: '24px', color: '#ffd9b0', stroke: '#2a0610', strokeThickness: 6, letterSpacing: 5 }).setOrigin(0.5).setVisible(false);
-    this.timer = this.add.text(W - 22, 20, '0:00', { fontFamily: FONT, fontSize: '24px', color: '#ffe8d4', stroke: '#1a0a0a', strokeThickness: 4 }).setOrigin(1, 0);
-    const hint = this.add.text(W / 2, H - 28, 'A/D move · W/Space jump (x2) · wall-jump on walls · J slash (x3) · K dash · L shuriken · slash into an enemy attack to PARRY', { fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#f2d4c0', stroke: '#14060c', strokeThickness: 3 }).setOrigin(0.5);
-    if (this.sys.game.device.input.touch) hint.setVisible(false); else this.tweens.add({ targets: hint, alpha: 0, delay: 9000, duration: 1500 });
-    const home = this.add.text(W - 120, 20, '\u2302 HOME', { fontFamily: FONT, fontSize: '20px', color: '#ffe8d4', stroke: '#1a0a0a', strokeThickness: 4 }).setOrigin(1, 0).setInteractive({ useHandCursor: true }).setDepth(20);
-    home.on('pointerdown', () => { try { if (window.parent !== window) window.parent.postMessage({ type: 'dd-home' }, location.origin); else location.href = '/'; } catch (e) { location.href = '/'; } });
-    this.hp = g.player ? g.player.hp : 3; this.drawHearts();
-    g.events.on('hp', (v) => { this.hp = v; this.drawHearts(); });
-    g.events.on('orbs', (n, t) => this.orbText.setText(n + ' / ' + t));
-    g.events.on('boss', (b) => this.setBoss(b));
-    g.events.on('win', (r) => this.showWin(r));
-    this.events.once('shutdown', () => { g.events.off('hp'); g.events.off('orbs'); g.events.off('boss'); g.events.off('win'); });
-    this.bossHp = null;
-    this.pauseKey = this.input.keyboard.addKey('P'); this.escKey = this.input.keyboard.addKey('ESC');
-    this.pauseText = this.add.text(W / 2, H / 2, 'PAUSED', { fontFamily: FONT, fontSize: '64px', color: '#fff', stroke: '#2a0610', strokeThickness: 8 }).setOrigin(0.5).setVisible(false).setDepth(50);
-    if (this.sys.game.device.input.touch) this.buildTouch();
-  }
-  drawHearts() {
-    const h = this.hearts; h.clear();
-    for (let i = 0; i < 3; i++) {
-      const x = 40 + i * 46, y = 40, on = i < this.hp;
-      h.fillStyle(on ? 0xd8202e : 0x2a1a22, 1); h.lineStyle(3, on ? 0xff7a6a : 0x4a2a36, 1);
-      h.fillCircle(x - 8, y - 4, 10); h.fillCircle(x + 8, y - 4, 10); h.fillTriangle(x - 18, y - 1, x + 18, y - 1, x, y + 22);
-      if (on) { h.fillStyle(0xffffff, 0.35); h.fillCircle(x - 11, y - 8, 3); }
-    }
-  }
-  setBoss(b) { this.bossHp = b; this.bossName.setVisible(!!b); if (b) this.bossName.setText(b.name); }
-  showWin(r) {
-    const m = Math.floor(r.time / 60), s = Math.floor(r.time % 60).toString().padStart(2, '0');
-    this.add.rectangle(0, 0, W, H, 0x07020c, 0.72).setOrigin(0).setDepth(40);
-    this.add.text(W / 2, H * 0.22, 'THE DOOR IS OPEN', { fontFamily: FONT, fontSize: '70px', color: '#fff0dc', stroke: '#3a0814', strokeThickness: 10, fontStyle: 'bold', padding: { x: 40, y: 40 } }).setOrigin(0.5).setDepth(41).setShadow(0, 0, '#ff3a2a', 24, true, true);
-    this.add.text(W / 2, H * 0.37, '★'.repeat(r.stars) + '☆'.repeat(3 - r.stars), { fontFamily: 'system-ui', fontSize: '72px', color: '#ffcc55' }).setOrigin(0.5).setDepth(41);
-    this.add.text(W / 2, H * 0.52, `Time ${m}:${s}     Orbs ${r.orbs}/${r.total}     Foes ${r.kills}     Deaths ${r.deaths}`, { fontFamily: FONT, fontSize: '28px', color: '#ffe8d4' }).setOrigin(0.5).setDepth(41);
-    const t = this.add.text(W / 2, H * 0.67, this.sys.game.device.input.touch ? 'TAP TO PLAY AGAIN' : 'PRESS R TO PLAY AGAIN', { fontFamily: FONT, fontSize: '28px', color: '#ffffff' }).setOrigin(0.5).setDepth(41);
-    this.tweens.add({ targets: t, alpha: 0.3, duration: 800, yoyo: true, repeat: -1 });
-    this.input.once('pointerdown', () => this.g.scene.restart());
-  }
-  update() {
-    if (this.btns) this.pollTouch();
-    const g = this.g; if (!g || !g.runT) return;
-    const t = g.runT, m = Math.floor(t / 60), s = Math.floor(t % 60).toString().padStart(2, '0'); this.timer.setText(m + ':' + s);
-    const bb = this.bossBar; bb.clear();
-    if (this.bossHp) { const w = 560, x = (W - w) / 2, y = 64, p = Math.max(0, this.bossHp.hp / this.bossHp.max); bb.fillStyle(0x12060c, 0.85).fillRect(x - 4, y - 4, w + 8, 22); bb.fillStyle(0x4a0a14, 1).fillRect(x, y, w, 14); bb.fillStyle(0xe0301e, 1).fillRect(x, y, w * p, 14); bb.fillStyle(0xffffff, 0.2).fillRect(x, y, w * p, 5); }
-    if (Phaser.Input.Keyboard.JustDown(this.pauseKey) || Phaser.Input.Keyboard.JustDown(this.escKey)) {
-      if (g.scene.isPaused()) { g.scene.resume(); this.pauseText.setVisible(false); } else if (g.scene.isActive()) { g.scene.pause(); this.pauseText.setVisible(true); }
-    }
-  }
-  buildTouch() {
-    this.input.addPointer(3);
-    const defs = [
-      ['left', 98, H - 62, 46, '◀', 0xffffff], ['right', 222, H - 62, 46, '▶', 0xffffff],
-      ['attack', W - 96, H - 84, 56, '⚔', 0xff6a5a], ['jump', W - 208, H - 56, 46, '⤒', 0x8fd4ff],
-      ['dash', W - 214, H - 150, 38, '≫', 0xffe08a], ['throw', W - 100, H - 182, 34, '✦', 0xd0d8f0],
-    ];
-    this.btns = defs.map(([id, x, y, r, label, col]) => {
-      const c = this.add.circle(x, y, r, col, 0.16).setStrokeStyle(3, col, 0.55).setDepth(30);
-      this.add.text(x, y, label, { fontFamily: 'system-ui', fontSize: Math.round(r * 0.55) + 'px', color: '#fff' }).setOrigin(0.5).setAlpha(0.85).setDepth(31);
-      return { id, x, y, r, col, c, was: false };
-    });
-    this.jumpAt = -1e9;
-  }
-  // every frame: which buttons are under which fingers (1.5x forgiving radius, thumbs may slide between buttons)
-  pollTouch() {
-    const held = {};
-    for (const p of this.input.manager.pointers) {
-      if (!p.isDown) continue;
-      let best = null, bd = 1e9;
-      for (const b of this.btns) { const d = Math.hypot(p.x - b.x, p.y - b.y); if (d <= b.r * 1.5 && d < bd) { best = b; bd = d; } }
-      if (best) held[best.id] = true;
-    }
-    const now = this.time.now;
-    touch.left = !!held.left; touch.right = !!held.right;
-    for (const b of this.btns) {
-      const on = !!held[b.id];
-      if (on && !b.was) {
-        if (b.id === 'jump') { touch.edge.jump = true; this.jumpAt = now; }
-        else if (b.id === 'attack') touch.edge.attack = true;
-        else if (b.id === 'dash') touch.edge.dash = true;
-        else if (b.id === 'throw') touch.edge.throw = true;
-      }
-      if (on !== b.was) b.c.setFillStyle(b.col, on ? 0.42 : 0.16);
-      b.was = on;
-    }
-    // a quick tap still gives a proper jump: treat the button as held for 340ms minimum (~full jump)
-    touch.jumpHeld = !!held.jump || now - this.jumpAt < 340;
   }
 }
