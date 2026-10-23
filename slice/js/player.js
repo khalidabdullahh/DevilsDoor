@@ -15,6 +15,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.coyote = 0; this.jbuf = 0; this.airJumps = 1; this.airDash = true; this.cutting = false;
     this.dashT = 0; this.dashCd = 0; this.invul = 0; this.lock = 0;
     this.atkT = 0; this.atkCombo = 0; this.atkDur = 0; this.atkCd = 0; this.comboWin = 0; this.atkHit = false; this.hitSet = new Set();
+    this.dropUntil = 0;   // one-way platforms: time until which we may fall through them (must exist: the collider compares against it)
     this.thrCd = 0; this.hurtT = 0; this.deadT = 0; this.dustT = 0; this.ghostT = 0; this.lastSafe = { x, y }; this.safeT = 0;
     this.prevVy = 0; this.wasGround = false; this.wallDir = 0;
     this.on('animationcomplete', () => {});
