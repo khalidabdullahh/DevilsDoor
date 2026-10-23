@@ -47,9 +47,13 @@ function pagoda(c, x, base, s, col) {
   c.fillRect(x - 1.5 * s, base - 215 * s, 3 * s, 40 * s);
 }
 
-export function makeWorldArt(scene) {
+import { makeMoonArt } from './world_moon.js';
+
+export function makeWorldArt(scene, theme = 'moon') {
   cv(scene, 'pix', 4, 4, (c) => { c.fillStyle = '#fff'; c.fillRect(0, 0, 4, 4); });
 
+  if (theme === 'moon') makeMoonArt(scene);
+  else {
   // ---- SKY
   cv(scene, 'sky', 1280, 720, (c, W, H) => {
     const g = c.createLinearGradient(0, 0, 0, H);
@@ -144,6 +148,8 @@ export function makeWorldArt(scene) {
     }
   });
 
+  }
+
   // ---- LANTERN CHECKPOINT
   const lantern = (key, on) => cv(scene, key, 64, 120, (c) => {
     c.fillStyle = '#0d0710'; c.fillRect(29, 50, 6, 70);
@@ -192,6 +198,6 @@ export function makeWorldArt(scene) {
   });
   cv(scene, 'fireball', 64, 64, (c) => radial(c, 32, 32, 32, [[0, '#fff6d0'], [0.3, '#ffb030'], [0.65, 'rgba(230,60,20,0.8)'], [1, 'rgba(160,20,10,0)']]));
   cv(scene, 'orb', 40, 40, (c) => { radial(c, 20, 20, 20, [[0, '#ffffff'], [0.25, '#8ff4ff'], [0.6, 'rgba(60,200,255,0.4)'], [1, 'rgba(60,200,255,0)']]); });
-  cv(scene, 'vignette', 1280, 720, (c, W, H) => radial(c, W / 2, H / 2, 820, [[0, 'rgba(8,0,16,0)'], [0.6, 'rgba(8,0,16,0.03)'], [1, 'rgba(8,0,16,0.6)']]));
+  cv(scene, 'vignette', 1280, 720, (c, W, H) => radial(c, W / 2, H / 2, 820, (theme === 'moon' ? [[0, 'rgba(2,8,16,0)'], [0.6, 'rgba(2,8,16,0.04)'], [1, 'rgba(2,8,16,0.66)']] : [[0, 'rgba(8,0,16,0)'], [0.6, 'rgba(8,0,16,0.03)'], [1, 'rgba(8,0,16,0.6)']])));
   cv(scene, 'warn', 64, 64, (c) => { c.fillStyle = '#ff3030'; c.shadowColor = '#ff3030'; c.shadowBlur = 8; c.beginPath(); c.moveTo(26, 6); c.lineTo(38, 6); c.lineTo(35, 40); c.lineTo(29, 40); c.closePath(); c.fill(); c.beginPath(); c.arc(32, 50, 5, 0, TAU); c.fill(); });
 }

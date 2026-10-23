@@ -3,33 +3,49 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0b0610">
+<meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Devil's Door — Sunset Shrine (Vertical Slice)</title>
-<meta name="description" content="Devil's Door: a fast silhouette ninja action platformer. Slash, dash, wall-jump and face the Oni Warlord.">
+<title>Devil's Door — Shadow Ninja Action</title>
+<meta name="description" content="Devil's Door: a fast silhouette ninja action platformer. Slash, dash, wall-jump, parry and face the Oni Warlord.">
+<link rel="canonical" href="https://devilsdoor.pages.dev/">
+<link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/brand/png/icon-32.png">
 <link rel="icon" href="/brand/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/brand/png/icon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://devilsdoor.pages.dev/">
 <meta property="og:title" content="Devil's Door">
 <meta property="og:description" content="A silhouette ninja action platformer. Slash, dash, wall-jump, parry.">
-<meta property="og:image" content="/brand/png/og-image.png">
+<meta property="og:image" content="https://devilsdoor.pages.dev/brand/png/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://devilsdoor.pages.dev/brand/png/og-image.png">
 <style>
-  html,body{margin:0;height:100%;background:#0b0610;overflow:hidden;touch-action:none;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   #game{position:fixed;inset:0}
-  #boot{position:fixed;inset:0;display:grid;place-items:center;color:#f4e9dc;font:600 18px Georgia,serif;letter-spacing:.3em;background:#0b0610;z-index:5}
   canvas{display:block}
-  #rot{display:none;position:fixed;inset:0;z-index:9;background:#0b0610;color:#f4e9dc;font:600 20px Georgia,serif;text-align:center;place-items:center;padding:24px;line-height:1.6}
+  #boot{position:fixed;inset:0;z-index:5;background:#000;display:grid;place-items:center;transition:opacity .45s ease}
+  #boot.done{opacity:0;pointer-events:none}
+  #boot .wrap{display:flex;flex-direction:column;align-items:center;gap:22px}
+  #boot img{width:min(30vh,150px);height:auto;border-radius:50%;box-shadow:0 0 40px rgba(196,32,42,.35)}
+  #boot .bar{width:min(46vw,300px);height:5px;border-radius:5px;background:#1a1d26;overflow:hidden}
+  #boot .bar i{display:block;height:100%;width:6%;background:linear-gradient(90deg,#c4202a,#ffb25a);border-radius:5px;transition:width .25s ease}
+  #boot .txt{color:#d8dbe6;font:600 12px/1 system-ui,sans-serif;letter-spacing:.42em;text-indent:.42em}
+  #rot{display:none;position:fixed;inset:0;z-index:9;background:#000;color:#f4e9dc;font:600 20px Georgia,serif;text-align:center;place-items:center;padding:24px;line-height:1.6}
   @media (orientation:portrait) and (pointer:coarse){#rot{display:grid}}
 </style>
 </head>
 <body>
 <div id="rot">&#8635;<br>Rotate your phone<br>to landscape to play</div>
-<div id="boot"><div style="text-align:center"><img src="/brand/png/icon-192.png" width="120" height="120" alt="" style="border-radius:26px;display:block;margin:0 auto 22px"><div>LOADING…</div></div></div>
+<div id="boot"><div class="wrap"><img src="/brand/png/devils-door-mark-512.png" alt=""><div class="bar"><i id="bar"></i></div><div class="txt">LOADING</div></div></div>
 <div id="game"></div>
-<script src="/slice/vendor/phaser.min.js"></script>
+<script>
+  window.__bp = function (p) { var b = document.getElementById('bar'); if (b) b.style.width = Math.max(6, Math.min(100, p * 100)) + '%'; };
+  window.__ddReady = function () { window.__bp(1); var b = document.getElementById('boot'); if (!b) return; setTimeout(function () { b.classList.add('done'); setTimeout(function () { b.remove(); }, 600); }, 250); };
+  window.__bp(0.15);
+</script>
+<script src="/slice/vendor/phaser.min.js" onload="__bp(0.45)"></script>
 <script type="module" src="/slice/js/main.js"></script>
 </body>
 </html>

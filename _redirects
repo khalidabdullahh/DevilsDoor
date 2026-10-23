@@ -1,6 +1,7 @@
-# Devil's Door now ships the new silhouette action game at /slice/.
-# Old entry points forward there. Delete a line to bring the old route back (old files are still in the repo).
-/game              /slice/  302
-/play              /slice/  302
-/select/character  /slice/  302
-/select/realm      /slice/  302
+# Devil's Door is now a single game served at the site root.
+# Old entry points forward to it. Delete a line to restore an old route (old files remain in the repo; full backup: release legacy-game-v1).
+/game              /  302
+/play              /  302
+/select/character  /  302
+/select/realm      /  302
+/slice             /  302

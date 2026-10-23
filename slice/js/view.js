@@ -4,3 +4,4 @@ export const H = 600;
 export const BOUNDS_H = 15 * 64;   // camera floor: ground line sits at ~68% of the screen, leaving the bottom ~30% for thumbs
 export const aspectW = () => Math.round(H * Math.min(2.4, Math.max(1.6, innerWidth / Math.max(1, innerHeight))));
 export const W = aspectW();
+export const REALM = new URLSearchParams(location.search).get('realm') || 'moon';   // 'moon' (default) | 'sunset'
