@@ -105,7 +105,7 @@ export class GameScene extends Phaser.Scene {
     // collisions
     this.dropUntil = 0;
     this.physics.add.collider(this.player, this.solids);
-    this.physics.add.collider(this.player, this.oneways, null, (pl, pf) => this.time.now > pl.dropUntil && pl.body.velocity.y >= 0 && pl.body.bottom <= pf.body.top + 20);
+    this.physics.add.collider(this.player, this.oneways, null, (pl, pf) => this.time.now > (pl.dropUntil || 0) && pl.body.velocity.y >= 0 && pl.body.bottom <= pf.body.top + 20);
     for (const f of this.foes) { this.physics.add.collider(f, this.solids); this.physics.add.collider(f, this.oneways, null, (a, b) => a.body.velocity.y >= 0); }
 
     const cam = this.cameras.main;
