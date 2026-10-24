@@ -11,6 +11,7 @@ export function initAudio() {
   const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   startMusic();
 }
+export const isMuted = () => muted;
 export function toggleMute() { muted = !muted; if (master) master.gain.value = muted ? 0 : 0.55; return muted; }
 export function setBossMode(on) { bossMode = on; }
 
@@ -47,6 +48,7 @@ export const sfx = {
   roar() { tone('sawtooth', 110, 55, 0.8, 0.3); tone('sawtooth', 115, 50, 0.8, 0.25); noise(0.8, 600, 150, 0.3, 0.5); },
   cp() { [523, 659, 784].forEach((f, i) => tone('triangle', f, f, 0.5, 0.12, i * 0.09)); },
   win() { [392, 523, 659, 784, 1047].forEach((f, i) => tone('triangle', f, f * 1.01, 0.7, 0.14, i * 0.13)); },
+  click() { tone('triangle', 620, 880, 0.07, 0.16); tone('sine', 1240, 1240, 0.05, 0.06, 0.02); },
   gate() { tone('sine', 70, 40, 1.2, 0.5); noise(1.0, 300, 80, 0.3, 0.6, 'lowpass'); },
 };
 
