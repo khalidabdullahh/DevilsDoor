@@ -1,7 +1,9 @@
 import { makeWorldArt } from './world_art.js';
 import { makeUiArt } from './ui_art.js';
+import { makeKit } from './kit.js';
+import { record, calcStars } from './progress.js';
 import { makeSheet, NINJA, NINJA_SPECS, RONIN, RONIN_SPECS, ARCHER, ARCHER_SPECS, ONI, ONI_SPECS } from './rig.js';
-import { buildLevel, TILE, COLS, ROWS, G, ARENA_START, DOOR_COL } from './level.js';
+import { buildLevel, TILE, ROWS, G, LEVEL_COUNT } from './level.js';
 import { Player } from './player.js';
 import { Ronin, Archer, Oni } from './foes.js';
 import { makeKeys, pressedKey, touch } from './input.js';
@@ -9,12 +11,28 @@ import { initAudio, sfx, toggleMute, setBossMode } from './sfx.js';
 
 import { W, H, BOUNDS_H, REALM } from './view.js';
 import { goImmersive } from './immersive.js';
-const WORLD_W = COLS * TILE, WORLD_H = ROWS * TILE;
+const WORLD_H = ROWS * TILE;
+const THEME = { moon: 'moon', sunset: 'sunset' };   // realm id -> art theme (locked realms fall back to 'moon')
 const R = (x, y, w, h) => new Phaser.Geom.Rectangle(x, y, w, h);
 const FONT = 'Georgia, "Hiragino Mincho ProN", "Noto Serif", serif';
-const SECTIONS = { start: 3, chimney: 48, spikes: 62, combat: 73, pit: 93, gauntlet: 108, boss: 121, door: 140 };
 
 // ============================================================ BOOT
+// (Re)builds all realm-dependent art: world textures + the four character sheets (cold vs warm rim light).
+export function buildArt(scene, theme) {
+  const T = scene.textures, A = scene.anims;
+  for (const k of ['ninja', 'ronin', 'archer', 'oni']) {
+    if (T.exists(k)) T.remove(k);
+    [...A.anims.keys()].filter((n) => n.startsWith(k + '_')).forEach((n) => A.remove(n));
+  }
+  makeWorldArt(scene, theme);
+  const moon = theme === 'moon', rim = moon ? 'rgba(125,205,255,0.92)' : undefined;
+  makeSheet(scene, 'ninja', { ...NINJA, rim }, NINJA_SPECS, 192, 192);
+  makeSheet(scene, 'ronin', { ...RONIN, rim }, RONIN_SPECS, 192, 192);
+  makeSheet(scene, 'archer', { ...ARCHER, rim }, ARCHER_SPECS, 192, 192);
+  makeSheet(scene, 'oni', { ...ONI, rim: moon ? 'rgba(110,185,255,0.95)' : ONI.rim }, ONI_SPECS, 340, 340);
+  scene.registry.set('artTheme', theme);
+}
+
 export class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }
   preload() {
@@ -23,16 +41,15 @@ export class BootScene extends Phaser.Scene {
   }
   create() {
     window.__bp && window.__bp(0.8);
-    makeWorldArt(this, REALM);
-    const rim = REALM === 'moon' ? 'rgba(125,205,255,0.92)' : undefined;   // cold moonlight vs warm sunset edge light
-    makeSheet(this, 'ninja', { ...NINJA, rim }, NINJA_SPECS, 192, 192);
-    makeSheet(this, 'ronin', { ...RONIN, rim }, RONIN_SPECS, 192, 192);
-    makeSheet(this, 'archer', { ...ARCHER, rim }, ARCHER_SPECS, 192, 192);
-    makeSheet(this, 'oni', { ...ONI, rim: REALM === 'moon' ? 'rgba(110,185,255,0.95)' : ONI.rim }, ONI_SPECS, 340, 340);
-    makeUiArt(this);
+    buildArt(this, THEME[REALM] || 'moon');
+    makeKit(this); makeUiArt(this);
     window.__bp && window.__bp(0.95);
+    window.__ddReady && window.__ddReady();
     const q = new URLSearchParams(location.search);
-    this.scene.start('Game', { at: q.get('at') });   // no menu: loading screen -> straight into the game
+    if (q.has('level') || q.has('at')) {   // dev shortcut: skip the menus
+      const at = q.get('at'), lvl = +(q.get('level') || (at === 'boss' || at === 'door' ? 5 : 1));
+      this.scene.start('Game', { realm: REALM, level: lvl, at });
+    } else this.scene.start('Realms');
   }
 }
 
@@ -43,7 +60,7 @@ function buildBackground(scene) {
   if (scene.textures.get('sky').getSourceImage().width === 1280) sky.setDisplaySize(W, H);
   const ts = (key, y, h, depth, a = 1) => scene.add.tileSprite(0, y, W, h, key).setOrigin(0).setScrollFactor(0).setDepth(depth).setAlpha(a);
   L.far = ts('mtn_far', 50, 420, -90); L.mid = ts('mtn_mid', 60, 420, -80); L.near = ts('mtn_near', 70, 420, -70);
-  L.fill = scene.add.rectangle(0, 468, W, 500, REALM === 'moon' ? 0x07131d : 0x150a1e).setOrigin(0).setScrollFactor(0).setDepth(-69);
+  L.fill = scene.add.rectangle(0, 468, W, 500, scene.theme === 'moon' ? 0x07131d : 0x150a1e).setOrigin(0).setScrollFactor(0).setDepth(-69);
   L.trees = ts('trees', -50, 520, -60);
   L.fog = ts('fog', 330, 260, -50, 0.9);
   L.fog2 = ts('fog', 420, 260, 6, 0.5);
@@ -66,14 +83,20 @@ function updateBackground(L, cam, t) {
 export class GameScene extends Phaser.Scene {
   constructor() { super('Game'); }
 
-  create(data) {
+  init(data) {
+    data = data || {};
+    this.realm = data.realm || REALM; this.levelId = data.level || 1; this.theme = THEME[this.realm] || 'moon'; this.devAt = data.at || null;
+    if (this.registry.get('artTheme') !== this.theme) buildArt(this, this.theme);
+  }
+
+  create() {
     initAudio(); setBossMode(false);
     this.ts = 1; this.frozen = false; this.kills = 0; this.deaths = 0; this.orbsGot = 0; this.runT = 0; this.won = false; this.arenaLocked = false; this.doorActive = false;
-    this.level = buildLevel();
+    this.level = buildLevel(this.levelId); this.worldW = this.level.cols * TILE;
     this.physics.world.gravity.y = 1800;
-    this.physics.world.setBounds(0, -400, WORLD_W, WORLD_H + 800);
+    this.physics.world.setBounds(0, -400, this.worldW, WORLD_H + 800);
     this.physics.world.setBoundsCollision(true, true, false, false);
-    this.cameras.main.setBounds(0, 0, WORLD_W, BOUNDS_H);
+    this.cameras.main.setBounds(0, 0, this.worldW, BOUNDS_H);
 
     this.bg = buildBackground(this);
     this.gfx = this.add.graphics().setDepth(45);
@@ -99,8 +122,15 @@ export class GameScene extends Phaser.Scene {
     cam.fadeIn(500);
     this.events.emit('hp', this.player.hp);
 
-    const at = data && data.at ? SECTIONS[data.at] : null;
-    if (at) { this.player.body.reset(at * TILE, (G * TILE) - 4); if (data.at === 'door') this.boss.dead = true; this.checkpoint = { x: at * TILE, y: G * TILE - 4 }; cam.centerOn(at * TILE, G * TILE - 44); for (const c of this.cps) if (c.x < at * TILE - 60) { c.on = true; c.s.setTexture('cp_on'); } }
+    const at = this.devAt, lv = this.level;   // dev shortcut (?at=start|boss|door): teleport near that spot
+    if (at) {
+      const col = at === 'boss' && lv.hasBoss ? lv.arenaStart - 2 : at === 'door' ? lv.doorCol - 4 : at === 'start' ? 3 : null;
+      if (col != null) {
+        this.player.body.reset(col * TILE, G * TILE - 4); this.checkpoint = { x: col * TILE, y: G * TILE - 4 }; cam.centerOn(col * TILE, G * TILE - 44);
+        for (const c of this.cps) if (c.x < col * TILE - 60) { c.on = true; c.s.setTexture('cp_on'); }
+        if (at === 'door' && this.boss) { this.boss.dead = true; this.doorActive = true; }
+      }
+    }
     if (!this.scene.isActive('UI')) this.scene.launch('UI'); else this.scene.get('UI').scene.restart();
     const unlock = () => { initAudio(); if (this.sys.game.device.input.touch) goImmersive(); };
     this.input.once('pointerdown', unlock); this.input.keyboard.once('keydown', unlock);
@@ -117,7 +147,7 @@ export class GameScene extends Phaser.Scene {
     this.pEmber = em('dot', { lifespan: { min: 500, max: 1100 }, speed: { min: 80, max: 380 }, angle: { min: 0, max: 360 }, scale: { start: 0.9, end: 0 }, alpha: { start: 1, end: 0 }, tint: 0xffa040, gravityY: -80, blendMode: 'ADD' }, 24);
     this.pSpark = em('spark', { lifespan: { min: 120, max: 260 }, speed: { min: 260, max: 620 }, angle: { min: 0, max: 360 }, scale: { start: 1, end: 0.2 }, alpha: { start: 1, end: 0 }, rotate: { min: 0, max: 360 }, blendMode: 'ADD' }, 26);
     // ambient drifting embers across the whole screen
-    this.add.particles(0, 0, 'dot', { x: { min: 0, max: W }, y: H + 10, lifespan: 7000, speedY: { min: -70, max: -30 }, speedX: { min: -25, max: 25 }, scale: { start: 0.55, end: 0 }, alpha: { start: 0.8, end: 0 }, tint: REALM === 'moon' ? 0xbfe6ff : 0xffa862, blendMode: 'ADD', frequency: 130 }).setScrollFactor(0).setDepth(28);
+    this.add.particles(0, 0, 'dot', { x: { min: 0, max: W }, y: H + 10, lifespan: 7000, speedY: { min: -70, max: -30 }, speedX: { min: -25, max: 25 }, scale: { start: 0.55, end: 0 }, alpha: { start: 0.8, end: 0 }, tint: this.theme === 'moon' ? 0xbfe6ff : 0xffa862, blendMode: 'ADD', frequency: 130 }).setScrollFactor(0).setDepth(28);
     const self = this;
     this.fx = {
       dust: (x, y, n = 4) => self.pDust.emitParticleAt(x, y, n),
@@ -149,17 +179,17 @@ export class GameScene extends Phaser.Scene {
 
   // ---------- world
   buildWorld() {
-    const g = this.level.grid;
+    const g = this.level.grid, COLS_ = this.level.cols;
     this.solids = this.physics.add.staticGroup(); this.oneways = this.physics.add.staticGroup(); this.hazards = [];
     for (let r = 0; r < ROWS; r++) {
       let c = 0;
-      while (c < COLS) {
-        if (!g[r * COLS + c]) { c++; continue; }
-        const c0 = c; while (c < COLS && g[r * COLS + c]) c++;
+      while (c < COLS_) {
+        if (!g[r * COLS_ + c]) { c++; continue; }
+        const c0 = c; while (c < COLS_ && g[r * COLS_ + c]) c++;
         const w = (c - c0) * TILE;
         this.solids.create(c0 * TILE + w / 2, r * TILE + TILE / 2, 'pix').setDisplaySize(w, TILE).refreshBody().setVisible(false);
         for (let k = c0; k < c; k++) {
-          const top = r === 0 || !g[(r - 1) * COLS + k];
+          const top = r === 0 || !g[(r - 1) * COLS_ + k];
           if (top) this.add.image(k * TILE, r * TILE - 20, 'tile_top').setOrigin(0).setDepth(10); else this.add.image(k * TILE, r * TILE, 'tile_fill').setOrigin(0).setDepth(10);
         }
       }
@@ -200,6 +230,7 @@ export class GameScene extends Phaser.Scene {
       }
     }
     this.totalOrbs = this.orbs.length;
+    if (!this.level.hasBoss && this.portal) { this.doorActive = true; this.portal.setAlpha(0.95).setScale(1.5); }   // no boss: the Devil's Door is open from the start
   }
 
   // ---------- projectiles
@@ -226,7 +257,7 @@ export class GameScene extends Phaser.Scene {
   }
   lockArena() {
     this.arenaLocked = true; sfx.gate(); this.shake(6, 300);
-    const x = ARENA_START * TILE;
+    const x = this.level.arenaStart * TILE;
     this.gate = this.solids.create(x + TILE / 2, 6 * TILE, 'pix').setDisplaySize(TILE, 12 * TILE).refreshBody().setVisible(false);
     this.gate.vis = this.add.rectangle(x + TILE / 2, 6 * TILE, TILE, 12 * TILE, 0xb01030, 0.35).setDepth(14).setBlendMode('ADD');
     this.tweens.add({ targets: this.gate.vis, alpha: 0.15, duration: 400, yoyo: true, repeat: -1 });
@@ -245,14 +276,15 @@ export class GameScene extends Phaser.Scene {
   win() {
     if (this.won) return; this.won = true; sfx.win(); this.player.body.setVelocity(0, 0); this.player.anims.play('ninja_idle');
     this.flash(0.7, 0xffffff); this.slowmo(0.4, 500);
-    const stars = this.deaths === 0 ? 3 : this.deaths <= 2 ? 2 : 1;
-    this.events.emit('win', { time: this.runT, orbs: this.orbsGot, total: this.totalOrbs, kills: this.kills, deaths: this.deaths, stars });
+    const stars = calcStars({ deaths: this.deaths, orbs: this.orbsGot, total: this.totalOrbs });
+    record(this.realm, this.levelId, stars);
+    this.events.emit('win', { time: this.runT, orbs: this.orbsGot, total: this.totalOrbs, kills: this.kills, deaths: this.deaths, stars, realm: this.realm, level: this.levelId, name: this.level.meta.name, next: this.levelId < LEVEL_COUNT ? this.levelId + 1 : null });
   }
 
   update(time, delta) {
     this.gfx.clear();
     if (pressedKey(this.keys.mute)) toggleMute();
-    if (pressedKey(this.keys.restart) && (this.won || this.player.dead)) { this.scene.restart(); return; }
+    if (pressedKey(this.keys.restart) && (this.won || this.player.dead)) { this.scene.restart({ realm: this.realm, level: this.levelId }); return; }
     if (this.frozen) return;
     const d = Math.min(delta, 50) * this.ts, dt = d / 1000, pl = this.player, cam = this.cameras.main;
     if (!this.won) this.runT += dt;
@@ -287,7 +319,7 @@ export class GameScene extends Phaser.Scene {
     // orbs, checkpoints, arena, door
     for (let i = this.orbs.length - 1; i >= 0; i--) { const o = this.orbs[i]; if (Math.abs(o.x - pl.x) < 46 && Math.abs(o.y - (pl.y - 44)) < 60) { this.orbsGot++; sfx.orb(); this.fx.burst(o.x, o.y, 6, 0xffa030); o.destroy(); this.orbs.splice(i, 1); this.events.emit('orbs', this.orbsGot, this.totalOrbs); } }
     for (const c of this.cps) if (!c.on && pl.x > c.x - 30 && Math.abs(pl.y - (c.y + 4)) < 140) { c.on = true; c.s.setTexture('cp_on'); this.checkpoint = { x: c.x, y: c.y }; sfx.cp(); this.fx.burst(c.x, c.y - 70, 14, 0xffa030); this.fx.text(c.x, c.y - 140, 'CHECKPOINT', '#ffd28a'); if (pl.hp < pl.maxHp) { pl.hp++; this.events.emit('hp', pl.hp); } }
-    if (!this.arenaLocked && !this.boss.dead && pl.x > (ARENA_START + 2) * TILE && !pl.dead) this.lockArena();
+    if (this.level.hasBoss && !this.arenaLocked && !this.boss.dead && pl.x > (this.level.arenaStart + 2) * TILE && !pl.dead) this.lockArena();
     if (this.doorActive && !this.won && Math.abs(pl.x - this.doorX) < 70 && !pl.dead) this.win();
     if (this.portal) this.portal.rotation += 0.004;
 

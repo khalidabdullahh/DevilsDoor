@@ -1,6 +1,7 @@
 import { W, H } from './view.js';
 import { touch } from './input.js';
-import { toggleMute } from './sfx.js';
+import { sfx, toggleMute, isMuted } from './sfx.js';
+import { kButton, kIcon, kPanel, kRibbon, starRow, ctext } from './kit.js';
 
 const SANS = '"Trebuchet MS","Segoe UI",Roboto,"Helvetica Neue",system-ui,sans-serif';
 const GOLD = 0xf2b22a;
@@ -11,7 +12,7 @@ export class UIScene extends Phaser.Scene {
   create() {
     const g = this.scene.get('Game'); this.g = g;
     this.hp = g.player ? g.player.hp : 3; this.maxHp = g.player ? g.player.maxHp : 3; this.dispHp = this.hp; this.bossHp = null;
-    this.buildHud(); this.buildPause();
+    this.buildHud(); this.buildPause(); this.banner(g);
     g.events.on('hp', (v) => { this.hp = v; });
     g.events.on('orbs', (n, t) => this.orbText.setText(n + ' / ' + t));
     g.events.on('boss', (b) => this.setBoss(b));
@@ -23,6 +24,12 @@ export class UIScene extends Phaser.Scene {
       const hint = this.add.text(W / 2, H - 26, 'A/D move · W/Space jump (x2) · wall-jump · J slash (x3) · K dash · L shuriken · slash into an enemy attack to PARRY', { fontFamily: SANS, fontSize: '14px', color: '#d6ecff', stroke: '#06101a', strokeThickness: 4 }).setOrigin(0.5);
       this.tweens.add({ targets: hint, alpha: 0, delay: 9000, duration: 1500 });
     }
+  }
+
+  banner(g) {
+    const b = kRibbon(this, W / 2, -60, Math.min(440, W * 0.45), `LEVEL ${g.levelId}  ·  ${g.level.meta.name.toUpperCase()}`, 26).setDepth(20);
+    this.tweens.add({ targets: b, y: 112, duration: 420, ease: 'Back.easeOut' });
+    this.tweens.add({ targets: b, y: -80, alpha: 0, duration: 400, delay: 2300, onComplete: () => b.destroy() });
   }
 
   // ---------------------------------------------------------------- HUD
@@ -39,11 +46,8 @@ export class UIScene extends Phaser.Scene {
     this.orbText = this.add.text(134, 76, '0 / ' + (this.g.totalOrbs || 0), { fontFamily: SANS, fontSize: '19px', fontStyle: 'bold', color: '#d8f8ff', stroke: '#06121a', strokeThickness: 4 }).setDepth(6);
     const clk = this.add.graphics().setDepth(6); clk.lineStyle(2.5, 0xffe9bf, 1); clk.strokeCircle(112, 108, 8); clk.lineBetween(112, 108, 112, 103); clk.lineBetween(112, 108, 116, 110);
     this.timer = this.add.text(134, 98, '0:00', { fontFamily: SANS, fontSize: '17px', fontStyle: 'bold', color: '#ffe9bf', stroke: '#1a0a0a', strokeThickness: 4 }).setDepth(6);
-    // pause button (top-right, gold ring like the reference)
-    const px = W - 46, py = 46;
-    const pc = this.add.circle(px, py, 27, 0x070d18, 0.78).setStrokeStyle(4, GOLD).setDepth(10).setInteractive();
-    this.add.rectangle(px - 6, py, 6, 20, 0xffffff).setDepth(11); this.add.rectangle(px + 6, py, 6, 20, 0xffffff).setDepth(11);
-    pc.on('pointerdown', () => this.togglePause());
+    // pause button (top-right): glossy cartoon icon button
+    kIcon(this, W - 46, 46, 54, 'orange', 'pause', () => this.togglePause(), 'ki', () => sfx.click()).setDepth(10);
     this.bossG = this.add.graphics().setDepth(10);
     this.bossName = this.add.text(W / 2, 30, '', { fontFamily: SANS, fontSize: '22px', fontStyle: 'bold', color: '#ffe6c4', stroke: '#2a0610', strokeThickness: 6, letterSpacing: 6 }).setOrigin(0.5).setVisible(false).setDepth(11);
   }
@@ -74,19 +78,17 @@ export class UIScene extends Phaser.Scene {
   // ---------------------------------------------------------------- pause menu
   buildPause() {
     this.pauseLayer = this.add.container(0, 0).setDepth(60).setVisible(false);
-    const dim = this.add.rectangle(0, 0, W, H, 0x02060c, 0.74).setOrigin(0).setInteractive();
-    const title = this.add.text(W / 2, H * 0.24, 'PAUSED', { fontFamily: SANS, fontSize: '52px', fontStyle: 'bold', color: '#ffffff', stroke: '#06101a', strokeThickness: 8, letterSpacing: 8 }).setOrigin(0.5);
-    const mk = (y, label, cb) => {
-      const c = this.add.container(W / 2, y);
-      const bg = this.add.graphics(); bg.fillStyle(0x0b1626, 0.95); bg.fillRoundedRect(-130, -26, 260, 52, 26); bg.lineStyle(3, GOLD, 1); bg.strokeRoundedRect(-130, -26, 260, 52, 26);
-      const t = this.add.text(0, 0, label, { fontFamily: SANS, fontSize: '22px', fontStyle: 'bold', color: '#fff3d0', letterSpacing: 3 }).setOrigin(0.5);
-      const hit = this.add.rectangle(0, 0, 260, 52, 0xffffff, 0.001).setInteractive(); hit.on('pointerdown', cb);
-      c.add([bg, t, hit]); c.t = t; return c;
-    };
-    this.btnResume = mk(H * 0.42, 'RESUME', () => this.togglePause());
-    this.btnRestart = mk(H * 0.42 + 70, 'RESTART', () => { this.pauseLayer.setVisible(false); this.g.scene.resume(); this.g.scene.restart(); });
-    this.btnSound = mk(H * 0.42 + 140, 'SOUND: ON', () => { const m = toggleMute(); this.btnSound.t.setText(m ? 'SOUND: OFF' : 'SOUND: ON'); });
-    this.pauseLayer.add([dim, title, this.btnResume, this.btnRestart, this.btnSound]);
+    const dim = this.add.rectangle(0, 0, W, H, 0x021028, 0.72).setOrigin(0).setInteractive();
+    const pw = 340, ph = Math.min(H - 50, 400), cy = H / 2 + 12;
+    const panel = kPanel(this, W / 2, cy, pw, ph, 'wood');
+    const rib = kRibbon(this, W / 2, cy - ph / 2 + 4, 280, 'PAUSED', 34);
+    const bw = 250, bh = 54, y0 = cy - ph / 2 + 84, gap = 66, click = () => sfx.click();
+    const g = this.g;
+    this.btnResume = kButton(this, W / 2, y0, bw, bh, 'green', 'RESUME', () => this.togglePause(), 'play', click);
+    this.btnRestart = kButton(this, W / 2, y0 + gap, bw, bh, 'orange', 'RESTART', () => { this.pauseLayer.setVisible(false); g.scene.resume(); g.scene.restart({ realm: g.realm, level: g.levelId }); }, 'refresh', click);
+    this.btnLevels = kButton(this, W / 2, y0 + gap * 2, bw, bh, 'blue', 'LEVELS', () => { this.pauseLayer.setVisible(false); const realm = g.realm; g.scene.stop(); this.scene.start('Levels', { realm }); }, 'list', click);
+    this.btnSound = kButton(this, W / 2, y0 + gap * 3, bw, bh, 'purple', isMuted() ? 'SOUND OFF' : 'SOUND ON', () => { const m = toggleMute(); this.btnSound.list[2].setText(m ? 'SOUND OFF' : 'SOUND ON'); this.btnSound.list[1].setTexture(m ? 'ic_mute' : 'ic_sound'); }, isMuted() ? 'mute' : 'sound', click);
+    this.pauseLayer.add([dim, panel, rib, this.btnResume, this.btnRestart, this.btnLevels, this.btnSound]);
   }
   togglePause() {
     const g = this.g;
@@ -96,14 +98,24 @@ export class UIScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- win screen
   showWin(r) {
-    const m = Math.floor(r.time / 60), s = Math.floor(r.time % 60).toString().padStart(2, '0');
-    this.add.rectangle(0, 0, W, H, 0x04101c, 0.78).setOrigin(0).setDepth(40);
-    this.add.text(W / 2, H * 0.22, 'THE DOOR IS OPEN', { fontFamily: SANS, fontSize: '58px', fontStyle: 'bold', color: '#fff0dc', stroke: '#3a0814', strokeThickness: 10, letterSpacing: 4, padding: { x: 40, y: 40 } }).setOrigin(0.5).setDepth(41).setShadow(0, 0, '#ff3a2a', 24, true, true);
-    this.add.text(W / 2, H * 0.37, '★'.repeat(r.stars) + '☆'.repeat(3 - r.stars), { fontFamily: 'system-ui', fontSize: '64px', color: '#ffcc55' }).setOrigin(0.5).setDepth(41);
-    this.add.text(W / 2, H * 0.52, `Time ${m}:${s}     Orbs ${r.orbs}/${r.total}     Foes ${r.kills}     Deaths ${r.deaths}`, { fontFamily: SANS, fontSize: '26px', color: '#ffe8d4' }).setOrigin(0.5).setDepth(41);
-    const t = this.add.text(W / 2, H * 0.67, this.sys.game.device.input.touch ? 'TAP TO PLAY AGAIN' : 'PRESS R TO PLAY AGAIN', { fontFamily: SANS, fontSize: '26px', fontStyle: 'bold', color: '#ffffff', letterSpacing: 3 }).setOrigin(0.5).setDepth(41);
-    this.tweens.add({ targets: t, alpha: 0.3, duration: 800, yoyo: true, repeat: -1 });
-    this.input.once('pointerdown', () => this.g.scene.restart());
+    const m = Math.floor(r.time / 60), sec = Math.floor(r.time % 60).toString().padStart(2, '0'), click = () => sfx.click();
+    const layer = this.add.container(0, 0).setDepth(70);
+    const dim = this.add.rectangle(0, 0, W, H, 0x021028, 0.74).setOrigin(0).setInteractive();
+    const pw = Math.min(W - 140, 560), ph = Math.min(H - 40, 400), cy = H / 2 + 16;
+    const panel = kPanel(this, W / 2, cy, pw, ph, 'light');
+    const rib = kRibbon(this, W / 2, cy - ph / 2 + 4, Math.min(440, pw * 0.88), 'LEVEL COMPLETE', 34);
+    const nm = ctext(this, W / 2, cy - ph / 2 + 74, `LEVEL ${r.level}  ·  ${r.name}`, 20, { stroke: '#0b3a8a', thick: 4 });
+    const full = starRow(this, W / 2, cy - ph / 2 + 138, r.stars, 70); full.setScale(0.2).setAlpha(0);
+    this.tweens.add({ targets: full, scale: 1, alpha: 1, duration: 450, ease: 'Back.easeOut', delay: 150 });
+    const stat = ctext(this, W / 2, cy + 12, `TIME ${m}:${sec}      ORBS ${r.orbs}/${r.total}      DEATHS ${r.deaths}`, 19, { stroke: '#0b3a8a', thick: 4 });
+    const hint = ctext(this, W / 2, cy + 44, r.stars < 3 ? '3 stars: no deaths + 70% orbs' : 'Perfect run!', 15, { stroke: '#0b3a8a', thick: 3 });
+    const bw = r.next ? 158 : 190, bh = 54, by = cy + ph / 2 - 52;
+    const items = [kButton(this, 0, by, bw, bh, 'blue', 'LEVELS', () => { layer.destroy(); this.g.scene.stop(); this.scene.start('Levels', { realm: r.realm }); }, 'list', click),
+      kButton(this, 0, by, bw, bh, 'orange', 'REPLAY', () => this.g.scene.restart({ realm: r.realm, level: r.level }), 'refresh', click)];
+    if (r.next) items.push(kButton(this, 0, by, bw, bh, 'green', 'NEXT', () => this.g.scene.restart({ realm: r.realm, level: r.next }), 'play', click));
+    items.forEach((b, i) => b.setX(W / 2 + (i - (items.length - 1) / 2) * (bw + 8)));
+    this.winButtons = items;
+    layer.add([dim, panel, rib, nm, full, stat, hint, ...items]);
   }
 
   // ---------------------------------------------------------------- touch controls

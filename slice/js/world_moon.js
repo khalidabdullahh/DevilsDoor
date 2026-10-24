@@ -5,6 +5,7 @@ let seed = 3;
 const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
 
 function cv(scene, key, w, h, draw) {
+  if (scene.textures.exists(key)) scene.textures.remove(key);
   const t = scene.textures.createCanvas(key, w, h);
   draw(t.getContext('2d'), w, h);
   t.refresh();
