@@ -32,20 +32,22 @@
   #boot .bar{width:min(46vw,300px);height:5px;border-radius:5px;background:#1a1d26;overflow:hidden}
   #boot .bar i{display:block;height:100%;width:6%;background:linear-gradient(90deg,#c4202a,#ffb25a);border-radius:5px;transition:width .25s ease}
   #boot .txt{color:#d8dbe6;font:600 12px/1 system-ui,sans-serif;letter-spacing:.42em;text-indent:.42em}
-  #rot{display:none;position:fixed;inset:0;z-index:9;background:radial-gradient(circle at 50% 40%,#0f3a5c,#02070e 70%);color:#fff;text-align:center;place-items:center;padding:24px;font-family:"Arial Rounded MT Bold","Baloo 2","Trebuchet MS",system-ui,sans-serif}
+  #rot{display:none;position:fixed;inset:0;z-index:9;background:#000;place-items:center;text-align:center;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   @media (orientation:portrait) and (pointer:coarse){#rot{display:grid}}
-  #rot .phone{width:58px;height:102px;margin:0 auto 26px;border:6px solid #fff;border-radius:16px;position:relative;animation:rotphone 2.6s ease-in-out infinite;box-shadow:0 0 28px rgba(110,200,255,.55)}
-  #rot .phone:after{content:"";position:absolute;left:50%;bottom:8px;width:16px;height:4px;margin-left:-8px;border-radius:2px;background:#fff}
-  @keyframes rotphone{0%,18%{transform:rotate(0)}55%,82%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
-  #rot h2{margin:0 0 6px;font-size:30px;letter-spacing:.04em;text-shadow:0 3px 0 #0b3c96}
-  #rot p{margin:0 0 26px;font-size:16px;color:#bfe3ff}
-  #rot button{font:inherit;font-size:24px;letter-spacing:.12em;color:#fff;padding:14px 46px;border:4px solid #0b3c96;border-radius:999px;background:linear-gradient(#6bd0ff,#1d7fe4);text-shadow:0 3px 0 #0b3c96;box-shadow:0 7px 0 #0b3c96,0 12px 22px rgba(0,0,0,.45);cursor:pointer;-webkit-tap-highlight-color:transparent}
-  #rot button:active{transform:translateY(5px);box-shadow:0 2px 0 #0b3c96}
-  #rothint{display:none;margin:30px auto 0;max-width:300px;font-size:14px;line-height:1.5;color:#ffd78a}
+  #rotbtn{display:block;margin:0 auto;padding:18px;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;filter:drop-shadow(0 0 16px rgba(130,205,255,.45));transition:transform .12s}
+  #rotbtn:active{transform:scale(.93)}
+  #rotbtn svg{display:block;width:min(52vw,230px);height:auto;overflow:visible}
+  #rotbtn .ph{transform-origin:100px 100px;animation:rotphone 2.8s ease-in-out infinite}
+  #rotbtn .ar{animation:rotpulse 2.8s ease-in-out infinite}
+  @keyframes rotphone{0%,15%{transform:rotate(0)}50%,85%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
+  @keyframes rotpulse{0%,15%,100%{opacity:.35}50%,85%{opacity:1}}
+  #rot .cap{margin-top:6px;font-size:13px;font-weight:600;letter-spacing:.34em;text-indent:.34em;color:#8ea3b8;animation:rotcap 1.8s ease-in-out infinite}
+  @keyframes rotcap{50%{opacity:.35}}
+  #rothint{display:none;margin:26px auto 0;max-width:300px;font-size:14px;line-height:1.5;color:#ffd78a}
 </style>
 </head>
 <body>
-<div id="rot"><div><div class="phone"></div><h2>Rotate your phone</h2><p>Devil's Door plays in landscape</p><button id="rotbtn" type="button">ROTATE</button><div id="rothint">Still upright? Your rotation lock may be on. Turn it off and tilt the phone sideways.</div></div></div>
+<div id="rot"><div><button id="rotbtn" type="button" aria-label="Rotate your phone to landscape"><svg viewBox="0 0 200 200" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><g class="ph"><rect x="72" y="42" width="56" height="116" rx="13"/><path d="M92 146h16" /></g><g class="ar"><path d="M156 52a68 68 0 0 1 22 52"/><path d="M178 104l-12-12m12 12l12-12"/><path d="M44 148a68 68 0 0 1-22-52"/><path d="M22 96l12 12m-12-12l-12 12"/></g></svg></button><div class="cap">TAP TO ROTATE</div><div id="rothint">Still upright? Your rotation lock may be on. Turn it off and tilt the phone sideways.</div></div></div>
 <div id="boot"><div class="wrap"><img src="/brand/png/devils-door-mark-512.png" alt=""><div class="bar"><i id="bar"></i></div><div class="txt">LOADING</div></div></div>
 <div id="game"></div>
 <script>
@@ -57,6 +59,7 @@
     function hint() { var h = document.getElementById('rothint'); if (h) h.style.display = 'block'; }
     function lock() { var ok = false; try { var o = screen.orientation; if (o && o.lock) { o.lock('landscape').catch(hint); ok = true; } } catch (e) {} if (!ok) hint(); }
     try { var p = rq && rq.call(el, { navigationUI: 'hide' }); if (p && p.then) p.then(lock, lock); else lock(); } catch (e) { lock(); }
+    setTimeout(function () { if (innerHeight > innerWidth) hint(); }, 1800);
   };
   document.getElementById('rotbtn').addEventListener('click', function () { window.__rotate(); });
 </script>
