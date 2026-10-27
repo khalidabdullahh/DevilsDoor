@@ -179,6 +179,7 @@ export function makeWorldArt(scene, theme = 'moon') {
   });
 
   // ---- FX
+  cv(scene, 'rain', 4, 26, (c) => { const g = c.createLinearGradient(0, 0, 0, 26); g.addColorStop(0, 'rgba(200,225,255,0)'); g.addColorStop(1, 'rgba(200,225,255,0.9)'); c.fillStyle = g; c.fillRect(1, 0, 2, 26); });
   cv(scene, 'glow', 128, 128, (c) => radial(c, 64, 64, 64, [[0, 'rgba(255,255,255,1)'], [0.35, 'rgba(255,255,255,0.35)'], [1, 'rgba(255,255,255,0)']]));
   cv(scene, 'dot', 12, 12, (c) => radial(c, 6, 6, 6, [[0, '#fff'], [0.6, 'rgba(255,255,255,0.8)'], [1, 'rgba(255,255,255,0)']]));
   cv(scene, 'spark', 36, 6, (c) => { const g = c.createLinearGradient(0, 0, 36, 0); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(1, '#fff'); c.fillStyle = g; c.beginPath(); c.moveTo(0, 3); c.lineTo(36, 0.5); c.lineTo(36, 5.5); c.closePath(); c.fill(); });

@@ -108,6 +108,9 @@ export class GameScene extends Phaser.Scene {
     this.spawnEntities();
 
     // vignette + flash overlays are drawn in the UI scene's layer via depth on this camera too
+    const mood = this.level.meta.mood || {};   // per-level atmosphere so no two levels feel the same
+    if (mood.tint != null) this.add.rectangle(0, 0, W, H, mood.tint, mood.alpha).setOrigin(0).setScrollFactor(0).setDepth(79);
+    if (mood.rain) this.add.particles(0, 0, 'rain', { x: { min: -120, max: W + 260 }, y: -30, lifespan: { min: 650, max: 950 }, speedY: { min: 950, max: 1250 }, speedX: { min: -230, max: -170 }, rotate: 11, alpha: { start: 0.6, end: 0.15 }, quantity: 3, frequency: 18 }).setScrollFactor(0).setDepth(27);
     this.add.image(0, 0, 'vignette').setOrigin(0).setScrollFactor(0).setDepth(80).setDisplaySize(W, H);
     this.flashRect = this.add.rectangle(0, 0, W, H, 0xffffff).setOrigin(0).setScrollFactor(0).setDepth(90).setAlpha(0);
 
